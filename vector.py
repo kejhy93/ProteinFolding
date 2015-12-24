@@ -2,7 +2,7 @@
 
 from collections import *
 # import matplotlib.pyplot as plt
-
+import random
 from copy import deepcopy
 
 from sequance_optimization import optimize_sequance
@@ -22,8 +22,10 @@ class Vector:
 		self.sequance = protein_sequance
 
 		self.configuration = []
-		for i in range(len(self.sequance)-1):
-			self.configuration.append ( complex (0,1))
+		# for i in range(len(self.sequance)-1):
+		# 	self.configuration.append ( complex (0,1))
+
+		self.generate_random()
 
 		self.free_energy = -1
 		self.space_configuration = []
@@ -168,6 +170,61 @@ class Vector:
 
 	def set_configuration ( self, new_config ):
 		self.configuration = deepcopy ( new_config )
+
+	def generate_random ( self ):
+		for i in range(len(self.sequance)-1):
+			self.configuration.append(complex(1,0))
+
+		RIGHT=True
+		UP=False
+		DOWN=False
+
+		for config in self.configuration:
+			if RIGHT:
+				change_of_direction = random.random()
+				if change_of_direction < 0.3:
+					direction = random.random()
+					if direction < 0.5:
+						config = complex(0,1)
+						RIGHT = False
+						UP = True
+					else:
+						config = complex(0,-1)
+						RIGHT = False
+						DOWN = True
+				else:
+					config = complex(1,0)
+					RIGHT = True
+					UP = False
+					DOWN = False
+
+			elif UP:
+				change_of_direction = random.random()
+				if change_of_direction < 0.3:
+					config = complex(1,0)
+					RIGHT = True
+					UP = False
+					DOWN = False
+				else:
+					config = complex(0,1)
+					UP = True
+					DOWN = False
+					RIGHT = False
+			elif DOWN:
+				change_of_direction = random.random()
+				if change_of_direction < 0.3:
+					config=complex(1,0)
+					RIGHT = True
+					DOWN = False
+					UP = False
+				else:
+					config = complex(0,-1)
+					UP = True
+					DOWN = False
+					RIGHT = False
+
+
+
 
 	def plot_config( self ):
 		"""
