@@ -179,46 +179,50 @@ class Vector:
 		UP=False
 		DOWN=False
 
-		for config in self.configuration:
+		CHANGE_DIRECTION_PROBABILITY = 0.7
+
+		for config in range(len(self.configuration)):
 			if RIGHT:
 				change_of_direction = random.random()
-				if change_of_direction < 0.3:
+				print(change_of_direction)
+				if change_of_direction < CHANGE_DIRECTION_PROBABILITY:
 					direction = random.random()
+					print("Change")
 					if direction < 0.5:
-						config = complex(0,1)
+						self.configuration[config] = complex(0,1)
 						RIGHT = False
 						UP = True
 					else:
-						config = complex(0,-1)
+						self.configuration[config] = complex(0,-1)
 						RIGHT = False
 						DOWN = True
 				else:
-					config = complex(1,0)
+					self.configuration[config] = complex(1,0)
 					RIGHT = True
 					UP = False
 					DOWN = False
 
 			elif UP:
 				change_of_direction = random.random()
-				if change_of_direction < 0.3:
-					config = complex(1,0)
+				if change_of_direction < CHANGE_DIRECTION_PROBABILITY:
+					self.configuration[config] = complex(1,0)
 					RIGHT = True
 					UP = False
 					DOWN = False
 				else:
-					config = complex(0,1)
+					self.configuration[config] = complex(0,1)
 					UP = True
 					DOWN = False
 					RIGHT = False
 			elif DOWN:
 				change_of_direction = random.random()
-				if change_of_direction < 0.3:
-					config=complex(1,0)
+				if change_of_direction < CHANGE_DIRECTION_PROBABILITY:
+					self.configuration[config]=complex(1,0)
 					RIGHT = True
 					DOWN = False
 					UP = False
 				else:
-					config = complex(0,-1)
+					self.configuration[config] = complex(0,-1)
 					UP = True
 					DOWN = False
 					RIGHT = False
