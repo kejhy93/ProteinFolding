@@ -14,7 +14,7 @@ NOT_VALID_CONFIGURATION = False
 VALID_CONFIGURATION = True
 
 # MUTATION
-MUTATION_TYPE=0.5
+MUTATION_TYPE=(2/3)
 
 # HILL CLIMBING
 HILL_CLIMBING_COUNT_OF_NEIGHOUR = 4
@@ -96,8 +96,7 @@ class GeneticsAlgorithm ( AbstractSolver ):
 			iterationStr += "Energy of best individual: {:10.3f}, Average fitness: {:10.3f}".format(energy_of_best_individual_of_population, average_fitness)
 			# Print best individual
 			if self.verboseGeneticsSolver:
-				if iteration%25 == 0:
-					print ( iterationStr )
+				print ( iterationStr )
 				# 	best_individual_of_population.get_individual().plot_config()
 
 		return best_individual_of_population.get_individual()
@@ -131,9 +130,17 @@ class GeneticsAlgorithm ( AbstractSolver ):
 			# Get new solution by mutation
 			new_solution = None
 			if temperature < (MUTATION_TYPE)*INITAL_TEMPERATE:
-				new_solution = self.mutate_one_point(current_solution)
+				random_choice = random.random()
+				if random_choice < 0.5:
+					new_solution = self.mutate_from_point(current_solution)
+				else:
+					new_solution = self.mutate_from_to_point ( current_solution )
 			else:
-				new_solution = self.mutate_from_point(current_solution)
+				random_choice = random.random()
+				if random_choice < 0.5:
+					new_solution = self.mutate_one_point(current_solution)
+				else:
+					new_solution = self.mutate_from_to_point ( current_solution )
 
 			# Compute energy of both solutions
 			energy_of_current_solution = current_solution.get_free_energy()
@@ -174,6 +181,9 @@ class GeneticsAlgorithm ( AbstractSolver ):
 
 		Return mutated population
 		"""
+		if self.verboseGeneticsSolver:
+			print("GeneticsAlgorithm -> Mutation")
+
 		for i in range(self.COUNT_OF_MUTATION_PER_GENERATION):
 			# Pick two random individuals
 			first_individual, first_index = population.pick_random_individual()			
@@ -183,17 +193,17 @@ class GeneticsAlgorithm ( AbstractSolver ):
 			random_choice = random.random()
 
 			mutated_first_individual = None
-			if iteration < (MUTATION_TYPE ) *self.MAX_GENERATION:
-				if random_choice < 0.5:
-					mutated_first_individual = self.mutate_one_point ( first_individual )
-				else:
-					mutated_first_individual = self.mutate_from_to_point ( first_individual )
-			else:
+			if iteration < (MUTATION_TYPE)*self.MAX_GENERATION:
 				if random_choice < 0.5:
 					mutated_first_individual = self.mutate_from_point ( first_individual )
 				else:
 					mutated_first_individual = self.mutate_from_to_point ( first_individual )
-					
+			else:
+				if random_choice < 0.5:
+					mutated_first_individual = self.mutate_one_point ( first_individual )
+				else:
+					mutated_first_individual = self.mutate_from_to_point ( first_individual )
+
 
 			# Compute free energy of mutated individuals
 			energy_of_first_mutate_individual = mutated_first_individual.compute_free_energy ()
@@ -266,7 +276,7 @@ class GeneticsAlgorithm ( AbstractSolver ):
 		return mutated individual
 		"""
 		# if self.verboseGeneticsSolver:
-		# 	print ( "GeneticsAlgorithm -> mutate_from_point")
+		# 	print ( "GeneticsAlgorithm -> mutate_from_to_point")
 
 		mutate_individual = deepcopy ( individual )
 
@@ -275,7 +285,7 @@ class GeneticsAlgorithm ( AbstractSolver ):
 		mutate_config = mutate_vector.get_configuration()
 
 		from_index = random.randint(0,len(mutate_config)-1)
-		to_index = random.randint(to_index+1,len(mutate_config)-1)
+		to_index = random.randint(from_index,len(mutate_config)-1)
 
 		for config_index in range ( from_index, to_index ):
 			mutate_config[config_index] *= complex(0,1)

@@ -116,7 +116,7 @@ if __name__ == "__main__":
 	TEST_FILE = parse ( PATH_TO_TEST_FILE )
 	# TEST_FILE_LITTLE = [ TEST_FILE[104] ]
 
-	TEST_FILE = sort ( TEST_FILE, INCREASE )
+	TEST_FILE = sort ( TEST_FILE, DECREASE )
 
 	start_millis = int(round(time.time() * 1000))
 	total_score = 0
