@@ -13,6 +13,9 @@ from individual import Individual
 NOT_VALID_CONFIGURATION = False
 VALID_CONFIGURATION = True
 
+# MUTATION
+MUTATION_TYPE=0.5
+
 # HILL CLIMBING
 HILL_CLIMBING_COUNT_OF_NEIGHOUR = 4
 HILL_CLIMBING_COUNT_OF_ITERATION = 2
@@ -71,7 +74,7 @@ class GeneticsAlgorithm ( AbstractSolver ):
 			iterationStr = "Iteration: " + str ( iteration ) + "\n"
 
 			# MUTATION
-			population = self.do_mutation( population )
+			population = self.do_mutation( population, iteration )
 
 			# CROSS-OVER
 			population = self.do_crossover ( population )
@@ -114,8 +117,8 @@ class GeneticsAlgorithm ( AbstractSolver ):
 
 	# SIMULATED ANNEALING
 	def do_simulated_annealing ( self, population ):
-		# if self.verboseGeneticsSolver:
-		# 	print ( "GeneticsAlgorithm -> Simulated Annealing" )
+		if self.verboseGeneticsSolver:
+			print ( "GeneticsAlgorithm -> Simulated Annealing" )
 		temperature = INITAL_TEMPERATE
 
 		# Get current solution from population
@@ -126,7 +129,11 @@ class GeneticsAlgorithm ( AbstractSolver ):
 			current_solution = population.get_individual_at(index)
 
 			# Get new solution by mutation
-			new_solution = self.mutate(current_solution)
+			new_solution = None
+			if temperature < (MUTATION_TYPE)*INITAL_TEMPERATE:
+				new_solution = self.mutate_one_point(current_solution)
+			else:
+				new_solution = self.mutate_from_point(current_solution)
 
 			# Compute energy of both solutions
 			energy_of_current_solution = current_solution.get_free_energy()
@@ -161,7 +168,7 @@ class GeneticsAlgorithm ( AbstractSolver ):
 		return individual
 
 	# MUTATION
-	def do_mutation ( self, population ):
+	def do_mutation ( self, population, iteration ):
 		"""
 		Main method for mutation
 
@@ -169,15 +176,17 @@ class GeneticsAlgorithm ( AbstractSolver ):
 		"""
 		for i in range(self.COUNT_OF_MUTATION_PER_GENERATION):
 			# Pick two random individuals
-			first_individual, first_index = population.pick_random_individual()
-			second_individual, second_index = population.pick_random_individual()
-
-			while second_index == first_index:
-				second_individual, second_index = population.pick_random_individual()				
+			first_individual, first_index = population.pick_random_individual()			
 
 			# Mutate two random individuals
 			# mutated_first_individual = self.hill_climbing ( first_individual, HILL_CLIMBING_COUNT_OF_NEIGHOUR, HILL_CLIMBING_COUNT_OF_ITERATION )
-			mutated_first_individual = self.mutate ( first_individual )
+			random_choice = random.random()
+
+			mutated_first_individual = None
+			if iteration < (MUTATION_TYPE ) *self.MAX_GENERATION:
+				mutated_first_individual = self.mutate_one_point ( first_individual )
+			else:
+				mutated_first_individual = self.mutate_from_point ( first_individual )
 
 			# Compute free energy of mutated individuals
 			energy_of_first_mutate_individual = mutated_first_individual.compute_free_energy ()
@@ -194,14 +203,14 @@ class GeneticsAlgorithm ( AbstractSolver ):
 
 		return population
 
-	def mutate ( self, individual ):
+	def mutate_one_point ( self, individual ):
 		"""
 		Mutate individual with MUTATE_RATE
 
 		return mutated individual
 		"""
 		# if self.verboseGeneticsSolver:
-		# 	print ( "GeneticsAlgorithm -> mutate")
+		# 	print ( "GeneticsAlgorithm -> mutate_one_point")
 
 		mutate_individual = deepcopy ( individual )
 
@@ -215,11 +224,29 @@ class GeneticsAlgorithm ( AbstractSolver ):
 			if random_number < self.MUTATE_RATE:
 				mutate_config[config_index] *= complex(0,1)
 
-		# for config in mutate_config:
-		# 	random_number = random.random()
+		mutate_vector . set_configuration ( mutate_config )
+		mutate_individual . set_individual ( mutate_vector )
 
-		# 	if random_number < MUTATE_RATE:
-		# 		config *= complex(0,1)
+		return mutate_individual
+	def mutate_from_point ( self, individual ):
+		"""
+		Mutate individual with MUTATE_RATE
+
+		return mutated individual
+		"""
+		# if self.verboseGeneticsSolver:
+		# 	print ( "GeneticsAlgorithm -> mutate_from_point")
+
+		mutate_individual = deepcopy ( individual )
+
+		mutate_vector = mutate_individual.get_individual ()
+
+		mutate_config = mutate_vector.get_configuration()
+
+		from_index = random.randint(0,len(mutate_config)-1)
+
+		for config_index in range ( from_index, len(mutate_config) ):
+			mutate_config[config_index] *= complex(0,1)
 
 		mutate_vector . set_configuration ( mutate_config )
 		mutate_individual . set_individual ( mutate_vector )
@@ -240,7 +267,7 @@ class GeneticsAlgorithm ( AbstractSolver ):
 		best_score = init_score
 
 		for i in range ( count_of_neighbor ):
-			indi = self.mutate ( individual )
+			indi = self.do_mutation ( individual, iteration )
 			score = indi.compute_free_energy()
 
 			if score < best_score:

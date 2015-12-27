@@ -5,6 +5,8 @@ import matplotlib.pyplot as plt
 
 import random
 from copy import deepcopy
+	
+import numpy
 
 from sequance_optimization import optimize_sequance
 
@@ -262,8 +264,9 @@ class Vector:
 			list_of_imag.append ( space_config_item.imag )
 
 
-		plt.figure()
+		fig = plt.figure()
 
+		ax = fig.gca()
 		plt.plot ( list_of_real, list_of_imag )
 
 		for index_of_amino in range(len(self.sequance)):
@@ -274,4 +277,10 @@ class Vector:
 
 
 		plt.axis([min_x-1,max_x+1, min_y-1, max_y+1])
+
+		ax.set_xticks(numpy.arange(min_x-1,max_x+1,1))
+		ax.set_yticks(numpy.arange(min_y-1,max_y+1,1))
+		
+		plt.grid()
+
 		plt.show()
