@@ -184,9 +184,16 @@ class GeneticsAlgorithm ( AbstractSolver ):
 
 			mutated_first_individual = None
 			if iteration < (MUTATION_TYPE ) *self.MAX_GENERATION:
-				mutated_first_individual = self.mutate_one_point ( first_individual )
+				if random_choice < 0.5:
+					mutated_first_individual = self.mutate_one_point ( first_individual )
+				else:
+					mutated_first_individual = self.mutate_from_to_point ( first_individual )
 			else:
-				mutated_first_individual = self.mutate_from_point ( first_individual )
+				if random_choice < 0.5:
+					mutated_first_individual = self.mutate_from_point ( first_individual )
+				else:
+					mutated_first_individual = self.mutate_from_to_point ( first_individual )
+					
 
 			# Compute free energy of mutated individuals
 			energy_of_first_mutate_individual = mutated_first_individual.compute_free_energy ()
@@ -246,6 +253,31 @@ class GeneticsAlgorithm ( AbstractSolver ):
 		from_index = random.randint(0,len(mutate_config)-1)
 
 		for config_index in range ( from_index, len(mutate_config) ):
+			mutate_config[config_index] *= complex(0,1)
+
+		mutate_vector . set_configuration ( mutate_config )
+		mutate_individual . set_individual ( mutate_vector )
+
+		return mutate_individual
+	def mutate_from_to_point ( self, individual ):
+		"""
+		Mutate individual with MUTATE_RATE
+
+		return mutated individual
+		"""
+		# if self.verboseGeneticsSolver:
+		# 	print ( "GeneticsAlgorithm -> mutate_from_point")
+
+		mutate_individual = deepcopy ( individual )
+
+		mutate_vector = mutate_individual.get_individual ()
+
+		mutate_config = mutate_vector.get_configuration()
+
+		from_index = random.randint(0,len(mutate_config)-1)
+		to_index = random.randint(to_index+1,len(mutate_config)-1)
+
+		for config_index in range ( from_index, to_index ):
 			mutate_config[config_index] *= complex(0,1)
 
 		mutate_vector . set_configuration ( mutate_config )
