@@ -1,7 +1,8 @@
 #! /usr/bin/python3
 
 from collections import *
-# import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
+
 import random
 from copy import deepcopy
 
@@ -172,6 +173,9 @@ class Vector:
 		self.configuration = deepcopy ( new_config )
 
 	def generate_random ( self ):
+		"""
+		Generate random valid sequance
+		"""
 		for i in range(len(self.sequance)-1):
 			self.configuration.append(complex(1,0))
 
@@ -179,25 +183,27 @@ class Vector:
 		UP=False
 		DOWN=False
 
+		RIGHT_MOVE = complex ( 1, 0)
+		DOWN_MOVE = complex ( 0, 1)
+		UP_MOVE = complex ( 0, -1)
+
 		CHANGE_DIRECTION_PROBABILITY = 0.7
 
 		for config in range(len(self.configuration)):
 			if RIGHT:
 				change_of_direction = random.random()
-				print(change_of_direction)
 				if change_of_direction < CHANGE_DIRECTION_PROBABILITY:
 					direction = random.random()
-					print("Change")
 					if direction < 0.5:
-						self.configuration[config] = complex(0,1)
+						self.configuration[config] = UP_MOVE
 						RIGHT = False
 						UP = True
 					else:
-						self.configuration[config] = complex(0,-1)
+						self.configuration[config] = DOWN_MOVE
 						RIGHT = False
 						DOWN = True
 				else:
-					self.configuration[config] = complex(1,0)
+					self.configuration[config] = RIGHT_MOVE
 					RIGHT = True
 					UP = False
 					DOWN = False
@@ -205,30 +211,27 @@ class Vector:
 			elif UP:
 				change_of_direction = random.random()
 				if change_of_direction < CHANGE_DIRECTION_PROBABILITY:
-					self.configuration[config] = complex(1,0)
+					self.configuration[config] = RIGHT_MOVE
 					RIGHT = True
 					UP = False
 					DOWN = False
 				else:
-					self.configuration[config] = complex(0,1)
+					self.configuration[config] = UP_MOVE
 					UP = True
 					DOWN = False
 					RIGHT = False
 			elif DOWN:
 				change_of_direction = random.random()
 				if change_of_direction < CHANGE_DIRECTION_PROBABILITY:
-					self.configuration[config]=complex(1,0)
+					self.configuration[config]=RIGHT_MOVE
 					RIGHT = True
 					DOWN = False
 					UP = False
 				else:
-					self.configuration[config] = complex(0,-1)
-					UP = True
-					DOWN = False
+					self.configuration[config] = DOWN_MOVE
+					UP = False
+					DOWN = True
 					RIGHT = False
-
-
-
 
 	def plot_config( self ):
 		"""

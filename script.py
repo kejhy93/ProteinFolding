@@ -55,7 +55,7 @@ def parse ( PATH ):
 	for line in parsed_content:
 		parsed_line = []
 		for number in line:
-			parsed_line . append ( zero_or_one ( number ) )
+			parsed_line . append ( int(number ) )
 
 		data = Data ( parsed_line, counter )
 		test_set.append ( data )
@@ -116,7 +116,7 @@ if __name__ == "__main__":
 	TEST_FILE = parse ( PATH_TO_TEST_FILE )
 	# TEST_FILE_LITTLE = [ TEST_FILE[104] ]
 
-	TEST_FILE = sort ( TEST_FILE, INCREASE )
+	TEST_FILE = sort ( TEST_FILE, DECREASE )
 
 	start_millis = int(round(time.time() * 1000))
 	total_score = 0
@@ -155,14 +155,14 @@ if __name__ == "__main__":
 		print ( "Free energy: ", free_energy)
 
 		append_to_file ( minimal_configuration, free_energy, protein.get_counter() )
-		# minimal_configuration.plot_config()
+		minimal_configuration.plot_config()
 
 		counter += 1
 
 
 	end_millis = int(round(time.time() * 1000))
 
-	print ("Total score: ", total_score)
+	print ("Total score: ", total_score/len(TEST_FILE))
 	print ("Total time: ", ((end_millis-start_millis)/1000)/60)
 
 	print("Final Result: ", total_score+math.exp(((end_millis-start_millis)/1000)/60))

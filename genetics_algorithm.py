@@ -23,6 +23,9 @@ SIMULATED_ANNEALING_COOLING_RATE = 0.85
 INITAL_TEMPERATE=10000
 MIN_TEMPERATURE = 1
 
+# ANT-COLONY OPTIMISATION
+COUNT_OF_ANTS = 5
+
 class GeneticsAlgorithm ( AbstractSolver ):
 	def __init__ ( self, sequance, MAX_GENERATION, POPULATION_SIZE, 
 		COUNT_OF_MUTATION_PER_GENERATION, COUNT_OF_CROSSOVER_PER_GENERATION, 
@@ -96,9 +99,23 @@ class GeneticsAlgorithm ( AbstractSolver ):
 
 		return best_individual_of_population.get_individual()
 
+
+	def ant_colony ( self, population ):
+		"""
+		Ant colony optimisation
+		"""
+
+		COUNT_OF_ANTS = 5
+		ant_colony = []
+		for ant_number in range(COUNT_OF_ANTS):
+			ant_colony.append ( Ant(ant_number) )
+
+		return population
+
+	# SIMULATED ANNEALING
 	def do_simulated_annealing ( self, population ):
-		if self.verboseGeneticsSolver:
-			print ( "GeneticsAlgorithm -> Simulated Annealing" )
+		# if self.verboseGeneticsSolver:
+		# 	print ( "GeneticsAlgorithm -> Simulated Annealing" )
 		temperature = INITAL_TEMPERATE
 
 		# Get current solution from population
@@ -143,6 +160,7 @@ class GeneticsAlgorithm ( AbstractSolver ):
 
 		return individual
 
+	# MUTATION
 	def do_mutation ( self, population ):
 		"""
 		Main method for mutation
@@ -208,6 +226,7 @@ class GeneticsAlgorithm ( AbstractSolver ):
 
 		return mutate_individual
 
+	# Hill-Climbing
 	def hill_climbing ( self, individual, count_of_neighbor, iteration ):
 		"""
 		Recursive hill climbing 
@@ -234,7 +253,7 @@ class GeneticsAlgorithm ( AbstractSolver ):
 			new_iter = iteration - 1
 			return self.hill_climbing(individual, count_of_neighbor , new_iter)
 
-
+	# CROSSOVER
 	def do_crossover ( self, population ):
 		"""
 		Main method for crossover
