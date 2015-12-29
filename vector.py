@@ -30,8 +30,10 @@ class Vector:
 
 		self.generate_random()
 
-		self.free_energy = -1
+		self.free_energy = None
 		self.space_configuration = []
+
+		self.space_configuration_counter = Counter()
 
 	def __str__ ( self ):
 		res = ""
@@ -50,6 +52,29 @@ class Vector:
 
 		return res
 
+	def clean_configuration ( self ):
+		self.configuration = []
+
+	def update_space_configuration_counter ( self, direction ):
+		self.space_configuration = self.compute_space_configuration()
+
+		self.space_configuration_counter = Counter ( self.space_configuration )
+
+	def check_space_configuration_counter ( self, direction, index ):
+		self.space_configuration = self.compute_space_configuration_to_index(index)
+		print( "Space configuration: ",self.space_configuration)
+
+		new_space_config = self.space_configuration[-1]+direction
+		self.space_configuration_counter = Counter(self.space_configuration)
+
+		print(self.space_configuration_counter)
+		print(new_space_config)
+		print( " ================================== ")
+		if self.space_configuration_counter[new_space_config] == 0:
+			return True
+		else:
+			return False
+
 	def print_config ( self, config ):
 		if config == complex(1,0):
 			return "1"
@@ -62,9 +87,9 @@ class Vector:
 
 		return ""
 
-	def compute_space_configuration ( self ):
+	def compute_space_configuration ( self, index=None ):
 		"""
-		Compute space configuration of sequance
+		Compute space configuration of sequance up to index or to the end
 		"""
 		# Init array with space configuration
 		self.space_configuration = []
@@ -72,7 +97,12 @@ class Vector:
 
 		sum_of_space_config = complex ( 0, 0)
 
-		for index in range(0,len(self.configuration)):
+		if index:
+			final_index = index
+		else:
+			final_index = len(self.configuration)
+
+		for index in range(0,final_index):
 			real = sum_of_space_config.real + self.configuration[index].real
 			imag = sum_of_space_config.imag + self.configuration[index].imag
 
@@ -82,7 +112,39 @@ class Vector:
 
 		if self.verbose:
 			print ( "Space configuration: ", self.space_configuration )
+
+
+		self.space_configuration_counter = Counter ( self.space_configuration )
+
 		return self.space_configuration
+
+	def compute_free_energy ( self, index=None ):
+		"""
+		Compute free energy of configuration up to index
+		"""
+		free_energy = 0
+		self.compute_space_configuration ( index )
+
+		final_index = None
+		if not index:
+			final_index = len(self.sequance)
+		else:
+			final_index = index
+
+		# Iterate all amino
+		for index_of_config in range ( final_index ):
+			# Check if amino is hydropohoboli ( free energy is depedent on it )
+			if self.sequance[index_of_config] == HYDROPHOBILIC:
+				# Iterate amino to end of protein
+				for rest_of_amino_index in range ( index_of_config+1, final_index):
+					# Check if amino is hydropohoboli ( free energy is depedent on it )
+					if self.sequance[rest_of_amino_index] == HYDROPHOBILIC:
+						# Add to free energy ( absolute value of two complex numbers)
+						free_energy += self.length_between_amino ( self.space_configuration[index_of_config], self.space_configuration[rest_of_amino_index])
+
+		if self.verbose:
+			print ("Free energy: ", free_energy)
+		return free_energy
 
 	def check_valid_of_configuration ( self ):
 		"""
@@ -121,29 +183,14 @@ class Vector:
 
 		return VALID_CONFIGURATION
 
-	def compute_free_energy ( self ):
-		"""
-		Compute free energy
-		"""
-		free_energy = 0
-		# Get space configuration
-		self.compute_space_configuration()
+	def set_configuration_at_index ( self, index, direction ):
+		if index >= len(self.configuration):
+			self.configuration.append(direction)
+		else:
+			self.configuration[index] = direction
 
-		# Iterate all amino
-		for index in range ( len(self.sequance)):
-			# Check if amino is hydropohoboli ( free energy is depedent on it )
-			if self.sequance[index] == HYDROPHOBILIC:
-				# Iterate amino to end of protein
-				for rest_of_amino_index in range ( index+1, len(self.sequance)):
-					# Check if amino is hydropohoboli ( free energy is depedent on it )
-					if self.sequance[rest_of_amino_index] == HYDROPHOBILIC:
-						# Add to free energy ( absolute value of two complex numbers)
-						free_energy += self.length_between_amino ( self.space_configuration[index], self.space_configuration[rest_of_amino_index])
-
-		if self.verbose:
-			print ("Free energy: ", free_energy)
-
-		return free_energy
+	def get_configuration_at_index ( self, index ):
+		return self.configuration[index]
 
 	def multiply_configuration ( self, direction, index=0 ):
 		"""
@@ -170,6 +217,15 @@ class Vector:
 
 	def get_configuration ( self ):
 		return self.configuration
+
+	def get_count_of_hydro ( self ):
+		count = 0
+
+		for amino in self.sequance:
+			if amino == HYDROPHOBILIC:
+				count += 1
+
+		return count
 
 	def set_configuration ( self, new_config ):
 		self.configuration = deepcopy ( new_config )
@@ -235,7 +291,7 @@ class Vector:
 					DOWN = True
 					RIGHT = False
 
-	def plot_config( self ):
+	def plot_config ( self, index=None ):
 		"""
 		Plot configuration of vector
 		"""
@@ -247,18 +303,10 @@ class Vector:
 		min_x, min_y = -1, -1
 		max_x, max_y = 1, 1
 
+		self.compute_space_configuration(index)
+
 		# Init list of all points
 		for space_config_item in self.space_configuration:
-
-			if min_x > space_config_item.real:
-				min_x = space_config_item.real
-			elif max_x < space_config_item.real:
-				max_x = space_config_item.real
-
-			if min_y > space_config_item.imag:
-				min_y = space_config_item.imag
-			elif max_y < space_config_item.imag:
-				max_y = space_config_item.imag
 
 			list_of_real.append ( space_config_item.real )
 			list_of_imag.append ( space_config_item.imag )
@@ -269,18 +317,57 @@ class Vector:
 		ax = fig.gca()
 		plt.plot ( list_of_real, list_of_imag )
 
-		for index_of_amino in range(len(self.sequance)):
+		if index:
+			final_index = index+1
+		else:
+			final_index = len(self.sequance)
+
+		for index_of_amino in range(final_index):
 			if self.sequance[index_of_amino] == HYDROPHOBILIC:
 				plt.scatter ( list_of_real[index_of_amino], list_of_imag[index_of_amino], marker="o", color="red")
 			else:
 				plt.scatter ( list_of_real[index_of_amino], list_of_imag[index_of_amino], marker="o",color="blue")
 
+		axis = self.get_axis()
+		plt.axis(axis)
 
-		plt.axis([min_x-1,max_x+1, min_y-1, max_y+1])
-
-		ax.set_xticks(numpy.arange(min_x-1,max_x+1,1))
-		ax.set_yticks(numpy.arange(min_y-1,max_y+1,1))
+		ax.set_xticks(numpy.arange(axis[0],axis[1],1))
+		ax.set_yticks(numpy.arange(axis[2],axis[3],1))
 		
 		plt.grid()
 
 		plt.show()
+
+	def get_axis ( self ):
+		min_x, min_y = -1, -1
+		max_x, max_y = 1, 1
+		for space_config_item in self.space_configuration:
+			if min_x > space_config_item.real:
+				min_x = space_config_item.real
+			elif max_x < space_config_item.real:
+				max_x = space_config_item.real
+
+			if min_y > space_config_item.imag:
+				min_y = space_config_item.imag
+			elif max_y < space_config_item.imag:
+				max_y = space_config_item.imag
+
+		return min_x-1, max_x+1, min_y-1, max_y+1
+
+if __name__ == "__main__":
+	vector = Vector ( [ 1, 1, 1, 1, 1, 1, 1, 1 ] )
+
+	for index_of_config in range(len(vector.get_amino_sequance())-1):
+		print("Index: ", index_of_config )
+
+		vector.set_configuration_at_index ( index_of_config, complex(0,1) )
+
+		print(vector.compute_free_energy(index_of_config+1))
+		vector.plot_config(index_of_config)
+		print ( " ============ ")
+
+	print("Space configuration: ", vector.compute_space_configuration() )
+
+	print("Free energy: ", vector.compute_free_energy() )
+	print(vector)
+	vector.plot_config()

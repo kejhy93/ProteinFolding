@@ -9,21 +9,23 @@ from abstract_solver import AbstractSolver
 from population import Population
 from individual import Individual
 
+from ant_colony import AntColony
 
 NOT_VALID_CONFIGURATION = False
 VALID_CONFIGURATION = True
 
 # MUTATION
-MUTATION_TYPE=(2/3)
+MUTATION_TYPE=(1/3)
 
 # HILL CLIMBING
-HILL_CLIMBING_COUNT_OF_NEIGHOUR = 4
-HILL_CLIMBING_COUNT_OF_ITERATION = 2
+COUNT_OF_HILL_CLIMBING = 25
+HILL_CLIMBING_COUNT_OF_NEIGHOUR = 12
+HILL_CLIMBING_COUNT_OF_ITERATION = 12
 
 # SIMULATED ANNEALING
-COUNT_OF_SIMULATED_ANNEALING = 25
-SIMULATED_ANNEALING_COOLING_RATE = 0.85
-INITAL_TEMPERATE=10000
+COUNT_OF_SIMULATED_ANNEALING = 5
+SIMULATED_ANNEALING_COOLING_RATE = 0.95
+INITAL_TEMPERATURE=10000
 MIN_TEMPERATURE = 1
 
 # ANT-COLONY OPTIMISATION
@@ -37,6 +39,7 @@ class GeneticsAlgorithm ( AbstractSolver ):
 		self.MAX_GENERATION = MAX_GENERATION
 		self.POPULATION_SIZE = POPULATION_SIZE
 
+		self.FREQUANCY_OF_HILL_CLIMBING = (int)(MAX_GENERATION/COUNT_OF_HILL_CLIMBING)
 		self.FREQUANCY_OF_SIMULATED_ANNEALING= (int)(MAX_GENERATION/COUNT_OF_SIMULATED_ANNEALING)
 
 		self.MUTATE_RATE = MUTATE_RATE
@@ -79,9 +82,16 @@ class GeneticsAlgorithm ( AbstractSolver ):
 			# CROSS-OVER
 			population = self.do_crossover ( population )
 
+			# HILL-CLIMBING
+			# if iteration%self.FREQUANCY_OF_HILL_CLIMBING == 0:
+			# 	population = self.do_hill_climbing ( population )
+
 			# SIMULATED ANNEALING
-			if iteration%self.FREQUANCY_OF_SIMULATED_ANNEALING == 0:
-				population = self.do_simulated_annealing ( population )
+			# if iteration%self.FREQUANCY_OF_SIMULATED_ANNEALING == 0:
+			# 	population = self.do_simulated_annealing ( population )
+
+			# ANT-COLONY
+			# population = self.do_ant_colony( population )
 
 			# Pick best individual from population and compare with best individual found
 			best_individual_of_iteration,average_fitness = population.pick_best_individual ()
@@ -102,23 +112,43 @@ class GeneticsAlgorithm ( AbstractSolver ):
 		return best_individual_of_population.get_individual()
 
 
-	def ant_colony ( self, population ):
+	def do_ant_colony ( self, population ):
 		"""
 		Ant colony optimisation
 		"""
+		if self.verboseGeneticsSolver:
+			print ("GeneticsAlgorithm -> Ant-Colony")
 
-		COUNT_OF_ANTS = 5
-		ant_colony = []
-		for ant_number in range(COUNT_OF_ANTS):
-			ant_colony.append ( Ant(ant_number) )
+		ant_colony = AntColony ( COUNT_OF_ANTS, self.sequance  )
+
+		new_individuals = ant_colony.search ()
+
+		if new_individuals:
+			population = self.replace_worst_individuals ( new_individuals, COUNT_OF_ANTS, population )
+
+		return population
+
+	def replace_worst_individuals ( self, list_of_of_new_individuals, count_of_new, population ):
+		"""
+		Find n individuals with highest score and replace them with new individuals
+		"""
+		indexes_of_worst_individuals = population.find_worst_individuals ( count_of_new )
+
+		for index in range(len(indexes_of_worst_individuals)):
+			population.set_individual_at(indexes_of_worst_individuals[index],list_of_of_new_individuals[index] )
+			
 
 		return population
 
 	# SIMULATED ANNEALING
 	def do_simulated_annealing ( self, population ):
+		"""
+		Main method for simulated annealing
+		"""
 		if self.verboseGeneticsSolver:
 			print ( "GeneticsAlgorithm -> Simulated Annealing" )
-		temperature = INITAL_TEMPERATE
+
+		temperature = INITAL_TEMPERATURE
 
 		# Get current solution from population
 		current_solution,index = population.pick_random_individual()
@@ -129,7 +159,7 @@ class GeneticsAlgorithm ( AbstractSolver ):
 
 			# Get new solution by mutation
 			new_solution = None
-			if temperature < (MUTATION_TYPE)*INITAL_TEMPERATE:
+			if temperature < (MUTATION_TYPE)*INITAL_TEMPERATURE:
 				random_choice = random.random()
 				if random_choice < 0.5:
 					new_solution = self.mutate_from_point(current_solution)
@@ -203,7 +233,6 @@ class GeneticsAlgorithm ( AbstractSolver ):
 					mutated_first_individual = self.mutate_one_point ( first_individual )
 				else:
 					mutated_first_individual = self.mutate_from_to_point ( first_individual )
-
 
 			# Compute free energy of mutated individuals
 			energy_of_first_mutate_individual = mutated_first_individual.compute_free_energy ()
@@ -288,28 +317,40 @@ class GeneticsAlgorithm ( AbstractSolver ):
 		to_index = random.randint(from_index,len(mutate_config)-1)
 
 		for config_index in range ( from_index, to_index ):
-			mutate_config[config_index] *= complex(0,1)
+			mutate_config[config_index] *= complex(-1,0)
 
 		mutate_vector . set_configuration ( mutate_config )
 		mutate_individual . set_individual ( mutate_vector )
 
 		return mutate_individual
 
-	# Hill-Climbing
-	def hill_climbing ( self, individual, count_of_neighbor, iteration ):
+	# HILL-CLIMBING
+	def do_hill_climbing ( self, population ):
+		"""
+		Main method for hill-climbing
+		"""
+		if self.verboseGeneticsSolver:
+			print ( "GeneticsAlgorithm -> Hill climbing")
+
+		individual,index = population.pick_random_individual ()
+
+		new_individual = self.hill_climbing ( individual, HILL_CLIMBING_COUNT_OF_ITERATION, HILL_CLIMBING_COUNT_OF_NEIGHOUR )
+
+		population.set_individual_at(index, new_individual)
+
+		return population
+
+	def hill_climbing ( self, individual, iteration, count_of_neighour ):
 		"""
 		Recursive hill climbing 
 		Generate count_of_neighour and pick with lowest energy
 		"""
-		# if self.verboseGeneticsSolver:
-		# 	print ( "Hill climbing")
-
 		best_neighbor = individual
 		init_score = individual.get_free_energy()
 		best_score = init_score
 
-		for i in range ( count_of_neighbor ):
-			indi = self.do_mutation ( individual, iteration )
+		for i in range ( count_of_neighour ):
+			indi = self.mutate_one_point ( individual )
 			score = indi.compute_free_energy()
 
 			if score < best_score:
@@ -320,7 +361,7 @@ class GeneticsAlgorithm ( AbstractSolver ):
 			return best_neighbor
 		else:
 			new_iter = iteration - 1
-			return self.hill_climbing(individual, count_of_neighbor , new_iter)
+			return self.hill_climbing(individual, count_of_neighour , new_iter)
 
 	# CROSSOVER
 	def do_crossover ( self, population ):
