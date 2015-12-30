@@ -116,6 +116,7 @@ class Vector:
 		"""
 		Check if configuration is valid
 		"""
+		self.compute_space_configuration()
 		counter = Counter ( self.space_configuration )
 
 		for key in counter:
@@ -268,7 +269,7 @@ class Vector:
 		else:
 			final_index = len(self.sequance)
 
-		print ( list_of_real, list_of_imag)
+		# print ( list_of_real, list_of_imag)
 
 		for index_of_amino in range(final_index):
 			if self.sequance[index_of_amino] == HYDROPHOBILIC:
@@ -361,7 +362,10 @@ class Vector:
 						free_energy += energy
 		if self.verbose:
 			print ("Free energy: ", free_energy)
-		
+			
+		if free_energy == 0:
+			return 1
+
 		return free_energy
 
 if __name__ == "__main__":

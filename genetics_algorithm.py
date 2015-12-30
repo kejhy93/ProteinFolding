@@ -9,6 +9,7 @@ from abstract_solver import AbstractSolver
 from population import Population
 from individual import Individual
 
+from mutation import do_mutation
 from ant_colony import AntColony
 
 NOT_VALID_CONFIGURATION = False
@@ -29,6 +30,7 @@ INITAL_TEMPERATURE=10000
 MIN_TEMPERATURE = 1
 
 # ANT-COLONY OPTIMISATION
+COUNT_OF_ANT_COLONY = 20
 COUNT_OF_ANTS = 5
 
 class GeneticsAlgorithm ( AbstractSolver ):
@@ -41,6 +43,7 @@ class GeneticsAlgorithm ( AbstractSolver ):
 
 		self.FREQUANCY_OF_HILL_CLIMBING = (int)(MAX_GENERATION/COUNT_OF_HILL_CLIMBING)
 		self.FREQUANCY_OF_SIMULATED_ANNEALING= (int)(MAX_GENERATION/COUNT_OF_SIMULATED_ANNEALING)
+		self.FREQUANCY_OF_ANT_COLONY = (int)(MAX_GENERATION/COUNT_OF_ANT_COLONY)
 
 		self.MUTATE_RATE = MUTATE_RATE
 		self.CROSSOVER_RATE = CROSSOVER_RATE
@@ -77,21 +80,27 @@ class GeneticsAlgorithm ( AbstractSolver ):
 			iterationStr = "Iteration: " + str ( iteration ) + "\n"
 
 			# MUTATION
-			population = self.do_mutation( population, iteration )
+			print ( "GeneticsAlgorithm -> Mutation")
+			for i in range(self.COUNT_OF_MUTATION_PER_GENERATION):
+				parent,index_of_parent = population.pick_random_individual()
+				mutated_individual = do_mutation( parent, self.MUTATE_RATE, iteration, self.MAX_GENERATION )
+
+				population.set_individual_at(index_of_parent, mutated_individual)
 
 			# CROSS-OVER
 			population = self.do_crossover ( population )
 
 			# HILL-CLIMBING
-			if iteration%self.FREQUANCY_OF_HILL_CLIMBING == 0:
-				population = self.do_hill_climbing ( population )
+			# if iteration%self.FREQUANCY_OF_HILL_CLIMBING == 0:
+				# population = self.do_hill_climbing ( population )
 
 			# SIMULATED ANNEALING
-			if iteration%self.FREQUANCY_OF_SIMULATED_ANNEALING == 0:
-				population = self.do_simulated_annealing ( population )
+			# if iteration%self.FREQUANCY_OF_SIMULATED_ANNEALING == 0:
+				# population = self.do_simulated_annealing ( population )
 
 			# ANT-COLONY
-			# population = self.do_ant_colony( population )
+			# if iteration%self.FREQUANCY_OF_ANT_COLONY == 0:
+			population = self.do_ant_colony( population )	
 
 			# Pick best individual from population and compare with best individual found
 			best_individual_of_iteration,average_fitness = population.pick_best_individual ()
@@ -104,6 +113,7 @@ class GeneticsAlgorithm ( AbstractSolver ):
 			# Print best individual
 			if self.verboseGeneticsSolver:
 				print ( iterationStr )
+				# if iteration%25 == 0:
 				# 	best_individual_of_population.get_individual().plot_config()
 
 		return best_individual_of_population.get_individual()
@@ -208,124 +218,124 @@ class GeneticsAlgorithm ( AbstractSolver ):
 		return individual
 
 	# MUTATION
-	def do_mutation ( self, population, iteration ):
-		"""
-		Main method for mutation
+	# def do_mutation ( self, population, iteration ):
+	# 	"""
+	# 	Main method for mutation
 
-		Return mutated population
-		"""
-		if self.verboseGeneticsSolver:
-			print("GeneticsAlgorithm -> Mutation")
+	# 	Return mutated population
+	# 	"""
+	# 	if self.verboseGeneticsSolver:
+	# 		print("GeneticsAlgorithm -> Mutation")
 
-		for i in range(self.COUNT_OF_MUTATION_PER_GENERATION):
-			# Pick two random individuals
-			first_individual, first_index = population.pick_random_individual()			
+	# 	for i in range(self.COUNT_OF_MUTATION_PER_GENERATION):
+	# 		# Pick two random individuals
+	# 		first_individual, first_index = population.pick_random_individual()			
 
-			# Mutate two random individuals
-			# mutated_first_individual = self.hill_climbing ( first_individual, HILL_CLIMBING_COUNT_OF_NEIGHOUR, HILL_CLIMBING_COUNT_OF_ITERATION )
-			random_choice = random.random()
+	# 		# Mutate two random individuals
+	# 		# mutated_first_individual = self.hill_climbing ( first_individual, HILL_CLIMBING_COUNT_OF_NEIGHOUR, HILL_CLIMBING_COUNT_OF_ITERATION )
+	# 		random_choice = random.random()
 
-			mutated_first_individual = None
-			if iteration < (MUTATION_TYPE)*self.MAX_GENERATION:
-				if random_choice < 0.5:
-					mutated_first_individual = self.mutate_from_point ( first_individual )
-				else:
-					mutated_first_individual = self.mutate_from_to_point ( first_individual )
-			else:
-				if random_choice < 0.5:
-					mutated_first_individual = self.mutate_one_point ( first_individual )
-				else:
-					mutated_first_individual = self.mutate_from_to_point ( first_individual )
+	# 		mutated_first_individual = None
+	# 		if iteration < (MUTATION_TYPE)*self.MAX_GENERATION:
+	# 			if random_choice < 0.5:
+	# 				mutated_first_individual = self.mutate_from_point ( first_individual )
+	# 			else:
+	# 				mutated_first_individual = self.mutate_from_to_point ( first_individual )
+	# 		else:
+	# 			if random_choice < 0.5:
+	# 				mutated_first_individual = self.mutate_one_point ( first_individual )
+	# 			else:
+	# 				mutated_first_individual = self.mutate_from_to_point ( first_individual )
 
-			# Compute free energy of mutated individuals
-			energy_of_first_mutate_individual = mutated_first_individual.compute_free_energy ()
+	# 		# Compute free energy of mutated individuals
+	# 		energy_of_first_mutate_individual = mutated_first_individual.compute_free_energy ()
 
-			# Compute free energy of original indivudals
-			energy_of_first_individual = first_individual.compute_free_energy()
+	# 		# Compute free energy of original indivudals
+	# 		energy_of_first_individual = first_individual.compute_free_energy()
 
-			# If free energy of mutated individual is lower then original replace him
-			if energy_of_first_individual > energy_of_first_mutate_individual:
-				if mutated_first_individual.check_valid_configuration():
-					first_individual = deepcopy ( mutated_first_individual )
-					first_individual.compute_free_energy()
-					population.set_individual_at ( first_index, first_individual )
+	# 		# If free energy of mutated individual is lower then original replace him
+	# 		if energy_of_first_individual > energy_of_first_mutate_individual:
+	# 			if mutated_first_individual.check_valid_configuration():
+	# 				first_individual = deepcopy ( mutated_first_individual )
+	# 				first_individual.compute_free_energy()
+	# 				population.set_individual_at ( first_index, first_individual )
 
-		return population
+	# 	return population
 
-	def mutate_one_point ( self, individual ):
-		"""
-		Mutate individual with MUTATE_RATE
+	# def mutate_one_point ( self, individual ):
+	# 	"""
+	# 	Mutate individual with MUTATE_RATE
 
-		return mutated individual
-		"""
-		# if self.verboseGeneticsSolver:
-		# 	print ( "GeneticsAlgorithm -> mutate_one_point")
+	# 	return mutated individual
+	# 	"""
+	# 	# if self.verboseGeneticsSolver:
+	# 	# 	print ( "GeneticsAlgorithm -> mutate_one_point")
 
-		mutate_individual = deepcopy ( individual )
+	# 	mutate_individual = deepcopy ( individual )
 
-		mutate_vector = mutate_individual.get_individual ()
+	# 	mutate_vector = mutate_individual.get_individual ()
 
-		mutate_config = mutate_vector.get_configuration()
+	# 	mutate_config = mutate_vector.get_configuration()
 
-		for config_index in range ( len(mutate_config) ):
-			random_number = random.random()
+	# 	for config_index in range ( len(mutate_config) ):
+	# 		random_number = random.random()
 
-			if random_number < self.MUTATE_RATE:
-				mutate_config[config_index] *= complex(0,1)
+	# 		if random_number < self.MUTATE_RATE:
+	# 			mutate_config[config_index] *= complex(0,1)
 
-		mutate_vector . set_configuration ( mutate_config )
-		mutate_individual . set_individual ( mutate_vector )
+	# 	mutate_vector . set_configuration ( mutate_config )
+	# 	mutate_individual . set_individual ( mutate_vector )
 
-		return mutate_individual
-	def mutate_from_point ( self, individual ):
-		"""
-		Mutate individual with MUTATE_RATE
+	# 	return mutate_individual
+	# def mutate_from_point ( self, individual ):
+	# 	"""
+	# 	Mutate individual with MUTATE_RATE
 
-		return mutated individual
-		"""
-		# if self.verboseGeneticsSolver:
-		# 	print ( "GeneticsAlgorithm -> mutate_from_point")
+	# 	return mutated individual
+	# 	"""
+	# 	# if self.verboseGeneticsSolver:
+	# 	# 	print ( "GeneticsAlgorithm -> mutate_from_point")
 
-		mutate_individual = deepcopy ( individual )
+	# 	mutate_individual = deepcopy ( individual )
 
-		mutate_vector = mutate_individual.get_individual ()
+	# 	mutate_vector = mutate_individual.get_individual ()
 
-		mutate_config = mutate_vector.get_configuration()
+	# 	mutate_config = mutate_vector.get_configuration()
 
-		from_index = random.randint(0,len(mutate_config)-1)
+	# 	from_index = random.randint(0,len(mutate_config)-1)
 
-		for config_index in range ( from_index, len(mutate_config) ):
-			mutate_config[config_index] *= complex(0,1)
+	# 	for config_index in range ( from_index, len(mutate_config) ):
+	# 		mutate_config[config_index] *= complex(0,1)
 
-		mutate_vector . set_configuration ( mutate_config )
-		mutate_individual . set_individual ( mutate_vector )
+	# 	mutate_vector . set_configuration ( mutate_config )
+	# 	mutate_individual . set_individual ( mutate_vector )
 
-		return mutate_individual
-	def mutate_from_to_point ( self, individual ):
-		"""
-		Mutate individual with MUTATE_RATE
+	# 	return mutate_individual
+	# def mutate_from_to_point ( self, individual ):
+	# 	"""
+	# 	Mutate individual with MUTATE_RATE
 
-		return mutated individual
-		"""
-		# if self.verboseGeneticsSolver:
-		# 	print ( "GeneticsAlgorithm -> mutate_from_to_point")
+	# 	return mutated individual
+	# 	"""
+	# 	# if self.verboseGeneticsSolver:
+	# 	# 	print ( "GeneticsAlgorithm -> mutate_from_to_point")
 
-		mutate_individual = deepcopy ( individual )
+	# 	mutate_individual = deepcopy ( individual )
 
-		mutate_vector = mutate_individual.get_individual ()
+	# 	mutate_vector = mutate_individual.get_individual ()
 
-		mutate_config = mutate_vector.get_configuration()
+	# 	mutate_config = mutate_vector.get_configuration()
 
-		from_index = random.randint(0,len(mutate_config)-1)
-		to_index = random.randint(from_index,len(mutate_config)-1)
+	# 	from_index = random.randint(0,len(mutate_config)-1)
+	# 	to_index = random.randint(from_index,len(mutate_config)-1)
 
-		for config_index in range ( from_index, to_index ):
-			mutate_config[config_index] *= complex(-1,0)
+	# 	for config_index in range ( from_index, to_index ):
+	# 		mutate_config[config_index] *= complex(-1,0)
 
-		mutate_vector . set_configuration ( mutate_config )
-		mutate_individual . set_individual ( mutate_vector )
+	# 	mutate_vector . set_configuration ( mutate_config )
+	# 	mutate_individual . set_individual ( mutate_vector )
 
-		return mutate_individual
+	# 	return mutate_individual
 
 	# HILL-CLIMBING
 	def do_hill_climbing ( self, population ):
