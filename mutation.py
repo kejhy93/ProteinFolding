@@ -126,3 +126,4 @@ def pick_mutation_method ( iteration, MAX_ITERATION ):
 			return mutate_one_point
 		else:
 			return mutate_from_to_point
+
