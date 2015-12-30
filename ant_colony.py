@@ -45,5 +45,5 @@ class AntColony:
 		for ant in self.ants:
 			new_individuals.append(ant.search( self.pheronome ))
 
-		print("Individuals from ant: ",new_individuals)
+		# print("Individuals from ant: ",new_individuals)
 		return new_individuals

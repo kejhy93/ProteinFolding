@@ -15,7 +15,7 @@ NOT_VALID_CONFIGURATION = False
 VALID_CONFIGURATION = True
 
 # MUTATION
-MUTATION_TYPE=(1/3)
+MUTATION_TYPE=(2/3)
 
 # HILL CLIMBING
 COUNT_OF_HILL_CLIMBING = 25
@@ -66,7 +66,7 @@ class GeneticsAlgorithm ( AbstractSolver ):
 		# Init population
 		population.init_population ( self.result_vector )
 
-		best_individual_of_population = population.pick_random_individual()
+		best_individual_of_population,average_fitness = population.pick_random_individual()
 		energy_of_best_individual_of_population = 100000000
 
 		if self.verboseGeneticsSolver:
@@ -83,12 +83,12 @@ class GeneticsAlgorithm ( AbstractSolver ):
 			population = self.do_crossover ( population )
 
 			# HILL-CLIMBING
-			# if iteration%self.FREQUANCY_OF_HILL_CLIMBING == 0:
-			# 	population = self.do_hill_climbing ( population )
+			if iteration%self.FREQUANCY_OF_HILL_CLIMBING == 0:
+				population = self.do_hill_climbing ( population )
 
 			# SIMULATED ANNEALING
-			# if iteration%self.FREQUANCY_OF_SIMULATED_ANNEALING == 0:
-			# 	population = self.do_simulated_annealing ( population )
+			if iteration%self.FREQUANCY_OF_SIMULATED_ANNEALING == 0:
+				population = self.do_simulated_annealing ( population )
 
 			# ANT-COLONY
 			# population = self.do_ant_colony( population )
@@ -98,12 +98,9 @@ class GeneticsAlgorithm ( AbstractSolver ):
 
 			energy_of_best_individual_of_iteration = best_individual_of_iteration.compute_free_energy()
 
-			if energy_of_best_individual_of_iteration < energy_of_best_individual_of_population:
-				energy_of_best_individual_of_population = energy_of_best_individual_of_iteration
+			best_individual_of_population = self.get_best_individual ( best_individual_of_iteration, best_individual_of_population )
 
-				best_individual_of_population = deepcopy ( best_individual_of_iteration )
-
-			iterationStr += "Energy of best individual: {:10.3f}, Average fitness: {:10.3f}".format(energy_of_best_individual_of_population, average_fitness)
+			iterationStr += "Energy of best individual: {:10.3f}, Average fitness: {:10.3f}".format(best_individual_of_population.get_free_energy(), average_fitness)
 			# Print best individual
 			if self.verboseGeneticsSolver:
 				print ( iterationStr )
@@ -111,6 +108,12 @@ class GeneticsAlgorithm ( AbstractSolver ):
 
 		return best_individual_of_population.get_individual()
 
+	def get_best_individual ( self, best_iteration, best_population ):
+		if best_iteration.get_free_energy() < best_population.get_free_energy():
+			best_population = deepcopy ( best_iteration )
+			best_population.compute_free_energy()
+
+		return best_population
 
 	def do_ant_colony ( self, population ):
 		"""
@@ -123,8 +126,7 @@ class GeneticsAlgorithm ( AbstractSolver ):
 
 		new_individuals = ant_colony.search ()
 
-		if new_individuals:
-			population = self.replace_worst_individuals ( new_individuals, COUNT_OF_ANTS, population )
+		population = self.replace_worst_individuals ( new_individuals, COUNT_OF_ANTS, population )
 
 		return population
 
@@ -136,6 +138,7 @@ class GeneticsAlgorithm ( AbstractSolver ):
 
 		for index in range(len(indexes_of_worst_individuals)):
 			population.set_individual_at(indexes_of_worst_individuals[index],list_of_of_new_individuals[index] )
+			population.get_individual_at(indexes_of_worst_individuals[index]).compute_free_energy()
 			
 
 		return population
@@ -370,6 +373,9 @@ class GeneticsAlgorithm ( AbstractSolver ):
 
 		Return crossovered population
 		"""
+		if self.verboseGeneticsSolver:
+			print ( "GeneticsAlgorithm -> crossover")
+
 		for i in range(self.COUNT_OF_CROSSOVER_PER_GENERATION):
 			# Pick two random individual
 			first_individual, first_index = population.pick_random_individual()
@@ -420,9 +426,6 @@ class GeneticsAlgorithm ( AbstractSolver ):
 		first_crossover_point != second_crossover_point 
 		return tuple of two crossovered individuals
 		"""
-		# if self.verboseGeneticsSolver:
-		# 	print ( "GeneticsAlgorithm -> crossover")
-
 		crossover_first_individual = deepcopy ( first_individual )
 		crossover_second_individual = deepcopy ( second_individual )
 
