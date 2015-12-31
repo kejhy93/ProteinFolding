@@ -11,6 +11,7 @@ from individual import Individual
 
 from mutation import do_mutation
 from hill_climbing import do_hill_climbing
+from simulated_annealing import do_simulated_annealing
 
 
 from ant_colony import AntColony
@@ -96,15 +97,22 @@ class GeneticsAlgorithm ( AbstractSolver ):
 			# HILL-CLIMBING
 			print ( "GeneticsAlgorithm -> Hill-Climbing")
 			if iteration%self.FREQUANCY_OF_HILL_CLIMBING == 0:
+				# Pick random individual from population
 				parent,index_of_parent = population.pick_random_individual()
-
+				# Hill-Climbing
 				mutated_individual = do_hill_climbing ( parent,HILL_CLIMBING_COUNT_OF_ITERATION, HILL_CLIMBING_COUNT_OF_NEIGHOUR )
-				
+				# New individual to population
 				population.set_individual_at(index_of_parent, mutated_individual)
 
 			# SIMULATED ANNEALING
 			# if iteration%self.FREQUANCY_OF_SIMULATED_ANNEALING == 0:
-			# 	population = self.do_simulated_annealing ( population )
+			print ( "GeneticsAlgorithm -> Simulated Annealing")
+			# Pick random individual from population
+			parent,index_of_parent = population.pick_random_individual()
+			# Simulated annealing
+			mutated_individual = do_simulated_annealing ( parent )
+			# New individual to population
+			population.set_individual_at(index_of_parent, mutated_individual)
 
 			# ANT-COLONY
 			# if iteration%self.FREQUANCY_OF_ANT_COLONY == 0:
@@ -162,65 +170,6 @@ class GeneticsAlgorithm ( AbstractSolver ):
 			
 
 		return population
-
-	# SIMULATED ANNEALING
-	def do_simulated_annealing ( self, population ):
-		"""
-		Main method for simulated annealing
-		"""
-		if self.verboseGeneticsSolver:
-			print ( "GeneticsAlgorithm -> Simulated Annealing" )
-
-		temperature = INITAL_TEMPERATURE
-
-		# Get current solution from population
-		current_solution,index = population.pick_random_individual()
-
-		while temperature > MIN_TEMPERATURE:
-			# Get current solution from population
-			current_solution = population.get_individual_at(index)
-
-			# Get new solution by mutation
-			new_solution = None
-			if temperature < (MUTATION_TYPE)*INITAL_TEMPERATURE:
-				random_choice = random.random()
-				if random_choice < 0.5:
-					new_solution = self.mutate_from_point(current_solution)
-				else:
-					new_solution = self.mutate_from_to_point ( current_solution )
-			else:
-				random_choice = random.random()
-				if random_choice < 0.5:
-					new_solution = self.mutate_one_point(current_solution)
-				else:
-					new_solution = self.mutate_from_to_point ( current_solution )
-
-			# Compute energy of both solutions
-			energy_of_current_solution = current_solution.get_free_energy()
-			energy_of_new_solution = new_solution.compute_free_energy()
-
-			# Decide if solution is good enough
-			if new_solution.check_valid_configuration():
-				if ( self.acceptanceProbability(energy_of_current_solution,energy_of_new_solution, temperature ) > random.random() ):
-					population.set_individual_at ( index, new_solution )
-
-				temperature = self.update_temperature ( temperature )
-				# print("temperature: ", temperature)
-
-
-		return population
-
-	def update_temperature ( self, temperature ):
-		# Update given temperature
-		temperature *= SIMULATED_ANNEALING_COOLING_RATE
-		return temperature
-
-	def acceptanceProbability ( self, energy, new_energy, temperature ):
-		if ( energy > new_energy ):
-			return 1;
-
-		return exp((energy - new_energy) / temperature)
-
 
 	def generate_random ( self, individual ):
 		individual = Individual ( self.sequance )

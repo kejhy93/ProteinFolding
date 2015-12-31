@@ -63,6 +63,7 @@ class AntColony:
 		new_individuals = []
 		tabu_lists = []
 		for ant in self.ants:
+			print("AntColony -> Ant ", ant.get_id() , ": ")
 			new_individual,tabu_list = ant.search( self.pheronome )
 
 			new_individuals.append(new_individual)
@@ -72,6 +73,7 @@ class AntColony:
 		mutated_individuals = []
 		counter = 0
 
+		print("AntColony -> Hill-climbing")
 		for individual,tabu_list in zip(new_individuals,tabu_lists):
 			mutated_individuals.append ( do_hill_climbing ( individual ) )
 			if mutated_individuals != individual:

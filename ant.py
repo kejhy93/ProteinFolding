@@ -33,6 +33,9 @@ class Ant:
 
 		self.tabu_list = []
 
+	def get_id ( self ):
+		return self.ID
+
 	def search ( self, pheronome ):
 		"""
 		Create candidate and return 

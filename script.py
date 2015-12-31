@@ -27,7 +27,7 @@ if __name__ == "__main__":
 
 	TEST_FILE = utils.parse ( PATH_TO_TEST_FILE )
 
-	TEST_FILE = utils.sort ( TEST_FILE, INCREASE )
+	TEST_FILE = utils.sort ( TEST_FILE, DECREASE )
 
 	start_millis = int(round(time.time() * 1000))
 	total_score = 0
@@ -69,7 +69,7 @@ if __name__ == "__main__":
 
 			utils.append_to_file ( minimal_configuration, free_energy, protein.get_counter() )
 			print ( "Test: ", protein.get_counter())
-			if protein.get_count_of_hydro() > 10 and counter > 62:
+			if protein.get_count_of_hydro() > 10:
 				minimal_configuration.plot_config()
 
 		counter += 1
