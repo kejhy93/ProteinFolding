@@ -6,6 +6,7 @@ from copy import deepcopy
 from ant import Ant
 
 from mutation import do_mutation
+from hill_climbing import do_hill_climbing
 
 EVAPORATE_CONSTANT = 0.4
 
@@ -14,6 +15,12 @@ LEFT=1
 RIGHT=2
 
 DIRECTIONS = [ STRAIGHT, LEFT, RIGHT ]
+
+MULT_TO_STRAIGHT = complex(1,0)
+MULT_TO_LEFT = complex(0,1)
+MULT_TO_RIGHT = complex(0,-1)
+
+MULTIPLY = [ MULT_TO_STRAIGHT, MULT_TO_LEFT, MULT_TO_RIGHT]
 
 class AntColony:
 	def __init__ ( self, count_of_ants, sequance ):
@@ -63,8 +70,14 @@ class AntColony:
 
 
 		mutated_individuals = []
-		for individual in new_individuals:
-			mutated_individuals.append ( do_mutation(individual ))
+		counter = 0
+
+		for individual,tabu_list in zip(new_individuals,tabu_lists):
+			mutated_individuals.append ( do_hill_climbing ( individual ) )
+			if mutated_individuals != individual:
+				tabu_lists[counter] = self.update_tabu_list ( individual, tabu_list )
+
+			counter += 1
 
 
 		self.update_pheronome_trails ( new_individuals, tabu_lists )
@@ -93,7 +106,6 @@ class AntColony:
 
 			self.pheronome[index_of_pheronome]=new_pheronome
 
-
 	def compute_delta_pheronome ( self, individuals, tabu_lists ):
 		if self.verbose:
 			print ( "AntColony -> Update pheronome trails -> Compute Delta Pheronome")
@@ -112,3 +124,30 @@ class AntColony:
 
 		# print(len(delta))
 		return delta
+
+	def update_tabu_list ( self, individual, tabu_list ):
+		new_tabu_list = []
+
+		vector = individual.get_individual()
+		configuration = vector.get_configuration()
+		# print(len(tabu_list))
+
+		new_tabu_list.append(STRAIGHT)
+
+
+		for index_of_config in range(1,len(configuration)):
+			last_coord = configuration[index_of_config-1]
+			current_coord = configuration[index_of_config]
+
+			if current_coord == last_coord*MULT_TO_STRAIGHT:
+				new_tabu_list.append(STRAIGHT)
+			elif current_coord == last_coord*MULT_TO_LEFT:
+				new_tabu_list.append(LEFT)
+			elif current_coord == last_coord*MULT_TO_RIGHT:
+				new_tabu_list.append(RIGHT)
+
+		# print(len(new_tabu_list))
+
+		return new_tabu_list
+
+

@@ -47,7 +47,7 @@ if __name__ == "__main__":
 		if not modify_sequance or protein.get_count_of_hydro() < 2:
 			minimal_configuration = protein.get_vector()
 		else:
-			TOTAL_COUNT_OF_GENERATION = 100
+			TOTAL_COUNT_OF_GENERATION = 50
 			SIZE_OF_POPULATION = 30
 
 			COUNF_OF_MUTATION = 10
@@ -68,7 +68,9 @@ if __name__ == "__main__":
 			print ( "Free energy: ", free_energy)
 
 			utils.append_to_file ( minimal_configuration, free_energy, protein.get_counter() )
-			# minimal_configuration.plot_config()
+			print ( "Test: ", protein.get_counter())
+			if protein.get_count_of_hydro() > 10 and counter > 62:
+				minimal_configuration.plot_config()
 
 		counter += 1
 

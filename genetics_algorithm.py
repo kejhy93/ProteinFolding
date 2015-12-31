@@ -10,6 +10,9 @@ from population import Population
 from individual import Individual
 
 from mutation import do_mutation
+from hill_climbing import do_hill_climbing
+
+
 from ant_colony import AntColony
 
 NOT_VALID_CONFIGURATION = False
@@ -91,15 +94,22 @@ class GeneticsAlgorithm ( AbstractSolver ):
 			population = self.do_crossover ( population )
 
 			# HILL-CLIMBING
-			# if iteration%self.FREQUANCY_OF_HILL_CLIMBING == 0:
-				# population = self.do_hill_climbing ( population )
+			print ( "GeneticsAlgorithm -> Hill-Climbing")
+			if iteration%self.FREQUANCY_OF_HILL_CLIMBING == 0:
+				parent,index_of_parent = population.pick_random_individual()
+
+				mutated_individual = do_hill_climbing ( parent,HILL_CLIMBING_COUNT_OF_ITERATION, HILL_CLIMBING_COUNT_OF_NEIGHOUR )
+				
+				population.set_individual_at(index_of_parent, mutated_individual)
 
 			# SIMULATED ANNEALING
 			# if iteration%self.FREQUANCY_OF_SIMULATED_ANNEALING == 0:
-				# population = self.do_simulated_annealing ( population )
+			# 	population = self.do_simulated_annealing ( population )
 
 			# ANT-COLONY
 			# if iteration%self.FREQUANCY_OF_ANT_COLONY == 0:
+				# population = self.do_ant_colony( population )	
+
 			population = self.do_ant_colony( population )	
 
 			# Pick best individual from population and compare with best individual found
@@ -216,45 +226,6 @@ class GeneticsAlgorithm ( AbstractSolver ):
 		individual = Individual ( self.sequance )
 
 		return individual
-
-	# HILL-CLIMBING
-	def do_hill_climbing ( self, population ):
-		"""
-		Main method for hill-climbing
-		"""
-		if self.verboseGeneticsSolver:
-			print ( "GeneticsAlgorithm -> Hill climbing")
-
-		individual,index = population.pick_random_individual ()
-
-		new_individual = self.hill_climbing ( individual, HILL_CLIMBING_COUNT_OF_ITERATION, HILL_CLIMBING_COUNT_OF_NEIGHOUR )
-
-		population.set_individual_at(index, new_individual)
-
-		return population
-
-	def hill_climbing ( self, individual, iteration, count_of_neighour ):
-		"""
-		Recursive hill climbing 
-		Generate count_of_neighour and pick with lowest energy
-		"""
-		best_neighbor = individual
-		init_score = individual.get_free_energy()
-		best_score = init_score
-
-		for i in range ( count_of_neighour ):
-			indi = self.mutate_one_point ( individual )
-			score = indi.compute_free_energy()
-
-			if score < best_score:
-				best_neighbor = indi
-				best_score = score
-
-		if init_score == best_score or iteration == 0:
-			return best_neighbor
-		else:
-			new_iter = iteration - 1
-			return self.hill_climbing(individual, count_of_neighour , new_iter)
 
 	# CROSSOVER
 	def do_crossover ( self, population ):
