@@ -106,6 +106,7 @@ class Ant(Thread):
 			if value != NO_ROUTE:
 				direction = self.get_direction ( move, index )
 				self.vector.set_configuration_at_index(index,direction)
+				self.vector.compute_space_configuration(index)
 
 				self.add_to_tabu_list ( index, move )
 
@@ -227,9 +228,7 @@ class Ant(Thread):
 		# print ( "Directions: ", directions)
 
 		# Get space cumulative add configuration to index-1
-		# print(index)
 		space_config = self.vector.get_space_configuration(index)
-		# space_config = self.vector.compute_space_configuration(index)
 
 		# if space_config != space_config_get:
 		# 	print( space_config )
@@ -238,7 +237,7 @@ class Ant(Thread):
 		space_config_counter = Counter ( space_config )
 
 		# Get free energy to index-1
-		free_energy = self.vector.compute_free_energy(index-1)
+		free_energy = self.vector.compute_free_energy(index-1, space_config)
 
 		valid = None
 		free_energy_of_all_directions = []
@@ -256,12 +255,11 @@ class Ant(Thread):
 				# self.vector.set_configuration_at_index(index, direction )
 				# new_free_energy = self.vector.compute_free_energy ( index )
 				space_config.append(new_space_config)
-				new_free_energy = self.vector.update_free_energy ( free_energy, index, space_config )
-
+				new_free_energy = self.vector.update_free_energy ( free_energy, index+1, space_config )
+				del space_config[-1]
 				free_energy_of_all_directions.append ( new_free_energy  )
 			else:
 				free_energy_of_all_directions.append ( None )
-
 
 		return free_energy_of_all_directions
 

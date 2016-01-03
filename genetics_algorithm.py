@@ -78,13 +78,20 @@ class GeneticsAlgorithm ( AbstractSolver ):
 		best_individual_of_population,average_fitness = population.pick_random_individual()
 		energy_of_best_individual_of_population = 100000000
 
-		if self.verboseGeneticsSolver:
-			print ( " Init population: ", population)
+		# if self.verboseGeneticsSolver:
+		# 	print ( " Init population: ", population)
 
 		for iteration in range ( 1,self.MAX_GENERATION+1 ):
 			iterationStr = ""
 			iterationStr = "Iteration: " + str ( iteration ) + "\n"
 
+			start_times = []
+			end_times = []
+
+			times = []
+			methods = []
+
+			start_times.append ( utils.get_time_in_millis() )
 			# MUTATION
 			# print ( "GeneticsAlgorithm -> Mutation")
 			# for i in range(self.COUNT_OF_MUTATION_PER_GENERATION):
@@ -92,10 +99,17 @@ class GeneticsAlgorithm ( AbstractSolver ):
 			# 	mutated_individual = do_mutation( parent, self.MUTATE_RATE, iteration, self.MAX_GENERATION )
 
 			# 	population.set_individual_at(index_of_parent, mutated_individual)
+			methods.append("Mutation")
+			end_times.append(utils.get_time_in_millis())
 
+			start_times.append(utils.get_time_in_millis())
 			# CROSS-OVER
 			# population = self.do_crossover ( population )
+			methods.append ( "Crossover")
+			end_times.append(utils.get_time_in_millis())
 
+
+			start_times.append( utils.get_time_in_millis() )
 			# HILL-CLIMBING
 			# print ( "GeneticsAlgorithm -> Hill-Climbing")
 			# if iteration%self.FREQUANCY_OF_HILL_CLIMBING == 0:
@@ -105,7 +119,11 @@ class GeneticsAlgorithm ( AbstractSolver ):
 			# 	mutated_individual = do_hill_climbing ( parent,HILL_CLIMBING_COUNT_OF_ITERATION, HILL_CLIMBING_COUNT_OF_NEIGHOUR )
 			# 	# New individual to population
 			# 	population.set_individual_at(index_of_parent, mutated_individual)
+			
+			methods.append ( "Hill-Climbing")
+			end_times.append(utils.get_time_in_millis())
 
+			start_times.append( utils.get_time_in_millis() )
 			# SIMULATED ANNEALING
 			# if iteration%self.FREQUANCY_OF_SIMULATED_ANNEALING == 0:
 			# 	print ( "GeneticsAlgorithm -> Simulated Annealing")
@@ -116,7 +134,10 @@ class GeneticsAlgorithm ( AbstractSolver ):
 			# 	# New individual to population
 			# 	population.set_individual_at(index_of_parent, mutated_individual)
 
-			start_ant_colony = utils.get_time_in_millis ()
+			methods.append ( "Simulated Annealing")
+			end_times.append(utils.get_time_in_millis())
+
+			start_times.append( utils.get_time_in_millis() )
 
 			# ANT-COLONY
 			# if iteration%self.FREQUANCY_OF_ANT_COLONY == 0:
@@ -124,11 +145,22 @@ class GeneticsAlgorithm ( AbstractSolver ):
 
 			population = self.do_ant_colony( population )
 
-			end_ant_colony = utils.get_time_in_millis ()	
+			methods.append ( "Ant-Colony")
+			end_times.append(utils.get_time_in_millis())
 
-			time_in_ant_colony = end_ant_colony-start_ant_colony;
+			# time_in_mutation = end_mutation_time-start_mutation_time
+			# time_in_crossover = end_crossover_time-start_crossover_time
+			# time_in_hill_climbing = end_hill_climbing_time-start_hill_climbing_time
+			# time_in_simulated_annealing = end_simulated_annealing_time-start_simulated_annealing_time
+			# time_in_ant_colony = end_ant_colony-start_ant_colony;
 
-			print("Time in Ant Colony: ", utils.millis_to_second(time_in_ant_colony), " sec" )
+
+
+			# print("Time in Mutation: ", utils.millis_to_second(time_in_mutation), " sec" )
+			# print("Time in Crossover: ", utils.millis_to_second(time_in_crossover), " sec" )
+			# print("Time in Hill-Climbing: ", utils.millis_to_second(time_in_hill_climbing), " sec" )
+			# print("Time in Simulated Annealing: ", utils.millis_to_second(time_in_simulated_annealing), " sec" )
+			# print("Time in Ant Colony: ", utils.millis_to_second(time_in_ant_colony), " sec" )
 
 			# Pick best individual from population and compare with best individual found
 			best_individual_of_iteration,average_fitness = population.pick_best_individual ()
@@ -141,8 +173,7 @@ class GeneticsAlgorithm ( AbstractSolver ):
 			# Print best individual
 			if self.verboseGeneticsSolver:
 				print ( iterationStr )
-				# if iteration%25 == 0:
-				# 	best_individual_of_population.get_individual().plot_config()
+				# best_individual_of_population.get_individual().plot_config()
 
 		return best_individual_of_population.get_individual()
 

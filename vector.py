@@ -165,7 +165,7 @@ class Vector:
 			self.compute_space_configuration(index-1)
 
 		if index != None:
-			return self.space_configuration[0:index]
+			return self.space_configuration[0:index+1]
 		else:
 			return self.space_configuration
 
