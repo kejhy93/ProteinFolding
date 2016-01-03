@@ -93,18 +93,19 @@ class GeneticsAlgorithm ( AbstractSolver ):
 
 			start_times.append ( utils.get_time_in_millis() )
 			# MUTATION
-			# print ( "GeneticsAlgorithm -> Mutation")
-			# for i in range(self.COUNT_OF_MUTATION_PER_GENERATION):
-			# 	parent,index_of_parent = population.pick_random_individual()
-			# 	mutated_individual = do_mutation( parent, self.MUTATE_RATE, iteration, self.MAX_GENERATION )
+			print ( "GeneticsAlgorithm -> Mutation")
+			for i in range(self.COUNT_OF_MUTATION_PER_GENERATION):
+				parent,index_of_parent = population.pick_random_individual()
+				mutated_individual = do_mutation( parent, self.MUTATE_RATE, iteration, self.MAX_GENERATION )
 
-			# 	population.set_individual_at(index_of_parent, mutated_individual)
+				population.set_individual_at(index_of_parent, mutated_individual)
+			
 			methods.append("Mutation")
 			end_times.append(utils.get_time_in_millis())
 
 			start_times.append(utils.get_time_in_millis())
 			# CROSS-OVER
-			# population = self.do_crossover ( population )
+			population = self.do_crossover ( population )
 			methods.append ( "Crossover")
 			end_times.append(utils.get_time_in_millis())
 
@@ -125,14 +126,14 @@ class GeneticsAlgorithm ( AbstractSolver ):
 
 			start_times.append( utils.get_time_in_millis() )
 			# SIMULATED ANNEALING
-			# if iteration%self.FREQUANCY_OF_SIMULATED_ANNEALING == 0:
-			# 	print ( "GeneticsAlgorithm -> Simulated Annealing")
-			# 	# Pick random individual from population
-			# 	parent,index_of_parent = population.pick_random_individual()
-			# 	# Simulated annealing
-			# 	mutated_individual = do_simulated_annealing ( parent )
-			# 	# New individual to population
-			# 	population.set_individual_at(index_of_parent, mutated_individual)
+			if iteration%self.FREQUANCY_OF_SIMULATED_ANNEALING == 0:
+				print ( "GeneticsAlgorithm -> Simulated Annealing")
+				# Pick random individual from population
+				parent,index_of_parent = population.pick_random_individual()
+				# Simulated annealing
+				mutated_individual = do_simulated_annealing ( parent )
+				# New individual to population
+				population.set_individual_at(index_of_parent, mutated_individual)
 
 			methods.append ( "Simulated Annealing")
 			end_times.append(utils.get_time_in_millis())

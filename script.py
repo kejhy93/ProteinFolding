@@ -27,7 +27,7 @@ if __name__ == "__main__":
 
 	TEST_FILE = utils.parse ( PATH_TO_TEST_FILE )
 
-	# TEST_FILE = utils.sort ( TEST_FILE, DECREASE )
+	TEST_FILE = utils.sort ( TEST_FILE, INCREASE )
 
 	start_millis = int(round(time.time() * 1000))
 	total_score = 0
@@ -46,7 +46,7 @@ if __name__ == "__main__":
 		print ( "Counter: ", counter, "/",str(len(TEST_FILE)))
 		print ( "Protein sequance: ", protein.get_sequance() )
 
-		if not modify_sequance or protein.get_count_of_hydro() < 2:
+		if not modify_sequance or protein.get_count_of_hydro() < 7:
 			minimal_configuration = protein.get_vector()
 		else:
 			TOTAL_COUNT_OF_GENERATION = 50
@@ -71,8 +71,8 @@ if __name__ == "__main__":
 
 			utils.append_to_file ( minimal_configuration, free_energy, protein.get_counter() )
 			print ( "Test: ", protein.get_counter())
-			# if protein.get_count_of_hydro() > 10:
-			# minimal_configuration.plot_config()
+			
+			minimal_configuration.plot_config()
 
 		counter += 1
 

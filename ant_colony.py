@@ -7,8 +7,10 @@ from ant import Ant
 
 from mutation import do_mutation
 from hill_climbing import do_hill_climbing
+from simulated_annealing import do_simulated_annealing
 
-EVAPORATE_CONSTANT = 0.4
+EVAPORATE_CONSTANT = 0.2
+COOLING_RATE = 0.85
 
 STRAIGHT=0
 LEFT=1
@@ -79,9 +81,9 @@ class AntColony:
 		mutated_individuals = []
 		counter = 0
 
-		print("AntColony -> Hill-climbing")
+		print("AntColony -> Simulated Annealing")
 		for individual,tabu_list in zip(new_individuals,tabu_lists):
-			mutated_individuals.append ( do_hill_climbing ( individual ) )
+			mutated_individuals.append ( do_simulated_annealing ( individual, COOLING_RATE ) )
 			if mutated_individuals != individual:
 				tabu_lists[counter] = self.update_tabu_list ( individual, tabu_list )
 

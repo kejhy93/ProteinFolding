@@ -10,7 +10,7 @@ from mutation import do_mutation
 verbose = False
 
 # SIMULATED ANNEALING
-def do_simulated_annealing ( individual, INITAL_TEMPERATURE=10000, MIN_TEMPERATURE=1, COOLING_RATE=0.9 ):
+def do_simulated_annealing ( individual,COOLING_RATE=0.9, INITAL_TEMPERATURE=10000, MIN_TEMPERATURE=1 ):
 	"""
 	Main method for simulated annealing
 	"""
