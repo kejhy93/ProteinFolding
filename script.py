@@ -36,7 +36,7 @@ if __name__ == "__main__":
 	# 	print(i)
 
 	# TEST_FILE = utils.sort_by_test_size ( TEST_FILE )
-	TEST_FILE = [TEST_FILE[100],TEST_FILE[3]]
+	# TEST_FILE = [TEST_FILE[100],TEST_FILE[3]]
 	counter = 0
 	for protein in TEST_FILE:
 		print ( " ======================================================= ")
@@ -72,7 +72,7 @@ if __name__ == "__main__":
 			utils.append_to_file ( minimal_configuration, free_energy, protein.get_counter() )
 			print ( "Test: ", protein.get_counter())
 			# if protein.get_count_of_hydro() > 10:
-			minimal_configuration.plot_config()
+			# minimal_configuration.plot_config()
 
 		counter += 1
 

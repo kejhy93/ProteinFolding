@@ -48,7 +48,7 @@ class GeneticsAlgorithm ( AbstractSolver ):
 		self.POPULATION_SIZE = POPULATION_SIZE
 
 		self.FREQUANCY_OF_HILL_CLIMBING = (int)(MAX_GENERATION/COUNT_OF_HILL_CLIMBING)
-		self.FREQUANCY_OF_SIMULATED_ANNEALING= (int)(MAX_GENERATION/COUNT_OF_SIMULATED_ANNEALING)
+		self.FREQUANCY_OF_SIMULATED_ANNEALING = (int)(MAX_GENERATION/COUNT_OF_SIMULATED_ANNEALING)
 		self.FREQUANCY_OF_ANT_COLONY = (int)(MAX_GENERATION/COUNT_OF_ANT_COLONY)
 
 		self.MUTATE_RATE = MUTATE_RATE
@@ -148,14 +148,9 @@ class GeneticsAlgorithm ( AbstractSolver ):
 			methods.append ( "Ant-Colony")
 			end_times.append(utils.get_time_in_millis())
 
-			# time_in_mutation = end_mutation_time-start_mutation_time
-			# time_in_crossover = end_crossover_time-start_crossover_time
-			# time_in_hill_climbing = end_hill_climbing_time-start_hill_climbing_time
-			# time_in_simulated_annealing = end_simulated_annealing_time-start_simulated_annealing_time
-			# time_in_ant_colony = end_ant_colony-start_ant_colony;
+			time_to_print = utils.get_string_of_computed_times ( start_times, end_times, methods )
 
-
-
+			print(time_to_print)
 			# print("Time in Mutation: ", utils.millis_to_second(time_in_mutation), " sec" )
 			# print("Time in Crossover: ", utils.millis_to_second(time_in_crossover), " sec" )
 			# print("Time in Hill-Climbing: ", utils.millis_to_second(time_in_hill_climbing), " sec" )

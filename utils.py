@@ -159,3 +159,20 @@ def get_time_in_millis ():
 def millis_to_second ( time_in_millis ):
 	return time_in_millis/1000
 
+def get_string_of_computed_times ( start_times, end_times, methods ):
+	string_time = ""
+
+	max_length_of_methods = 0
+	for method in methods:
+		if len(method) > max_length_of_methods:
+			max_length_of_methods = len(method)
+
+	max_length_of_methods += 2
+	format_string = "Time in {:"+str(max_length_of_methods)+"} {:5.3f} sec\n"
+
+	for start,end,method in zip (start_times,end_times,methods):
+		string_time += format_string.format(method, millis_to_second(end-start) )
+
+	return string_time
+
+
