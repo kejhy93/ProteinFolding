@@ -27,7 +27,7 @@ if __name__ == "__main__":
 
 	TEST_FILE = utils.parse ( PATH_TO_TEST_FILE )
 
-	TEST_FILE = utils.sort ( TEST_FILE, DECREASE )
+	# TEST_FILE = utils.sort ( TEST_FILE, DECREASE )
 
 	start_millis = int(round(time.time() * 1000))
 	total_score = 0
@@ -35,6 +35,8 @@ if __name__ == "__main__":
 	for i in TEST_FILE:
 		print(i)
 
+	# TEST_FILE = utils.sort_by_test_size ( TEST_FILE )
+	TEST_FILE = [TEST_FILE[100],TEST_FILE[3]]
 	counter = 0
 	for protein in TEST_FILE:
 		print ( " ======================================================= ")
@@ -69,8 +71,8 @@ if __name__ == "__main__":
 
 			utils.append_to_file ( minimal_configuration, free_energy, protein.get_counter() )
 			print ( "Test: ", protein.get_counter())
-			if protein.get_count_of_hydro() > 10:
-				minimal_configuration.plot_config()
+			# if protein.get_count_of_hydro() > 10:
+			# minimal_configuration.plot_config()
 
 		counter += 1
 

@@ -7,6 +7,10 @@ import math
 import random
 from collections import Counter
 
+import utils
+
+from threading import *
+
 STRAIGHT=0
 LEFT=1
 RIGHT=2
@@ -20,11 +24,15 @@ MULT_TO_RIGHT = complex(0,-1)
 DIRECTIONS = [ STRAIGHT, LEFT, RIGHT ]
 MULTIPLY = [ MULT_TO_STRAIGHT, MULT_TO_LEFT, MULT_TO_RIGHT]
 
+NO_ROUTE = -10000000000000000000
+
+DIFFERENCE = 0.05
+CHANGE_RATE = 5
 
 PHEROMONE_VAL = 2
 HEURISTIC_VAL = 1
 
-class Ant:
+class Ant(Thread):
 	def __init__ ( self, ID, sequance ):
 		self.ID = ID
 
@@ -33,14 +41,21 @@ class Ant:
 
 		self.tabu_list = []
 
+		self.verbose = False
+
+		self.start_time = None
+
 	def get_id ( self ):
 		return self.ID
+
+	def run ( self ):
+		self.search()
 
 	def search ( self, pheronome ):
 		"""
 		Create candidate and return 
 		"""
-
+		self.start_time = utils.get_time_in_millis()
 		# Create first connection
 		self.vector.clean_configuration()
 		self.vector.set_configuration_at_index(0,UP)
@@ -49,7 +64,11 @@ class Ant:
 		MAX_SIZE_OF_CONFIG = len(self.vector.get_amino_sequance())-1
 
 		self.create_configuration ( 1, pheronome )
-		
+
+		if ( len(self.vector.get_configuration()) != len(self.vector.get_amino_sequance())-1 ):
+			print("No indiviudals found")
+			return None,None
+
 		individual = Individual(self.vector.get_amino_sequance() )
 
 		individual.set_individual ( self.vector )
@@ -60,9 +79,16 @@ class Ant:
 		"""
 		Create configuration
 		"""
+		if self.verbose:
+			print("Create configuration: ", index )
 		# print ( "Evaluate config on index: ", index )
 		# print(index,len(self.vector.get_amino_sequance())-1)
 		if index >= len(self.vector.get_amino_sequance())-1:
+			return True
+
+		end_time = utils.get_time_in_millis()
+
+		if ( utils.millis_to_second(end_time-self.start_time) >= 10 ):
 			return True
 
 		# Compute free energy of possible moves
@@ -77,7 +103,7 @@ class Ant:
 
 		counter_of_success = 0
 		for move,value in zip(next_move,next_move_values):
-			if value != -10000000000000000000:
+			if value != NO_ROUTE:
 				direction = self.get_direction ( move, index )
 				self.vector.set_configuration_at_index(index,direction)
 
@@ -135,17 +161,26 @@ class Ant:
 			values[index] = values[lowest_index]
 			values[lowest_index] = tmp_values
 
-		# for index in range(len(indexes)-1):
-		# 	if values[index] == values[index+1]:
-		# 		if random.random() < 0.5:
-		# 			print("Switch")
-		# 			print(values)
-		# 			tmp = indexes[index]
-		# 			indexes[index] = indexes[index+1]
-		# 			indexes[index+1] = tmp
+		change = 0
+		for index in range(len(indexes)-1):
+			if self.little_diference ( values[index], values[index+1] ) and change <= CHANGE_RATE:
+				if random.random() < 0.3:
+					tmp = indexes[index]
+					indexes[index] = indexes[index+1]
+					indexes[index+1] = tmp
+
+					change += 1
 
 		# print(indexes)
 		return indexes,values
+
+	def little_diference ( self, first, second ):
+		diff = abs(first-second)
+
+		if diff < DIFFERENCE:
+			return True
+		else:
+			return False
 
 	def compare( self, first, second ):
 		if first >  second:
@@ -154,6 +189,8 @@ class Ant:
 			return False
 
 	def compute_probability_of_next_move ( self, index, pheronome, free_energy ):
+		if self.verbose:
+			print("Compute probability: ", index )
 		probability = []
 		total = 0
 		for pheronome_val, free_energy_val in zip (pheronome,free_energy):
@@ -170,7 +207,7 @@ class Ant:
 			if probability[prob] != None:
 				probability[prob] *= 1/total
 			else:
-				probability[prob] = -10000000000000000000
+				probability[prob] = NO_ROUTE
 
 		return probability
 
@@ -178,6 +215,8 @@ class Ant:
 		"""
 		Compute free energy of moves
 		"""
+		if self.verbose:
+			print("Compute free energy: ", index )
 		last_coord = self.vector.get_configuration_at_index(index-1)
 
 		directions = []
@@ -188,26 +227,38 @@ class Ant:
 		# print ( "Directions: ", directions)
 
 		# Get space cumulative add configuration to index-1
-		space_config = self.vector.compute_space_configuration(index-1)
+		# print(index)
+		space_config = self.vector.get_space_configuration(index)
+		# space_config = self.vector.compute_space_configuration(index)
+
+		# if space_config != space_config_get:
+		# 	print( space_config )
+		# 	print( space_config_get)
+
 		space_config_counter = Counter ( space_config )
+
 		# Get free energy to index-1
 		free_energy = self.vector.compute_free_energy(index-1)
 
-		valid = []
+		valid = None
 		free_energy_of_all_directions = []
 		for direction in directions:
 			new_space_config = space_config[-1]+direction
 			# Check valid of configuration
 			if new_space_config in space_config_counter:
 				# Record exist
-				valid.append(False)
+				valid = False
 			else:
 				# Record NOT exist
-				valid.append(True)
+				valid = True
 
-			if valid[-1]:
-				self.vector.set_configuration_at_index(index, direction )
-				free_energy_of_all_directions.append ( self.vector.compute_free_energy(index))
+			if valid:
+				# self.vector.set_configuration_at_index(index, direction )
+				# new_free_energy = self.vector.compute_free_energy ( index )
+				space_config.append(new_space_config)
+				new_free_energy = self.vector.update_free_energy ( free_energy, index, space_config )
+
+				free_energy_of_all_directions.append ( new_free_energy  )
 			else:
 				free_energy_of_all_directions.append ( None )
 

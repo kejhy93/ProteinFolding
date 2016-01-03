@@ -160,11 +160,14 @@ class Vector:
 	def get_configuration ( self ):
 		return self.configuration
 
-	def get_space_configuration ( self ):
+	def get_space_configuration ( self, index=None ):
 		if not self.space_configuration:
-			self.compute_space_configuration()
+			self.compute_space_configuration(index-1)
 
-		return self.space_configuration
+		if index != None:
+			return self.space_configuration[0:index]
+		else:
+			return self.space_configuration
 
 
 	def get_count_of_hydro ( self ):
@@ -334,12 +337,16 @@ class Vector:
 
 		return self.space_configuration
 
-	def compute_free_energy ( self, index=None ):
+	def compute_free_energy ( self, index=None, space_config = None ):
 		"""
 		Compute free energy of configuration up to index
 		"""
 		free_energy = 0
-		self.compute_space_configuration ( index )
+
+		if space_config == None:
+			space_conf = self.compute_space_configuration ( index )
+		else:
+			space_conf = space_config
 
 		final_index_of_amino = None
 		if index == None:
@@ -357,7 +364,7 @@ class Vector:
 					# Check if amino is hydropohoboli ( free energy is depedent on it )
 					if self.sequance[second] == HYDROPHOBILIC:
 						# Add to free energy ( absolute value of two complex numbers)
-						energy = self.length_between_amino(self.space_configuration[first],self.space_configuration[second])
+						energy = self.length_between_amino(space_conf[first],space_conf[second])
 				
 						free_energy += energy
 		if self.verbose:
@@ -365,6 +372,14 @@ class Vector:
 			
 		if free_energy == 0:
 			return 1
+
+		return free_energy
+
+	def update_free_energy ( self, old_free_energy, index, space_conf ):
+		final_index = index-2
+		free_energy = old_free_energy
+		for first in range ( 0, final_index ):
+			free_energy += self.length_between_amino(space_conf[first],space_conf[index-1])
 
 		return free_energy
 

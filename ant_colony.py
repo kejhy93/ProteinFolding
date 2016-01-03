@@ -53,7 +53,7 @@ class AntColony:
 		"""
 		Init pheronome
 		"""
-		return random.random()/100
+		return random.random()/1000
 		# return 1.0
 
 	def search ( self ):
@@ -63,12 +63,18 @@ class AntColony:
 		new_individuals = []
 		tabu_lists = []
 		for ant in self.ants:
-			print("AntColony -> Ant ", ant.get_id() , ": ")
+			print("AntColony -> Ant ", ant.get_id()+1 , ": ")
 			new_individual,tabu_list = ant.search( self.pheronome )
 
-			new_individuals.append(new_individual)
-			tabu_lists.append (tabu_list )
+			if new_individual != None:
+				new_individuals.append(new_individual)
+				tabu_lists.append (tabu_list )
 
+
+
+		# for individual in new_individuals:
+		# 	print(individual.get_individual())
+		# 	individual.get_individual().plot_config()
 
 		mutated_individuals = []
 		counter = 0

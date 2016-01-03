@@ -1,6 +1,8 @@
 #! /usr/bin/python3 
 
 import os
+import time
+import calendar
 
 from data import Data
 
@@ -101,3 +103,59 @@ def append_to_file ( configuration, free_energy, index ):
 	else:
 		with open ( path_to_file, 'a', encoding='utf-8') as f:
 			f.write ( content_to_write )
+
+def create_filesize_set ( test_files ):
+	filesize_set = []
+	for test_file in test_files:
+		content_of_file = ""
+		filename = os.path.join(RESULT_FOLDER, create_filename(test_file.get_counter()))
+
+		if not os.path.exists(RESULT_FOLDER):
+			filesize_set.append(0)
+		elif not os.path.exists(filename):
+			filesize_set.append(0)
+		else:
+			with open( filename, 'r', encoding='utf-8') as f:
+				content_of_file = f.read()
+
+			splited_file = content_of_file.split("\n")
+			filesize_set.append ( len(splited_file) )
+
+	return filesize_set
+
+def sort_by_size_of_result_file ( TEST_SET, FILE_SIZE_SET ):
+
+	comparator = is_first_higher
+
+	for index in range ( len(TEST_SET)-1, 0, -1) :
+		lowest_index = 0
+		for find_index in range ( 1, index+1 ):
+			if comparator (FILE_SIZE_SET[find_index], FILE_SIZE_SET[lowest_index]):
+				lowest_index = find_index
+
+
+		tmp = TEST_SET[index]
+		TEST_SET[index] = TEST_SET[lowest_index]
+		TEST_SET[lowest_index] = tmp
+
+		tmp = FILE_SIZE_SET[index]
+		FILE_SIZE_SET[index] = FILE_SIZE_SET[lowest_index]
+		FILE_SIZE_SET[lowest_index] = tmp
+
+
+	return TEST_SET
+
+def sort_by_test_size ( TEST_FILE ):
+
+	file_size_set = create_filesize_set ( TEST_FILE )
+
+	TEST_FILE = sort_by_size_of_result_file ( TEST_FILE, file_size_set )
+
+	return TEST_FILE
+
+def get_time_in_millis ():
+	return int(round(time.time() * 1000))
+
+def millis_to_second ( time_in_millis ):
+	return time_in_millis/1000
+

@@ -4,6 +4,8 @@ from copy import deepcopy
 import random
 from math import exp
 
+import utils
+
 from abstract_solver import AbstractSolver
 
 from population import Population
@@ -23,19 +25,19 @@ VALID_CONFIGURATION = True
 MUTATION_TYPE=(2/3)
 
 # HILL CLIMBING
-COUNT_OF_HILL_CLIMBING = 25
+COUNT_OF_HILL_CLIMBING = 10
 HILL_CLIMBING_COUNT_OF_NEIGHOUR = 12
 HILL_CLIMBING_COUNT_OF_ITERATION = 12
 
 # SIMULATED ANNEALING
-COUNT_OF_SIMULATED_ANNEALING = 5
+COUNT_OF_SIMULATED_ANNEALING = 15
 SIMULATED_ANNEALING_COOLING_RATE = 0.95
 INITAL_TEMPERATURE=10000
 MIN_TEMPERATURE = 1
 
 # ANT-COLONY OPTIMISATION
 COUNT_OF_ANT_COLONY = 20
-COUNT_OF_ANTS = 5
+COUNT_OF_ANTS = 10
 
 class GeneticsAlgorithm ( AbstractSolver ):
 	def __init__ ( self, sequance, MAX_GENERATION, POPULATION_SIZE, 
@@ -84,41 +86,49 @@ class GeneticsAlgorithm ( AbstractSolver ):
 			iterationStr = "Iteration: " + str ( iteration ) + "\n"
 
 			# MUTATION
-			print ( "GeneticsAlgorithm -> Mutation")
-			for i in range(self.COUNT_OF_MUTATION_PER_GENERATION):
-				parent,index_of_parent = population.pick_random_individual()
-				mutated_individual = do_mutation( parent, self.MUTATE_RATE, iteration, self.MAX_GENERATION )
+			# print ( "GeneticsAlgorithm -> Mutation")
+			# for i in range(self.COUNT_OF_MUTATION_PER_GENERATION):
+			# 	parent,index_of_parent = population.pick_random_individual()
+			# 	mutated_individual = do_mutation( parent, self.MUTATE_RATE, iteration, self.MAX_GENERATION )
 
-				population.set_individual_at(index_of_parent, mutated_individual)
+			# 	population.set_individual_at(index_of_parent, mutated_individual)
 
 			# CROSS-OVER
-			population = self.do_crossover ( population )
+			# population = self.do_crossover ( population )
 
 			# HILL-CLIMBING
-			print ( "GeneticsAlgorithm -> Hill-Climbing")
-			if iteration%self.FREQUANCY_OF_HILL_CLIMBING == 0:
-				# Pick random individual from population
-				parent,index_of_parent = population.pick_random_individual()
-				# Hill-Climbing
-				mutated_individual = do_hill_climbing ( parent,HILL_CLIMBING_COUNT_OF_ITERATION, HILL_CLIMBING_COUNT_OF_NEIGHOUR )
-				# New individual to population
-				population.set_individual_at(index_of_parent, mutated_individual)
+			# print ( "GeneticsAlgorithm -> Hill-Climbing")
+			# if iteration%self.FREQUANCY_OF_HILL_CLIMBING == 0:
+			# 	# Pick random individual from population
+			# 	parent,index_of_parent = population.pick_random_individual()
+			# 	# Hill-Climbing
+			# 	mutated_individual = do_hill_climbing ( parent,HILL_CLIMBING_COUNT_OF_ITERATION, HILL_CLIMBING_COUNT_OF_NEIGHOUR )
+			# 	# New individual to population
+			# 	population.set_individual_at(index_of_parent, mutated_individual)
 
 			# SIMULATED ANNEALING
 			# if iteration%self.FREQUANCY_OF_SIMULATED_ANNEALING == 0:
-			print ( "GeneticsAlgorithm -> Simulated Annealing")
-			# Pick random individual from population
-			parent,index_of_parent = population.pick_random_individual()
-			# Simulated annealing
-			mutated_individual = do_simulated_annealing ( parent )
-			# New individual to population
-			population.set_individual_at(index_of_parent, mutated_individual)
+			# 	print ( "GeneticsAlgorithm -> Simulated Annealing")
+			# 	# Pick random individual from population
+			# 	parent,index_of_parent = population.pick_random_individual()
+			# 	# Simulated annealing
+			# 	mutated_individual = do_simulated_annealing ( parent )
+			# 	# New individual to population
+			# 	population.set_individual_at(index_of_parent, mutated_individual)
+
+			start_ant_colony = utils.get_time_in_millis ()
 
 			# ANT-COLONY
 			# if iteration%self.FREQUANCY_OF_ANT_COLONY == 0:
-				# population = self.do_ant_colony( population )	
+			# 	population = self.do_ant_colony( population )	
 
-			population = self.do_ant_colony( population )	
+			population = self.do_ant_colony( population )
+
+			end_ant_colony = utils.get_time_in_millis ()	
+
+			time_in_ant_colony = end_ant_colony-start_ant_colony;
+
+			print("Time in Ant Colony: ", utils.millis_to_second(time_in_ant_colony), " sec" )
 
 			# Pick best individual from population and compare with best individual found
 			best_individual_of_iteration,average_fitness = population.pick_best_individual ()
@@ -154,7 +164,7 @@ class GeneticsAlgorithm ( AbstractSolver ):
 
 		new_individuals = ant_colony.search ()
 
-		population = self.replace_worst_individuals ( new_individuals, COUNT_OF_ANTS, population )
+		population = self.replace_worst_individuals ( new_individuals, len(new_individuals), population )
 
 		return population
 
