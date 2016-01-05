@@ -160,6 +160,9 @@ class Vector:
 	def get_configuration ( self ):
 		return self.configuration
 
+	def get_space_configuration_set ( self ):
+		return self.space_configuration_counter
+
 	def get_space_configuration ( self, index=None ):
 		if not self.space_configuration:
 			self.compute_space_configuration(index-1)
@@ -168,7 +171,6 @@ class Vector:
 			return self.space_configuration[0:index+1]
 		else:
 			return self.space_configuration
-
 
 	def get_count_of_hydro ( self ):
 		count = 0

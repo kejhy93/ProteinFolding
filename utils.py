@@ -4,6 +4,9 @@ import os
 import time
 import calendar
 
+import subprocess
+import notify2
+
 from data import Data
 
 INCREASE = 1
@@ -175,4 +178,42 @@ def get_string_of_computed_times ( start_times, end_times, methods ):
 
 	return string_time
 
+def find_min_value_in ( content ):
+	min_val = 1000000000000000000000
 
+	split_content = content.split("\n")
+	for line in split_content:
+		if line != "":
+			split_line = line.split()
+			val = float(split_line[0])
+
+			if val < min_val:
+				min_val = val
+
+	return min_val
+
+def read_minimal_energy_from_file( ID ):
+	filename = create_filename(ID)
+
+	fullpath_name = os.path.join ( RESULT_FOLDER, filename )
+
+	minimal_value = None
+
+	if not os.path.exists ( fullpath_name ):
+		return None
+	else:
+		content = ""
+		with open ( fullpath_name, 'r', encoding='utf-8') as f:
+			content = f.read()
+
+		minimal_value = find_min_value_in ( content )
+
+	return minimal_value
+
+def send_notification(title, body):
+	# subprocess.Popen(['notify-send', message])
+	notify2.init('ProteinFolding')
+	n = notify2.Notification(title, body, "notification-message-im" )
+	n.show()
+
+	return

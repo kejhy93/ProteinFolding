@@ -33,7 +33,8 @@ PHEROMONE_VAL = 2
 HEURISTIC_VAL = 1
 
 class Ant(Thread):
-	def __init__ ( self, ID, sequance ):
+	def __init__ ( self, ID, sequance, pheronome ):
+		Thread.__init__(self)
 		self.ID = ID
 
 		# configuration
@@ -45,11 +46,13 @@ class Ant(Thread):
 
 		self.start_time = None
 
+		self.pheronome = pheronome
+
 	def get_id ( self ):
 		return self.ID
 
 	def run ( self ):
-		self.search()
+		self.search(self.pheronome)
 
 	def search ( self, pheronome ):
 		"""
@@ -59,6 +62,7 @@ class Ant(Thread):
 		# Create first connection
 		self.vector.clean_configuration()
 		self.vector.set_configuration_at_index(0,UP)
+		self.tabu_list.append(1)
 		# print(self.vector)
 
 		MAX_SIZE_OF_CONFIG = len(self.vector.get_amino_sequance())-1
@@ -66,7 +70,7 @@ class Ant(Thread):
 		self.create_configuration ( 1, pheronome )
 
 		if ( len(self.vector.get_configuration()) != len(self.vector.get_amino_sequance())-1 ):
-			print("No indiviudals found")
+			# print("No indiviudals found")
 			return None,None
 
 		individual = Individual(self.vector.get_amino_sequance() )
@@ -234,7 +238,8 @@ class Ant(Thread):
 		# 	print( space_config )
 		# 	print( space_config_get)
 
-		space_config_counter = Counter ( space_config )
+		# space_config_counter = Counter ( space_config )
+		space_config_counter = self.vector.get_space_configuration_set()
 
 		# Get free energy to index-1
 		free_energy = self.vector.compute_free_energy(index-1, space_config)
@@ -263,4 +268,8 @@ class Ant(Thread):
 
 		return free_energy_of_all_directions
 
+	def get_individual ( self ):
+		return Individual(self.vector.get_amino_sequance() )
 
+	def get_tabu_list ( self ):
+		return self.tabu_list

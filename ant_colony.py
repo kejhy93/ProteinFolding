@@ -3,14 +3,21 @@
 import random
 from copy import deepcopy
 
+from multiprocessing.dummy import Pool as ThreadPool 
+import itertools
+
 from ant import Ant
 
 from mutation import do_mutation
 from hill_climbing import do_hill_climbing
 from simulated_annealing import do_simulated_annealing
 
-EVAPORATE_CONSTANT = 0.2
-COOLING_RATE = 0.85
+EVAPORATE_CONSTANT = 0.4
+
+SIMULATED_ANNEALING_COOLING_RATE = 0.5
+
+HILL_CLIMBING_COUNT_OF_ITERATION = 10
+HILL_CLIMBING_COUNT_OF_NEIGHBOUR = 5
 
 STRAIGHT=0
 LEFT=1
@@ -34,8 +41,6 @@ class AntColony:
 		self.COUNT_OF_ANTS = count_of_ants
 		self.ants = []
 		self.sequance = sequance
-		for ant_index in range ( self.COUNT_OF_ANTS ):
-			self.ants . append ( Ant(ant_index, sequance ))
 
 		self.pheronome = []
 
@@ -62,42 +67,63 @@ class AntColony:
 		"""
 		Create new solution by ant 
 		"""
+
+		for ant_index in range ( self.COUNT_OF_ANTS ):
+			self.ants . append ( Ant(ant_index, self.sequance, self.pheronome ))
+
 		new_individuals = []
 		tabu_lists = []
 		for ant in self.ants:
-			print("AntColony -> Ant ", ant.get_id()+1 , ": ")
-			new_individual,tabu_list = ant.search( self.pheronome )
+			# print("AntColony -> Ant ", ant.get_id()+1 , ": Started")
 
-			if new_individual != None:
-				new_individuals.append(new_individual)
-				tabu_lists.append (tabu_list )
+			# Single-threaded
+			# new_individual,tabu_list = ant.search( self.pheronome )
+			# if new_individual != None:
+			# 	new_individuals.append(new_individual)
+			# 	tabu_lists.append (tabu_list )
 
+			# Multi-threaded
+			ant.start()
 
+		for ant in self.ants:
+			ant.join()
+			# print("AntColony -> Ant ", ant.get_id()+1 , ": Terminated")
+			new_individuals.append( ant.get_individual() )
+			tabu_lists.append( ant.get_tabu_list() )
 
 		# for individual in new_individuals:
 		# 	print(individual.get_individual())
 		# 	individual.get_individual().plot_config()
 
-		mutated_individuals = []
+		results = []
 		counter = 0
 
-		print("AntColony -> Simulated Annealing")
-		for individual,tabu_list in zip(new_individuals,tabu_lists):
-			mutated_individuals.append ( do_simulated_annealing ( individual, COOLING_RATE ) )
-			if mutated_individuals != individual:
-				tabu_lists[counter] = self.update_tabu_list ( individual, tabu_list )
+		# print("AntColony -> Simulated Annealing")
+		# Single-threaded
+		# for individual,tabu_list in zip(new_individuals,tabu_lists):
+		# 	results.append ( do_simulated_annealing ( individual, COOLING_RATE ) )
+		# 	if results != individual:
+		# 		tabu_lists[counter] = self.update_tabu_list ( individual, tabu_list )
+
+		# 	counter += 1
+
+		# Multi-threaded
+		pool = ThreadPool ( 8 )
+		# results = pool.starmap(do_simulated_annealing, zip(new_individuals, itertools.repeat(SIMULATED_ANNEALING_COOLING_RATE) ) )
+		results = pool.starmap(do_hill_climbing, zip(new_individuals, itertools.repeat(HILL_CLIMBING_COUNT_OF_NEIGHBOUR), itertools.repeat(HILL_CLIMBING_COUNT_OF_ITERATION)))
+
+		for mutated, original,tabu_list in zip(results,new_individuals,tabu_lists):
+			if mutated != original and mutated != None:
+				tabu_lists[counter] = self.update_tabu_list ( mutated, tabu_list )
 
 			counter += 1
 
+		# Update pheronome trails
+		self.update_pheronome_trails ( results, tabu_lists )
 
-		self.update_pheronome_trails ( new_individuals, tabu_lists )
-		# print("Individuals from ant: ",new_individuals)
+		pool.close()
 
-		# for individual in mutated_individuals:
-		# 	print(individual.get_individual())
-		# 	individual.get_individual().plot_config()
-
-		return mutated_individuals
+		return results
 
 	def update_pheronome_trails ( self, new_individuals, tabu_lists ):
 		if self.verbose:
@@ -109,7 +135,6 @@ class AntColony:
 			new_pheronome = self.pheronome[index_of_pheronome]
 
 			# Evaporate
-			# print(len(new_pheronome))
 			for index_of_pher in range(len(DIRECTIONS)):
 				new_pheronome[index_of_pher] *= EVAPORATE_CONSTANT
 				new_pheronome[index_of_pher] += delta_pheronome[index_of_pheronome-1][index_of_pher]
@@ -126,6 +151,9 @@ class AntColony:
 			for direction in DIRECTIONS:
 				for tabu_list,individual in zip(tabu_lists,individuals):
 					# print(index,len(tabu_list))
+					if index > len(tabu_list):
+						tabu_list.append(STRAIGHT)
+						
 					if tabu_list[index-1] == direction:
 						deltas.append(100/individual.get_free_energy() )
 					else:

@@ -20,6 +20,9 @@ class Population:
 
 		self.individuals = []
 
+	def count_of_individuals ( self ):
+		return len(self.individuals)
+
 	def init_population ( self, vector ):
 		"""
 		Init population

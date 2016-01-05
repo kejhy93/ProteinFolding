@@ -4,6 +4,9 @@ from copy import deepcopy
 import random
 from math import exp
 
+from multiprocessing.dummy import Pool as ThreadPool 
+import itertools
+
 import utils
 
 from abstract_solver import AbstractSolver
@@ -27,17 +30,17 @@ MUTATION_TYPE=(2/3)
 # HILL CLIMBING
 COUNT_OF_HILL_CLIMBING = 10
 HILL_CLIMBING_COUNT_OF_NEIGHOUR = 12
-HILL_CLIMBING_COUNT_OF_ITERATION = 12
+HILL_CLIMBING_COUNT_OF_ITERATION = 5
 
 # SIMULATED ANNEALING
-COUNT_OF_SIMULATED_ANNEALING = 15
-SIMULATED_ANNEALING_COOLING_RATE = 0.95
+COUNT_OF_SIMULATED_ANNEALING = 2
+SIMULATED_ANNEALING_COOLING_RATE = 0.9
 INITAL_TEMPERATURE=10000
 MIN_TEMPERATURE = 1
 
 # ANT-COLONY OPTIMISATION
-COUNT_OF_ANT_COLONY = 20
-COUNT_OF_ANTS = 10
+COUNT_OF_ANT_COLONY = 50
+COUNT_OF_ANTS = 2
 
 class GeneticsAlgorithm ( AbstractSolver ):
 	def __init__ ( self, sequance, MAX_GENERATION, POPULATION_SIZE, 
@@ -93,17 +96,14 @@ class GeneticsAlgorithm ( AbstractSolver ):
 
 			start_times.append ( utils.get_time_in_millis() )
 			# MUTATION
-			print ( "GeneticsAlgorithm -> Mutation")
-			for i in range(self.COUNT_OF_MUTATION_PER_GENERATION):
-				parent,index_of_parent = population.pick_random_individual()
-				mutated_individual = do_mutation( parent, self.MUTATE_RATE, iteration, self.MAX_GENERATION )
+			# print ( "GeneticsAlgorithm -> Mutation")
+			self.mutate ( population, iteration )
 
-				population.set_individual_at(index_of_parent, mutated_individual)
-			
 			methods.append("Mutation")
 			end_times.append(utils.get_time_in_millis())
 
 			start_times.append(utils.get_time_in_millis())
+
 			# CROSS-OVER
 			population = self.do_crossover ( population )
 			methods.append ( "Crossover")
@@ -126,16 +126,27 @@ class GeneticsAlgorithm ( AbstractSolver ):
 
 			start_times.append( utils.get_time_in_millis() )
 			# SIMULATED ANNEALING
-			if iteration%self.FREQUANCY_OF_SIMULATED_ANNEALING == 0:
-				print ( "GeneticsAlgorithm -> Simulated Annealing")
-				# Pick random individual from population
-				parent,index_of_parent = population.pick_random_individual()
-				# Simulated annealing
-				mutated_individual = do_simulated_annealing ( parent )
-				# New individual to population
-				population.set_individual_at(index_of_parent, mutated_individual)
+
+			# Get random unique indexes of individuals
+			index_of_individuals = random.sample(range(0, population.count_of_individuals()), COUNT_OF_SIMULATED_ANNEALING)
+
+			# # Fill individuals
+			individuals_to_simulated_annealing = []
+			for index in index_of_individuals:
+				individuals_to_simulated_annealing.append(population.get_individual_at(index) )
+			
+			# # Init thread pool
+			simulated_annealing_pool = ThreadPool(8)
+			# # Simulated Annealing
+			results = simulated_annealing_pool.starmap ( do_simulated_annealing, zip ( individuals_to_simulated_annealing))
+			# # Replace new individuals to population
+			for mutated_individual,index in zip(results,index_of_individuals):
+				population.set_individual_at(index, mutated_individual )	
+			# Clear thread pool
+			simulated_annealing_pool.close()
 
 			methods.append ( "Simulated Annealing")
+
 			end_times.append(utils.get_time_in_millis())
 
 			start_times.append( utils.get_time_in_millis() )
@@ -151,7 +162,6 @@ class GeneticsAlgorithm ( AbstractSolver ):
 
 			time_to_print = utils.get_string_of_computed_times ( start_times, end_times, methods )
 
-			print(time_to_print)
 			# print("Time in Mutation: ", utils.millis_to_second(time_in_mutation), " sec" )
 			# print("Time in Crossover: ", utils.millis_to_second(time_in_crossover), " sec" )
 			# print("Time in Hill-Climbing: ", utils.millis_to_second(time_in_hill_climbing), " sec" )
@@ -168,10 +178,26 @@ class GeneticsAlgorithm ( AbstractSolver ):
 			iterationStr += "Energy of best individual: {:10.3f}, Average fitness: {:10.3f}".format(best_individual_of_population.get_free_energy(), average_fitness)
 			# Print best individual
 			if self.verboseGeneticsSolver:
+				print(time_to_print)
 				print ( iterationStr )
 				# best_individual_of_population.get_individual().plot_config()
 
 		return best_individual_of_population.get_individual()
+
+	def mutate ( self, population, iteration ):
+		index_of_individuals = random.sample(range(0, population.count_of_individuals()), self.COUNT_OF_MUTATION_PER_GENERATION)
+		individuals_to_mutate = []
+		mutation_pool = ThreadPool(16)
+
+		for index in index_of_individuals:
+			individuals_to_mutate.append(population.get_individual_at(index))
+
+		results = mutation_pool.starmap ( do_mutation, zip ( individuals_to_mutate, itertools.repeat(self.MUTATE_RATE), itertools.repeat(iteration), itertools.repeat(self.MAX_GENERATION)))
+
+		for mutated_individual,index in zip(results,index_of_individuals):
+			population.set_individual_at(index, mutated_individual )
+
+		mutation_pool.close()
 
 	def get_best_individual ( self, best_iteration, best_population ):
 		if best_iteration.get_free_energy() < best_population.get_free_energy():
@@ -184,8 +210,8 @@ class GeneticsAlgorithm ( AbstractSolver ):
 		"""
 		Ant colony optimisation
 		"""
-		if self.verboseGeneticsSolver:
-			print ("GeneticsAlgorithm -> Ant-Colony")
+		# if self.verboseGeneticsSolver:
+		# 	print ("GeneticsAlgorithm -> Ant-Colony")
 
 		ant_colony = AntColony ( COUNT_OF_ANTS, self.sequance  )
 
@@ -220,8 +246,8 @@ class GeneticsAlgorithm ( AbstractSolver ):
 
 		Return crossovered population
 		"""
-		if self.verboseGeneticsSolver:
-			print ( "GeneticsAlgorithm -> crossover")
+		# if self.verboseGeneticsSolver:
+		# 	print ( "GeneticsAlgorithm -> crossover")
 
 		for i in range(self.COUNT_OF_CROSSOVER_PER_GENERATION):
 			# Pick two random individual

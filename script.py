@@ -27,7 +27,7 @@ if __name__ == "__main__":
 
 	TEST_FILE = utils.parse ( PATH_TO_TEST_FILE )
 
-	TEST_FILE = utils.sort ( TEST_FILE, INCREASE )
+	TEST_FILE = utils.sort ( TEST_FILE, DECREASE )
 
 	start_millis = int(round(time.time() * 1000))
 	total_score = 0
@@ -46,14 +46,14 @@ if __name__ == "__main__":
 		print ( "Counter: ", counter, "/",str(len(TEST_FILE)))
 		print ( "Protein sequance: ", protein.get_sequance() )
 
-		if not modify_sequance or protein.get_count_of_hydro() < 7:
+		if not modify_sequance or protein.get_count_of_hydro() <= 5:
 			minimal_configuration = protein.get_vector()
 		else:
 			TOTAL_COUNT_OF_GENERATION = 50
 			SIZE_OF_POPULATION = 30
 
-			COUNF_OF_MUTATION = 10
-			COUNT_OF_CROSSOVER = 5
+			COUNF_OF_MUTATION = 16
+			COUNT_OF_CROSSOVER = 8
 
 			MUTATION_RATE = 0.1
 			CROSSOVER_RATE = 0.3
@@ -67,12 +67,23 @@ if __name__ == "__main__":
 			free_energy = minimal_configuration.compute_free_energy()
 			total_score += free_energy
 
-			print ( "Free energy: ", free_energy)
+			free_energy_from_file = utils.read_minimal_energy_from_file(protein.get_counter())
+
+			if free_energy_from_file == None:
+				free_energy_from_file = -1
+
+			format_string_free_energy = "Free energy: {:10.3f}, \tCurrent optimum: {:10.3f}"
+			print ( format_string_free_energy.format(free_energy, free_energy_from_file) )
 
 			utils.append_to_file ( minimal_configuration, free_energy, protein.get_counter() )
 			print ( "Test: ", protein.get_counter())
-			
-			minimal_configuration.plot_config()
+
+			title_of_notification = "Test " + str(protein.get_counter())
+			body_of_notification = "Free energy: {:10.3f}\nBest score from file: {:10.3f}".format(free_energy, free_energy_from_file)
+
+			utils.send_notification ( title_of_notification, body_of_notification )
+
+			# minimal_configuration.plot_config()
 
 		counter += 1
 
