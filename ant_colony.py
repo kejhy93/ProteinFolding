@@ -12,11 +12,11 @@ from mutation import do_mutation
 from hill_climbing import do_hill_climbing
 from simulated_annealing import do_simulated_annealing
 
-EVAPORATE_CONSTANT = 0.4
+EVAPORATE_CONSTANT = 0.3
 
 SIMULATED_ANNEALING_COOLING_RATE = 0.5
 
-HILL_CLIMBING_COUNT_OF_ITERATION = 10
+HILL_CLIMBING_COUNT_OF_ITERATION = 5
 HILL_CLIMBING_COUNT_OF_NEIGHBOUR = 5
 
 STRAIGHT=0
@@ -60,7 +60,7 @@ class AntColony:
 		"""
 		Init pheronome
 		"""
-		return random.random()/1000
+		return random.random()
 		# return 1.0
 
 	def search ( self ):
@@ -73,16 +73,18 @@ class AntColony:
 
 		new_individuals = []
 		tabu_lists = []
-		for ant in self.ants:
+		# for ant in self.ants:
 			# print("AntColony -> Ant ", ant.get_id()+1 , ": Started")
 
 			# Single-threaded
 			# new_individual,tabu_list = ant.search( self.pheronome )
 			# if new_individual != None:
-			# 	new_individuals.append(new_individual)
-			# 	tabu_lists.append (tabu_list )
+				# new_individuals.append(new_individual)
+				# tabu_lists.append (tabu_list )
 
 			# Multi-threaded
+
+		for ant in self.ants:
 			ant.start()
 
 		for ant in self.ants:
@@ -98,32 +100,67 @@ class AntColony:
 		results = []
 		counter = 0
 
-		# print("AntColony -> Simulated Annealing")
+
+		if self.verbose:
+			print("Ant-Colony -> Local search")
+
+		results,tabu_lists = self.local_search ( new_individuals, tabu_lists )
+
+		# Update pheronome trails
+		self.update_pheronome_trails ( results, tabu_lists )
+		# self.update_pheronome_trails ( new_individuals, tabu_lists )
+
+
+		return results
+		# return new_individuals
+
+	def local_search ( self, individuals, tabu_lists ):
+		print("AntColony -> Simulated Annealing")
+		counter = 0
 		# Single-threaded
-		# for individual,tabu_list in zip(new_individuals,tabu_lists):
+		# for individual,tabu_list in zip(individuals,tabu_lists):
 		# 	results.append ( do_simulated_annealing ( individual, COOLING_RATE ) )
 		# 	if results != individual:
 		# 		tabu_lists[counter] = self.update_tabu_list ( individual, tabu_list )
 
 		# 	counter += 1
 
+		index_to_delete = []
+		for index in range(len(individuals)):
+			# print("Indi: ", individuals[index])
+			if individuals[index] == None:
+				index_to_delete.append(index)
+
+		if len(index_to_delete) != 0:
+			# print("Length of index: : ",len(index_to_delete)," Length of individuals: ", len(individuals))
+			for index in range(len(index_to_delete),0,-1):
+				# print(index-1, len(individuals))
+				del individuals[index_to_delete[index-1]]
+				del tabu_lists[index_to_delete[index-1]]
+
+		# if len(index_to_delete) != 0:
+			# print(len(individuals))
+			# for indi in individuals:
+				# print("Indi: ", indi)
+				
 		# Multi-threaded
 		pool = ThreadPool ( 8 )
-		# results = pool.starmap(do_simulated_annealing, zip(new_individuals, itertools.repeat(SIMULATED_ANNEALING_COOLING_RATE) ) )
-		results = pool.starmap(do_hill_climbing, zip(new_individuals, itertools.repeat(HILL_CLIMBING_COUNT_OF_NEIGHBOUR), itertools.repeat(HILL_CLIMBING_COUNT_OF_ITERATION)))
+		# results = pool.starmap(do_simulated_annealing, zip(individuals, itertools.repeat(SIMULATED_ANNEALING_COOLING_RATE) ) )
+		results = pool.starmap(do_hill_climbing, zip(individuals, itertools.repeat(HILL_CLIMBING_COUNT_OF_NEIGHBOUR), itertools.repeat(HILL_CLIMBING_COUNT_OF_ITERATION)))
 
-		for mutated, original,tabu_list in zip(results,new_individuals,tabu_lists):
+		for index in range(len(individuals)):
+			if individuals[index] == None:
+				del tabu_lists[index]
+
+		for mutated, original,tabu_list in zip(results,individuals,tabu_lists):
 			if mutated != original and mutated != None:
 				tabu_lists[counter] = self.update_tabu_list ( mutated, tabu_list )
 
 			counter += 1
 
-		# Update pheronome trails
-		self.update_pheronome_trails ( results, tabu_lists )
-
 		pool.close()
 
-		return results
+		return results,tabu_lists
 
 	def update_pheronome_trails ( self, new_individuals, tabu_lists ):
 		if self.verbose:
@@ -153,7 +190,7 @@ class AntColony:
 					# print(index,len(tabu_list))
 					if index > len(tabu_list):
 						tabu_list.append(STRAIGHT)
-						
+
 					if tabu_list[index-1] == direction:
 						deltas.append(100/individual.get_free_energy() )
 					else:

@@ -257,7 +257,12 @@ class Vector:
 		min_x, min_y = -1, -1
 		max_x, max_y = 1, 1
 
-		self.compute_space_configuration(index)
+		if index != None:
+			final_index = index+1
+		else:
+			final_index = len(self.sequance)
+
+		self.compute_space_configuration(final_index-2)
 
 		# Init list of all points
 		for space_config_item in self.space_configuration:
@@ -269,10 +274,10 @@ class Vector:
 		ax = fig.gca()
 		plt.plot ( list_of_real, list_of_imag )
 
-		if index != None:
-			final_index = index+2
-		else:
-			final_index = len(self.sequance)
+		# if index != None:
+		# 	final_index = index+1
+		# else:
+		# 	final_index = len(self.sequance)
 
 		# print ( list_of_real, list_of_imag)
 
@@ -318,14 +323,14 @@ class Vector:
 
 		sum_of_space_config = complex ( 0, 0)
 
-		if index:
+		if index != None:
 			final_index = index+1
 		else:
 			final_index = len(self.configuration)
 
-		for index in range(0,final_index):
-			real = sum_of_space_config.real + self.configuration[index].real
-			imag = sum_of_space_config.imag + self.configuration[index].imag
+		for iter_index in range(0,final_index):
+			real = sum_of_space_config.real + self.configuration[iter_index].real
+			imag = sum_of_space_config.imag + self.configuration[iter_index].imag
 
 			sum_of_space_config = complex ( real, imag )
 

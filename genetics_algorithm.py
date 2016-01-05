@@ -15,6 +15,7 @@ from population import Population
 from individual import Individual
 
 from mutation import do_mutation
+from crossover import do_crossover
 from hill_climbing import do_hill_climbing
 from simulated_annealing import do_simulated_annealing
 
@@ -40,7 +41,7 @@ MIN_TEMPERATURE = 1
 
 # ANT-COLONY OPTIMISATION
 COUNT_OF_ANT_COLONY = 50
-COUNT_OF_ANTS = 2
+COUNT_OF_ANTS = 8
 
 class GeneticsAlgorithm ( AbstractSolver ):
 	def __init__ ( self, sequance, MAX_GENERATION, POPULATION_SIZE, 
@@ -81,8 +82,14 @@ class GeneticsAlgorithm ( AbstractSolver ):
 		best_individual_of_population,average_fitness = population.pick_random_individual()
 		energy_of_best_individual_of_population = 100000000
 
-		# if self.verboseGeneticsSolver:
-		# 	print ( " Init population: ", population)
+		if self.verboseGeneticsSolver:
+			print ( " Init population: ", population)
+
+		IS_MUTATION = True
+		IS_CROSSOVER = True
+		IS_HILL_CLIMBING = False
+		IS_SIMULATED_ANNEALING = True
+		IS_ANT_COLONY = True
 
 		for iteration in range ( 1,self.MAX_GENERATION+1 ):
 			iterationStr = ""
@@ -96,77 +103,75 @@ class GeneticsAlgorithm ( AbstractSolver ):
 
 			start_times.append ( utils.get_time_in_millis() )
 			# MUTATION
-			# print ( "GeneticsAlgorithm -> Mutation")
-			self.mutate ( population, iteration )
+			if IS_MUTATION:
+				print ( "GeneticsAlgorithm -> Mutation")
+				self.mutate ( population, iteration )
 
 			methods.append("Mutation")
 			end_times.append(utils.get_time_in_millis())
 
-			start_times.append(utils.get_time_in_millis())
 
 			# CROSS-OVER
-			population = self.do_crossover ( population )
+			start_times.append(utils.get_time_in_millis())
+
+			if IS_CROSSOVER:
+				population = self.do_crossover ( population, self.COUNT_OF_CROSSOVER_PER_GENERATION )
 			methods.append ( "Crossover")
 			end_times.append(utils.get_time_in_millis())
 
 
-			start_times.append( utils.get_time_in_millis() )
 			# HILL-CLIMBING
-			# print ( "GeneticsAlgorithm -> Hill-Climbing")
-			# if iteration%self.FREQUANCY_OF_HILL_CLIMBING == 0:
-			# 	# Pick random individual from population
-			# 	parent,index_of_parent = population.pick_random_individual()
-			# 	# Hill-Climbing
-			# 	mutated_individual = do_hill_climbing ( parent,HILL_CLIMBING_COUNT_OF_ITERATION, HILL_CLIMBING_COUNT_OF_NEIGHOUR )
-			# 	# New individual to population
-			# 	population.set_individual_at(index_of_parent, mutated_individual)
+			start_times.append( utils.get_time_in_millis() )
+
+			if IS_HILL_CLIMBING:
+				print ( "GeneticsAlgorithm -> Hill-Climbing")
+				if iteration%self.FREQUANCY_OF_HILL_CLIMBING == 0:
+					# Pick random individual from population
+					parent,index_of_parent = population.pick_random_individual()
+					# Hill-Climbing
+					mutated_individual = do_hill_climbing ( parent,HILL_CLIMBING_COUNT_OF_ITERATION, HILL_CLIMBING_COUNT_OF_NEIGHOUR )
+					# New individual to population
+					population.set_individual_at(index_of_parent, mutated_individual)
 			
 			methods.append ( "Hill-Climbing")
 			end_times.append(utils.get_time_in_millis())
 
-			start_times.append( utils.get_time_in_millis() )
 			# SIMULATED ANNEALING
+			start_times.append( utils.get_time_in_millis() )
 
-			# Get random unique indexes of individuals
-			index_of_individuals = random.sample(range(0, population.count_of_individuals()), COUNT_OF_SIMULATED_ANNEALING)
+			if IS_SIMULATED_ANNEALING:
+				# Get random unique indexes of individuals
+				index_of_individuals = random.sample(range(0, population.count_of_individuals()), COUNT_OF_SIMULATED_ANNEALING)
 
-			# # Fill individuals
-			individuals_to_simulated_annealing = []
-			for index in index_of_individuals:
-				individuals_to_simulated_annealing.append(population.get_individual_at(index) )
-			
-			# # Init thread pool
-			simulated_annealing_pool = ThreadPool(8)
-			# # Simulated Annealing
-			results = simulated_annealing_pool.starmap ( do_simulated_annealing, zip ( individuals_to_simulated_annealing))
-			# # Replace new individuals to population
-			for mutated_individual,index in zip(results,index_of_individuals):
-				population.set_individual_at(index, mutated_individual )	
-			# Clear thread pool
-			simulated_annealing_pool.close()
+				# # Fill individuals
+				individuals_to_simulated_annealing = []
+				for index in index_of_individuals:
+					individuals_to_simulated_annealing.append(population.get_individual_at(index) )
+				
+				# # Init thread pool
+				simulated_annealing_pool = ThreadPool(8)
+				# # Simulated Annealing
+				results = simulated_annealing_pool.starmap ( do_simulated_annealing, zip ( individuals_to_simulated_annealing))
+				# # Replace new individuals to population
+				for mutated_individual,index in zip(results,index_of_individuals):
+					population.set_individual_at(index, mutated_individual )	
+				# Clear thread pool
+				simulated_annealing_pool.close()
 
 			methods.append ( "Simulated Annealing")
 
 			end_times.append(utils.get_time_in_millis())
 
+			# ANT-COLONY
 			start_times.append( utils.get_time_in_millis() )
 
-			# ANT-COLONY
-			# if iteration%self.FREQUANCY_OF_ANT_COLONY == 0:
-			# 	population = self.do_ant_colony( population )	
-
-			population = self.do_ant_colony( population )
+			if IS_ANT_COLONY:
+				population = self.do_ant_colony( population, iteration )
 
 			methods.append ( "Ant-Colony")
 			end_times.append(utils.get_time_in_millis())
 
 			time_to_print = utils.get_string_of_computed_times ( start_times, end_times, methods )
-
-			# print("Time in Mutation: ", utils.millis_to_second(time_in_mutation), " sec" )
-			# print("Time in Crossover: ", utils.millis_to_second(time_in_crossover), " sec" )
-			# print("Time in Hill-Climbing: ", utils.millis_to_second(time_in_hill_climbing), " sec" )
-			# print("Time in Simulated Annealing: ", utils.millis_to_second(time_in_simulated_annealing), " sec" )
-			# print("Time in Ant Colony: ", utils.millis_to_second(time_in_ant_colony), " sec" )
 
 			# Pick best individual from population and compare with best individual found
 			best_individual_of_iteration,average_fitness = population.pick_best_individual ()
@@ -187,7 +192,7 @@ class GeneticsAlgorithm ( AbstractSolver ):
 	def mutate ( self, population, iteration ):
 		index_of_individuals = random.sample(range(0, population.count_of_individuals()), self.COUNT_OF_MUTATION_PER_GENERATION)
 		individuals_to_mutate = []
-		mutation_pool = ThreadPool(16)
+		mutation_pool = ThreadPool(4)
 
 		for index in index_of_individuals:
 			individuals_to_mutate.append(population.get_individual_at(index))
@@ -206,7 +211,7 @@ class GeneticsAlgorithm ( AbstractSolver ):
 
 		return best_population
 
-	def do_ant_colony ( self, population ):
+	def do_ant_colony ( self, population, iteration  ):
 		"""
 		Ant colony optimisation
 		"""
@@ -230,7 +235,6 @@ class GeneticsAlgorithm ( AbstractSolver ):
 		for index in range(len(indexes_of_worst_individuals)):
 			population.set_individual_at(indexes_of_worst_individuals[index],list_of_of_new_individuals[index] )
 			population.get_individual_at(indexes_of_worst_individuals[index]).compute_free_energy()
-			
 
 		return population
 
@@ -240,157 +244,19 @@ class GeneticsAlgorithm ( AbstractSolver ):
 		return individual
 
 	# CROSSOVER
-	def do_crossover ( self, population ):
+	def do_crossover ( self, population, count_of_crossover ):
 		"""
-		Main method for crossover
-
-		Return crossovered population
+		Crossover
 		"""
-		# if self.verboseGeneticsSolver:
-		# 	print ( "GeneticsAlgorithm -> crossover")
+		for crossover_index in range(count_of_crossover):
+			first_individual,first_index = population.pick_random_individual ()
+			second_individual,second_index = population.pick_random_individual ()
 
-		for i in range(self.COUNT_OF_CROSSOVER_PER_GENERATION):
-			# Pick two random individual
-			first_individual, first_index = population.pick_random_individual()
-			second_individual, second_index = population.pick_random_individual()
+			crossover_individuals = do_crossover ( first_individual, second_individual, self.CROSSOVER_RATE )
 
-			while second_index == first_index:
-				second_individual, second_index = population.pick_random_individual()
-
-			# Crossover two individual
-			crossover_probability = random.random()
-
-			if crossover_probability < self.CROSSOVER_RATE:
-				first_crossover_point = random.randint ( 0, len(first_individual.get_configuration()))
-				crossover_first_individual,crossover_second_individual = self.crossover ( first_individual, second_individual, first_crossover_point )
-
-				# Compute free energy of crossovered individuals
-				energy_of_first_crossover_individual = crossover_first_individual.compute_free_energy ()
-				energy_of_second_crossover_individual = crossover_second_individual.compute_free_energy ()
-
-				# Compute free energy of original indivudals
-				energy_of_first_individual = first_individual.compute_free_energy()
-				energy_of_second_individual = second_individual.compute_free_energy()
-
-				# If free energy of crosovered individual is lower then original replace him
-				if energy_of_first_individual > energy_of_first_crossover_individual:
-					if crossover_first_individual.check_valid_configuration():
-						first_individual = deepcopy ( crossover_first_individual )
-						first_individual.compute_free_energy()
-						population.set_individual_at ( first_index, first_individual )
-
-				# If free energy of crosovered individual is lower then original replace him
-				if energy_of_second_individual > energy_of_second_crossover_individual:
-					if crossover_second_individual.check_valid_configuration():
-						second_individual = deepcopy ( crossover_second_individual )
-						second_individual.compute_free_energy()
-						population.set_individual_at ( second_index, second_individual )
+			if crossover_individuals[0] != first_individual:
+				population.set_individual_at(first_index, crossover_individuals[0] )
+			if crossover_individuals[1] != second_individual:
+				population.set_individual_at ( second_index, crossover_individuals[1] )
 
 		return population
-
-	def crossover ( self, first_individual, second_individual, first_crossover_point=-1, second_crossover_point=-1 ):
-		"""
-		Crossover two random individuals
-
-		first_crossover_point = second_crossover_point = -1 -> swap every odd index
-		first_crossover_point = second_crossover_point != -1 ||
-		first_crossover_point != -1 && second_crossover_point == -1 -> Swap every index from first_crossover_point to end
-
-		first_crossover_point != second_crossover_point 
-		return tuple of two crossovered individuals
-		"""
-		crossover_first_individual = deepcopy ( first_individual )
-		crossover_second_individual = deepcopy ( second_individual )
-
-		if self.check_every_odd_index_swap_crossover ( first_crossover_point, second_crossover_point ):
-			crossover_first_individual,crossover_second_individual = self.crossover_every_odd_index ( crossover_first_individual,crossover_second_individual )
-		elif self.check_one_crossover_point ( first_crossover_point, second_crossover_point ):
-			crossover_first_individual,crossover_second_individual = self.crossover_one_point (crossover_first_individual,crossover_second_individual, first_crossover_point)
-		elif self.check_two_crossover_points ( first_crossover_point, second_crossover_point ):
-			crossover_first_individual,crossover_second_individual = self.crossover_two_points (crossover_first_individual,crossover_second_individual, first_crossover_point, second_crossover_point)
-
-		return crossover_first_individual, crossover_second_individual
-
-	def check_every_odd_index_swap_crossover ( self, first_point, second_point ):
-		"""
-		Check crossover mode
-		"""
-		if first_point == second_point and first_point == -1:
-			return True
-		else:
-			return False
-	def crossover_every_odd_index ( self, first, second ):
-		"""
-		Swap every odd index
-		"""
-		# Get configurations of individuals
-		first_config = first.get_configuration()
-		second_config = second.get_configuration()
-
-		# Swap odd indexes
-		for index_of_config in range ( 0, len(first_config), 2 ):
-			tmp = first_config[index_of_config]			
-			first_config[index_of_config] = second_config[index_of_config]
-			second_config[index_of_config] = tmp
-
-		# Save configurations of individuals
-		first . set_configuration ( first_config )
-		second . set_configuration ( second_config )
-
-		return first, second
-
-	def check_one_crossover_point ( self, first_point, second_point ):
-		"""
-		Check crossover mode
-		"""
-		if first_point != second_point and second_point == -1:
-			return True
-		else:
-			return False
-	def crossover_one_point ( self, first, second, index ):
-		"""
-		Swap every gen from index to end
-		"""
-		# Get configurations of individuals
-		first_config = first.get_configuration()
-		second_config = second.get_configuration()
-
-		# Swap from index to end
-		for index_of_config in range ( index, len(first_config) ):
-			tmp = first_config[index_of_config]			
-			first_config[index_of_config] = second_config[index_of_config]
-			second_config[index_of_config] = tmp
-
-		# Save configurations of individuals
-		first . set_configuration ( first_config )
-		second . set_configuration ( second_config )
-
-		return first, second
-		
-	def check_two_crossover_points ( self, first_point, second_point ):
-		"""
-		Check crossover mode
-		"""
-		if first_point != second_point and second_point != -1:
-			return True
-		else:
-			return False
-	def crossover_two_points ( self, first, second, first_point, second_point ):
-		"""
-		Swap every gen from index to end
-		"""
-		# Get configurations of individuals
-		first_config = first.get_configuration()
-		second_config = second.get_configuration()
-
-		# Swap from first_point to second_point
-		for index_of_config in range ( first_point, second_point):
-			tmp = first_config[index_of_config]			
-			first_config[index_of_config] = second_config[index_of_config]
-			second_config[index_of_config] = tmp
-
-		# Save configurations of individuals
-		first . set_configuration ( first_config )
-		second . set_configuration ( second_config )
-
-		return first, second

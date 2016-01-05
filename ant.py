@@ -27,10 +27,10 @@ MULTIPLY = [ MULT_TO_STRAIGHT, MULT_TO_LEFT, MULT_TO_RIGHT]
 NO_ROUTE = -10000000000000000000
 
 DIFFERENCE = 0.05
-CHANGE_RATE = 5
+CHANGE_RATE = 2
 
 PHEROMONE_VAL = 2
-HEURISTIC_VAL = 1
+HEURISTIC_VAL = 2
 
 class Ant(Thread):
 	def __init__ ( self, ID, sequance, pheronome ):
@@ -47,6 +47,7 @@ class Ant(Thread):
 		self.start_time = None
 
 		self.pheronome = pheronome
+		self.individual = None
 
 	def get_id ( self ):
 		return self.ID
@@ -73,11 +74,11 @@ class Ant(Thread):
 			# print("No indiviudals found")
 			return None,None
 
-		individual = Individual(self.vector.get_amino_sequance() )
+		self.individual = Individual(self.vector.get_amino_sequance() )
 
-		individual.set_individual ( self.vector )
+		self.individual.set_individual ( self.vector )
 
-		return individual,self.tabu_list
+		return self.individual,self.tabu_list
 
 	def create_configuration ( self, index, pheronome ):
 		"""
@@ -86,6 +87,8 @@ class Ant(Thread):
 		if self.verbose:
 			print("Create configuration: ", index )
 		# print ( "Evaluate config on index: ", index )
+		# print(self.vector)
+		# self.vector.plot_config(index)
 		# print(index,len(self.vector.get_amino_sequance())-1)
 		if index >= len(self.vector.get_amino_sequance())-1:
 			return True
@@ -117,6 +120,8 @@ class Ant(Thread):
 				counter_of_success += 1
 
 				new_index = index + 1
+				# print(self.vector)
+				# self.vector.plot_config(index)
 				if self.create_configuration ( new_index, pheronome ):
 					return True
 
@@ -168,7 +173,7 @@ class Ant(Thread):
 
 		change = 0
 		for index in range(len(indexes)-1):
-			if self.little_diference ( values[index], values[index+1] ) and change <= CHANGE_RATE:
+			if self.little_diference ( values[index], values[index+1] ) and change < CHANGE_RATE:
 				if random.random() < 0.3:
 					tmp = indexes[index]
 					indexes[index] = indexes[index+1]
@@ -177,6 +182,7 @@ class Ant(Thread):
 					change += 1
 
 		# print(indexes)
+		# print(values)
 		return indexes,values
 
 	def little_diference ( self, first, second ):
@@ -188,7 +194,7 @@ class Ant(Thread):
 			return False
 
 	def compare( self, first, second ):
-		if first >  second:
+		if first < second:
 			return True
 		else:
 			return False
@@ -269,7 +275,7 @@ class Ant(Thread):
 		return free_energy_of_all_directions
 
 	def get_individual ( self ):
-		return Individual(self.vector.get_amino_sequance() )
+		return self.individual
 
 	def get_tabu_list ( self ):
 		return self.tabu_list
