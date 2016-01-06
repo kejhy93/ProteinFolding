@@ -26,7 +26,8 @@ MULTIPLY = [ MULT_TO_STRAIGHT, MULT_TO_LEFT, MULT_TO_RIGHT]
 
 NO_ROUTE = -10000000000000000000
 
-DIFFERENCE = 0.05
+SWITCH_PROBABILITY = 0.3
+DIFFERENCE = 0.025
 CHANGE_RATE = 2
 
 PHEROMONE_VAL = 2
@@ -39,14 +40,16 @@ class Ant(Thread):
 
 		# configuration
 		self.vector = Vector ( sequance )
-
+		# init tabu list to record ant's route
 		self.tabu_list = []
 
 		self.verbose = False
 
 		self.start_time = None
 
+		# Get pheronome
 		self.pheronome = pheronome
+		# Init result of ant's search
 		self.individual = None
 
 	def get_id ( self ):
@@ -70,7 +73,10 @@ class Ant(Thread):
 
 		self.create_configuration ( 1, pheronome )
 
+		# Check if new individuals was found
 		if ( len(self.vector.get_configuration()) != len(self.vector.get_amino_sequance())-1 ):
+			# No individuals was found, return None,None
+
 			# print("No indiviudals found")
 			return None,None
 
@@ -129,6 +135,9 @@ class Ant(Thread):
 			return False
 
 	def add_to_tabu_list ( self, index, move ):
+		"""
+		Add new ant's move to tabu list
+		"""
 		if len(self.tabu_list) > index:
 			self.tabu_list[index] = move
 		else:
@@ -141,6 +150,9 @@ class Ant(Thread):
 		return last_coord*MULTIPLY[move]
 
 	def pick_next_moves ( self, probability ):
+		"""
+		Pick next move from sorted probability list
+		"""
 		list_of_index = []
 		list_of_values = []
 
@@ -150,11 +162,12 @@ class Ant(Thread):
 
 		list_of_index,list_of_values = self.sort_by ( list_of_index, list_of_values )
 
-		# print(list_of_index,list_of_values)
-
 		return list_of_index,list_of_values
 
 	def sort_by ( self, indexes, values ):
+		"""
+		Sort computed probabilities by select sort
+		"""
 		comparator = self.compare
 
 		for index in range ( len(indexes)-1, 0, -1):
@@ -163,29 +176,44 @@ class Ant(Thread):
 				if comparator(values[find_index] ,values[lowest_index]):
 					lowest_index = find_index
 
-			tmp_index = indexes[index]
-			indexes[index] = indexes[lowest_index]
-			indexes[lowest_index] = tmp_index
+			indexes,values = self.swap ( indexes, values, index, lowest_index)
 
-			tmp_values = values[index]
-			values[index] = values[lowest_index]
-			values[lowest_index] = tmp_values
 
+		# Ant colony returns equal solution
+		# Make some random change
 		change = 0
+		# Iterate probability list
 		for index in range(len(indexes)-1):
+			# Check if two probabilities are almost equal
 			if self.little_diference ( values[index], values[index+1] ) and change < CHANGE_RATE:
-				if random.random() < 0.3:
-					tmp = indexes[index]
-					indexes[index] = indexes[index+1]
-					indexes[index+1] = tmp
+				switch_probability = random.random()
+				# Check probability
+				if switch_probability < SWITCH_PROBABILITY:
+					# Swap two probabilities
+					indexes,values = self.swap(indexes, values, index, index+1)
 
 					change += 1
 
-		# print(indexes)
-		# print(values)
+		return indexes,values
+
+	def swap ( self, indexes, values, first_index, second_index ):
+		"""
+		Swap two item in indexes and values lists
+		"""
+		tmp = indexes[first_index]
+		indexes[first_index] = indexes[second_index]
+		indexes[second_index] = tmp
+
+		tmp = values[first_index]
+		values[first_index] = values[second_index]
+		values[second_index] = tmp
+
 		return indexes,values
 
 	def little_diference ( self, first, second ):
+		"""
+		Check if difference between two probabilities is lower then DIFFERENCE
+		"""
 		diff = abs(first-second)
 
 		if diff < DIFFERENCE:
@@ -194,30 +222,49 @@ class Ant(Thread):
 			return False
 
 	def compare( self, first, second ):
+		"""
+		Compare function for sort probabilities
+		"""
 		if first < second:
 			return True
 		else:
 			return False
 
 	def compute_probability_of_next_move ( self, index, pheronome, free_energy ):
+		"""
+		Compute probability of all possible moves based on pheronome value and free energy
+
+		Return unsorted list of probabilities
+
+		If move is invalid return NO_ROUTE
+		"""
 		if self.verbose:
 			print("Compute probability: ", index )
+
+		# Empty probability list
 		probability = []
-		total = 0
+		normalised_value = 0
+
+		# Iterate all values of pheronome values and free energy values
 		for pheronome_val, free_energy_val in zip (pheronome,free_energy):
 			if free_energy_val == None:
 				probability.append(None)
 			else:
+				# Unnormalised probability of move
 				value = math.pow(pheronome_val,PHEROMONE_VAL) * math.pow(1/free_energy_val,HEURISTIC_VAL)
-
-				total += value
-
+				# Computed value add to normalised value
+				normalised_value += value
+				# Add computed (unnormalised) value to list of probabilities
 				probability . append ( value )
 
+		# Normalise computed probabilities
 		for prob in range(len(probability)):
+			# Check invalid move
 			if probability[prob] != None:
-				probability[prob] *= 1/total
+				# Move is valid, multiply normalised value
+				probability[prob] *= 1/normalised_value
 			else:
+				# Move is invalid, return NO_ROUTE
 				probability[prob] = NO_ROUTE
 
 		return probability
@@ -228,48 +275,45 @@ class Ant(Thread):
 		"""
 		if self.verbose:
 			print("Compute free energy: ", index )
+		# Last configuration of completed protein
 		last_coord = self.vector.get_configuration_at_index(index-1)
 
+		# List with all possible configurations
 		directions = []
 		for direction in MULTIPLY:
+			# Add new possible configuration to the list
 			directions.append(last_coord*direction)
 
-		# print ( "Last coord: ", last_coord)
-		# print ( "Directions: ", directions)
-
-		# Get space cumulative add configuration to index-1
+		# Get space cumulative add configuration of completed configuration
 		space_config = self.vector.get_space_configuration(index)
 
-		# if space_config != space_config_get:
-		# 	print( space_config )
-		# 	print( space_config_get)
-
-		# space_config_counter = Counter ( space_config )
+		# Get space configuration set to detect of invalid move
 		space_config_counter = self.vector.get_space_configuration_set()
 
-		# Get free energy to index-1
+		# Get free energy of completed configuration
 		free_energy = self.vector.compute_free_energy(index-1, space_config)
 
 		valid = None
 		free_energy_of_all_directions = []
+
 		for direction in directions:
 			new_space_config = space_config[-1]+direction
 			# Check valid of configuration
-			if new_space_config in space_config_counter:
-				# Record exist
-				valid = False
-			else:
-				# Record NOT exist
-				valid = True
+			valid = self.check_valid_move ( new_space_config, space_config_counter )
 
 			if valid:
-				# self.vector.set_configuration_at_index(index, direction )
-				# new_free_energy = self.vector.compute_free_energy ( index )
+				# New configuration is valid 
+				# Add new configuration
 				space_config.append(new_space_config)
+				# Compute free energy of completed protein and new configuration
 				new_free_energy = self.vector.update_free_energy ( free_energy, index+1, space_config )
+
+				# Delete new configuration
 				del space_config[-1]
+				# Add computed free energy to list of free energys
 				free_energy_of_all_directions.append ( new_free_energy  )
 			else:
+				# New configuration is invalid
 				free_energy_of_all_directions.append ( None )
 
 		return free_energy_of_all_directions
@@ -279,3 +323,16 @@ class Ant(Thread):
 
 	def get_tabu_list ( self ):
 		return self.tabu_list
+
+	def check_valid_move ( self, tested_configuration, set_of_configuration ):
+		"""
+		Check if configuration is valid
+		"""
+		if tested_configuration in set_of_configuration:
+			# Record exist
+			valid = False
+		else:
+			# Record NOT exist
+			valid = True
+
+		return valid

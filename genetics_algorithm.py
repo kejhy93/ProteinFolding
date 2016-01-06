@@ -114,7 +114,9 @@ class GeneticsAlgorithm ( AbstractSolver ):
 			# CROSS-OVER
 			start_times.append(utils.get_time_in_millis())
 
-			if IS_CROSSOVER:
+			crossover_probability = random.random()
+			if IS_CROSSOVER and crossover_probability < self.CROSSOVER_RATE:
+				print("GeneticsAlgorithm -> Crossover")
 				population = self.do_crossover ( population, self.COUNT_OF_CROSSOVER_PER_GENERATION )
 			methods.append ( "Crossover")
 			end_times.append(utils.get_time_in_millis())
@@ -140,6 +142,7 @@ class GeneticsAlgorithm ( AbstractSolver ):
 			start_times.append( utils.get_time_in_millis() )
 
 			if IS_SIMULATED_ANNEALING:
+				print ( "GeneticsAlgorithm -> Simulated Annealing")
 				# Get random unique indexes of individuals
 				index_of_individuals = random.sample(range(0, population.count_of_individuals()), COUNT_OF_SIMULATED_ANNEALING)
 
@@ -166,6 +169,7 @@ class GeneticsAlgorithm ( AbstractSolver ):
 			start_times.append( utils.get_time_in_millis() )
 
 			if IS_ANT_COLONY:
+				print("GeneticsAlgorithm -> Ant-Colony")
 				population = self.do_ant_colony( population, iteration )
 
 			methods.append ( "Ant-Colony")

@@ -14,10 +14,12 @@ from simulated_annealing import do_simulated_annealing
 
 EVAPORATE_CONSTANT = 0.3
 
+# PARAMETERS FOR LOCAL SEARCH
 SIMULATED_ANNEALING_COOLING_RATE = 0.5
 
 HILL_CLIMBING_COUNT_OF_ITERATION = 5
 HILL_CLIMBING_COUNT_OF_NEIGHBOUR = 5
+
 
 STRAIGHT=0
 LEFT=1
@@ -115,41 +117,33 @@ class AntColony:
 		# return new_individuals
 
 	def local_search ( self, individuals, tabu_lists ):
-		print("AntColony -> Simulated Annealing")
+		print("AntColony -> Local Search")
 		counter = 0
-		# Single-threaded
-		# for individual,tabu_list in zip(individuals,tabu_lists):
-		# 	results.append ( do_simulated_annealing ( individual, COOLING_RATE ) )
-		# 	if results != individual:
-		# 		tabu_lists[counter] = self.update_tabu_list ( individual, tabu_list )
-
-		# 	counter += 1
 
 		index_to_delete = []
 		for index in range(len(individuals)):
-			# print("Indi: ", individuals[index])
 			if individuals[index] == None:
 				index_to_delete.append(index)
 
 		if len(index_to_delete) != 0:
-			# print("Length of index: : ",len(index_to_delete)," Length of individuals: ", len(individuals))
 			for index in range(len(index_to_delete),0,-1):
-				# print(index-1, len(individuals))
 				del individuals[index_to_delete[index-1]]
 				del tabu_lists[index_to_delete[index-1]]
 
-		# if len(index_to_delete) != 0:
-			# print(len(individuals))
-			# for indi in individuals:
-				# print("Indi: ", indi)
-				
 		# Multi-threaded
 		pool = ThreadPool ( 8 )
-		# results = pool.starmap(do_simulated_annealing, zip(individuals, itertools.repeat(SIMULATED_ANNEALING_COOLING_RATE) ) )
-		results = pool.starmap(do_hill_climbing, zip(individuals, itertools.repeat(HILL_CLIMBING_COUNT_OF_NEIGHBOUR), itertools.repeat(HILL_CLIMBING_COUNT_OF_ITERATION)))
 
-		for index in range(len(individuals)):
-			if individuals[index] == None:
+		local_search_method_probability = random.random()
+		if local_search_method_probability < 0.01:
+			print ( "\tAnt-Colony -> Simulated Annealing")
+			results = pool.starmap(do_simulated_annealing, zip(individuals, itertools.repeat(SIMULATED_ANNEALING_COOLING_RATE) ) )
+		else:
+			print ( "\tAnt-Colony -> Hill-Climbing")
+			results = pool.starmap(do_hill_climbing, zip(individuals, itertools.repeat(HILL_CLIMBING_COUNT_OF_NEIGHBOUR), itertools.repeat(HILL_CLIMBING_COUNT_OF_ITERATION)))
+
+
+		for index in range(len(results)):
+			if results[index] == None:
 				del tabu_lists[index]
 
 		for mutated, original,tabu_list in zip(results,individuals,tabu_lists):
@@ -187,8 +181,7 @@ class AntColony:
 			deltas = []
 			for direction in DIRECTIONS:
 				for tabu_list,individual in zip(tabu_lists,individuals):
-					# print(index,len(tabu_list))
-					if index > len(tabu_list):
+					if index >= len(tabu_list):
 						tabu_list.append(STRAIGHT)
 
 					if tabu_list[index-1] == direction:
@@ -197,7 +190,6 @@ class AntColony:
 						deltas.append ( 0 )
 			delta.append(deltas)
 
-		# print(len(delta))
 		return delta
 
 	def update_tabu_list ( self, individual, tabu_list ):
@@ -205,7 +197,6 @@ class AntColony:
 
 		vector = individual.get_individual()
 		configuration = vector.get_configuration()
-		# print(len(tabu_list))
 
 		new_tabu_list.append(STRAIGHT)
 
@@ -220,8 +211,6 @@ class AntColony:
 				new_tabu_list.append(LEFT)
 			elif current_coord == last_coord*MULT_TO_RIGHT:
 				new_tabu_list.append(RIGHT)
-
-		# print(len(new_tabu_list))
 
 		return new_tabu_list
 

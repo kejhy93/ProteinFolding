@@ -27,7 +27,7 @@ if __name__ == "__main__":
 
 	TEST_FILE = utils.parse ( PATH_TO_TEST_FILE )
 
-	TEST_FILE = utils.sort ( TEST_FILE, DECREASE )
+	TEST_FILE = utils.sort ( TEST_FILE, INCREASE )
 
 	start_millis = int(round(time.time() * 1000))
 	total_score = 0
@@ -49,14 +49,14 @@ if __name__ == "__main__":
 		if not modify_sequance or protein.get_count_of_hydro() <= 5:
 			minimal_configuration = protein.get_vector()
 		else:
-			TOTAL_COUNT_OF_GENERATION = 50
+			TOTAL_COUNT_OF_GENERATION = 100
 			SIZE_OF_POPULATION = 30
 
-			COUNF_OF_MUTATION = 8
+			COUNF_OF_MUTATION = 4
 			COUNT_OF_CROSSOVER = 4
 
 			MUTATION_RATE = 0.1
-			CROSSOVER_RATE = 1
+			CROSSOVER_RATE = 0.7
 
 			solver = GeneticsAlgorithm ( modify_sequance, TOTAL_COUNT_OF_GENERATION,
 			SIZE_OF_POPULATION, COUNF_OF_MUTATION, COUNT_OF_CROSSOVER,
@@ -83,7 +83,7 @@ if __name__ == "__main__":
 
 			utils.send_notification ( title_of_notification, body_of_notification )
 
-			# minimal_configuration.plot_config()
+			minimal_configuration.plot_config()
 
 		counter += 1
 

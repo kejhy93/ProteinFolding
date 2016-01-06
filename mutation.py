@@ -9,6 +9,9 @@ MUTATION_TYPE=(2/3)
 verbose = False
 
 def do_mutation ( individual, MUTATION_RATE=0.1, iteration=None, MAX_ITERATION=None ):
+	"""
+	Main method for mutation
+	"""
 	if verbose:
 		print("GeneticsAlgorithm -> Mutation")	
 
@@ -24,12 +27,13 @@ def do_mutation ( individual, MUTATION_RATE=0.1, iteration=None, MAX_ITERATION=N
 	energy_of_first_mutate_individual = mutated_individual.compute_free_energy ()
 
 	# Compute free energy of original indivudals
-	energy_of_first_individual = individual.compute_free_energy()
+	energy_of_first_individual = individual.get_free_energy()
 
 	if mutated_individual.check_valid_configuration():
-		return mutated_individual
-	else:
-		return individual
+		if energy_of_first_mutate_individual < energy_of_first_individual:
+			individual = mutated_individual
+
+	return individual
 
 def mutate_one_point ( individual, MUTATION_RATE ):
 	"""
@@ -41,9 +45,7 @@ def mutate_one_point ( individual, MUTATION_RATE ):
 	# 	print ( "GeneticsAlgorithm -> mutate_one_point")
 
 	mutate_individual = deepcopy ( individual )
-
 	mutate_vector = mutate_individual.get_individual ()
-
 	mutate_config = mutate_vector.get_configuration()
 
 	for config_index in range ( len(mutate_config) ):
@@ -56,9 +58,10 @@ def mutate_one_point ( individual, MUTATION_RATE ):
 	mutate_individual . set_individual ( mutate_vector )
 
 	return mutate_individual
+
 def mutate_from_point ( individual, MUTATION_RATE ):
 	"""
-	Mutate individual with MUTATE_RATE
+	Mutate individual with from random point to end
 
 	return mutated individual
 	"""
@@ -66,9 +69,7 @@ def mutate_from_point ( individual, MUTATION_RATE ):
 	# 	print ( "GeneticsAlgorithm -> mutate_from_point")
 
 	mutate_individual = deepcopy ( individual )
-
 	mutate_vector = mutate_individual.get_individual ()
-
 	mutate_config = mutate_vector.get_configuration()
 
 	from_index = random.randint(0,len(mutate_config)-1)
@@ -80,9 +81,10 @@ def mutate_from_point ( individual, MUTATION_RATE ):
 	mutate_individual . set_individual ( mutate_vector )
 
 	return mutate_individual
+
 def mutate_from_to_point ( individual, MUTATION_RATE ):
 	"""
-	Mutate individual with MUTATE_RATE
+	Mutate individual from random index to random index
 
 	return mutated individual
 	"""
@@ -90,9 +92,7 @@ def mutate_from_to_point ( individual, MUTATION_RATE ):
 	# 	print ( "GeneticsAlgorithm -> mutate_from_to_point")
 
 	mutate_individual = deepcopy ( individual )
-
 	mutate_vector = mutate_individual.get_individual ()
-
 	mutate_config = mutate_vector.get_configuration()
 
 	from_index = random.randint(0,len(mutate_config)-1)
@@ -107,6 +107,9 @@ def mutate_from_to_point ( individual, MUTATION_RATE ):
 	return mutate_individual
 
 def pick_mutation_method ( iteration, MAX_ITERATION ):
+	"""
+	Pick mutation method from iteration and max iteration
+	"""
 	random_choice = random.random()
 
 	if iteration == None or MAX_ITERATION == None:
