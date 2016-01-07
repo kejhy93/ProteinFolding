@@ -28,13 +28,11 @@ NO_ROUTE = -10000000000000000000
 
 SWITCH_PROBABILITY = 0.3
 DIFFERENCE = 0.025
-CHANGE_RATE = 2
+CHANGE_RATE = 1
 
-PHEROMONE_VAL = 2
-HEURISTIC_VAL = 2
 
 class Ant(Thread):
-	def __init__ ( self, ID, sequance, pheronome ):
+	def __init__ ( self, ID, sequance, pheronome, heuristic_val, pheronome_val ):
 		Thread.__init__(self)
 		self.ID = ID
 
@@ -51,6 +49,9 @@ class Ant(Thread):
 		self.pheronome = pheronome
 		# Init result of ant's search
 		self.individual = None
+
+		self.PHEROMONE_VAL = pheronome_val
+		self.HEURISTIC_VAL = heuristic_val
 
 	def get_id ( self ):
 		return self.ID
@@ -92,10 +93,7 @@ class Ant(Thread):
 		"""
 		if self.verbose:
 			print("Create configuration: ", index )
-		# print ( "Evaluate config on index: ", index )
-		# print(self.vector)
-		# self.vector.plot_config(index)
-		# print(index,len(self.vector.get_amino_sequance())-1)
+
 		if index >= len(self.vector.get_amino_sequance())-1:
 			return True
 
@@ -108,9 +106,11 @@ class Ant(Thread):
 		free_energy = self.compute_free_energy_of_possible_moves ( index )
 		# print("Free energy of directions: ", free_energy)
 
+		# Compute probability of all possible moves
 		probability = self.compute_probability_of_next_move ( index, pheronome[index], free_energy )
 		# print("Probability of next move: ", probability)
 
+		# Sort probability list
 		next_move,next_move_values = self.pick_next_moves ( probability )
 		# print("Next moves: ", next_move )
 
@@ -126,8 +126,7 @@ class Ant(Thread):
 				counter_of_success += 1
 
 				new_index = index + 1
-				# print(self.vector)
-				# self.vector.plot_config(index)
+
 				if self.create_configuration ( new_index, pheronome ):
 					return True
 
@@ -185,14 +184,15 @@ class Ant(Thread):
 		# Iterate probability list
 		for index in range(len(indexes)-1):
 			# Check if two probabilities are almost equal
-			if self.little_diference ( values[index], values[index+1] ) and change < CHANGE_RATE:
-				switch_probability = random.random()
-				# Check probability
-				if switch_probability < SWITCH_PROBABILITY:
-					# Swap two probabilities
-					indexes,values = self.swap(indexes, values, index, index+1)
+			if random.random() < 0.2:
+				if self.little_diference ( values[index], values[index+1] ) and change < CHANGE_RATE:
+					switch_probability = random.random()
+					# Check probability
+					if switch_probability < SWITCH_PROBABILITY:
+						# Swap two probabilities
+						indexes,values = self.swap(indexes, values, index, index+1)
 
-					change += 1
+						change -= 1
 
 		return indexes,values
 
@@ -251,7 +251,7 @@ class Ant(Thread):
 				probability.append(None)
 			else:
 				# Unnormalised probability of move
-				value = math.pow(pheronome_val,PHEROMONE_VAL) * math.pow(1/free_energy_val,HEURISTIC_VAL)
+				value = math.pow(pheronome_val,self.PHEROMONE_VAL) * math.pow(1/free_energy_val,self.HEURISTIC_VAL)
 				# Computed value add to normalised value
 				normalised_value += value
 				# Add computed (unnormalised) value to list of probabilities

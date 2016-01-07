@@ -7,7 +7,10 @@ import calendar
 import subprocess
 import notify2
 
+import re
+
 from data import Data
+from vector import Vector
 
 INCREASE = 1
 DECREASE = 0
@@ -80,7 +83,7 @@ def is_first_higher ( first, second ):
 	else:
 		return False
 
-def create_filename ( index ):
+def create_index ( index ):
 	if index < 10:
 		indexStr = "00"+str(index)
 	elif index < 100:
@@ -88,7 +91,11 @@ def create_filename ( index ):
 	else:
 		indexStr = str(index)
 
-	name = "file_" + indexStr
+	return indexStr
+
+def create_filename ( index ):
+
+	name = "file_" + create_index(index)
 
 	return name
 
@@ -209,6 +216,42 @@ def read_minimal_energy_from_file( ID ):
 		minimal_value = find_min_value_in ( content )
 
 	return minimal_value
+
+def read_configuration_history ( path_to_file, amino_sequance ):
+	"""
+	Read history of configuration from file
+	"""
+	history = []
+
+	if not os.path.exists ( path_to_file ):
+		return history
+
+	content_of_file = ""
+	with open ( path_to_file, 'r', encoding='utf-8') as f:
+		content_of_file = f.read()
+		# print(content_of_file)
+
+	history = parse_configuration_history ( content_of_file, amino_sequance )
+
+	# print(history)
+	return history
+
+def parse_configuration_history ( content_of_file, amino_sequance ):
+	history = []
+	splited_content_of_file = content_of_file.split("\n")
+
+	for line in splited_content_of_file:
+		vector = Vector(amino_sequance)
+		line = re.sub('[\[,\]]', '', line)
+		removed_free_energy = line.split ()
+		# print(removed_free_energy)
+
+		for index in range(1,len(removed_free_energy)):
+			vector.set_configuration_at_index(index-1, complex(removed_free_energy[index]))
+
+		history.append(vector)
+
+	return history
 
 def send_notification(title, body):
 	# subprocess.Popen(['notify-send', message])

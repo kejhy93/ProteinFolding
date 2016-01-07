@@ -46,7 +46,7 @@ if __name__ == "__main__":
 		print ( "Counter: ", counter, "/",str(len(TEST_FILE)))
 		print ( "Protein sequance: ", protein.get_sequance() )
 
-		if not modify_sequance or protein.get_count_of_hydro() <= 5:
+		if not modify_sequance or protein.get_count_of_hydro() <= 2:
 			minimal_configuration = protein.get_vector()
 		else:
 			TOTAL_COUNT_OF_GENERATION = 100
@@ -83,7 +83,7 @@ if __name__ == "__main__":
 
 			utils.send_notification ( title_of_notification, body_of_notification )
 
-			minimal_configuration.plot_config()
+			# minimal_configuration.plot_config()
 
 		counter += 1
 

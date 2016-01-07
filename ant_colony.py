@@ -13,6 +13,7 @@ from hill_climbing import do_hill_climbing
 from simulated_annealing import do_simulated_annealing
 
 EVAPORATE_CONSTANT = 0.3
+DELTA_PHERONOME_CONSTANT = 1000
 
 # PARAMETERS FOR LOCAL SEARCH
 SIMULATED_ANNEALING_COOLING_RATE = 0.5
@@ -34,7 +35,7 @@ MULT_TO_RIGHT = complex(0,-1)
 MULTIPLY = [ MULT_TO_STRAIGHT, MULT_TO_LEFT, MULT_TO_RIGHT]
 
 class AntColony:
-	def __init__ ( self, count_of_ants, sequance ):
+	def __init__ ( self, count_of_ants, sequance, iteration, max_iteration ):
 		self.verbose = False
 
 		if self.verbose:
@@ -47,6 +48,18 @@ class AntColony:
 		self.pheronome = []
 
 		self.pheronome = self.init_pheronome_trails ()
+
+		self.heuristic_val, self.pheronome_val = self.update_heuristic_pheronome_value ( iteration, max_iteration )
+
+	def update_heuristic_pheronome_value ( self, iteration, max_iteration ):
+		if iteration < (1/5)*max_iteration:
+			return 7,2
+		elif iteration < (2/5)*max_iteration:
+			return 6,3
+		elif iteration < (3/5)*max_iteration:
+			return 5,4
+		else:
+			return 4,4
 
 	def init_pheronome_trails ( self ):
 		"""
@@ -71,33 +84,23 @@ class AntColony:
 		"""
 
 		for ant_index in range ( self.COUNT_OF_ANTS ):
-			self.ants . append ( Ant(ant_index, self.sequance, self.pheronome ))
+			self.ants . append ( Ant(ant_index, self.sequance, self.pheronome, self.heuristic_val, self.pheronome_val ))
 
 		new_individuals = []
 		tabu_lists = []
-		# for ant in self.ants:
-			# print("AntColony -> Ant ", ant.get_id()+1 , ": Started")
 
-			# Single-threaded
-			# new_individual,tabu_list = ant.search( self.pheronome )
-			# if new_individual != None:
-				# new_individuals.append(new_individual)
-				# tabu_lists.append (tabu_list )
-
-			# Multi-threaded
-
+		# Multi-threaded
 		for ant in self.ants:
 			ant.start()
 
 		for ant in self.ants:
 			ant.join()
-			# print("AntColony -> Ant ", ant.get_id()+1 , ": Terminated")
-			new_individuals.append( ant.get_individual() )
-			tabu_lists.append( ant.get_tabu_list() )
 
-		# for individual in new_individuals:
-		# 	print(individual.get_individual())
-		# 	individual.get_individual().plot_config()
+			new_individual = ant.get_individual()
+			if new_individual != None:
+				# Remove invalid individuals
+				new_individuals.append( ant.get_individual() )
+				tabu_lists.append( ant.get_tabu_list() )
 
 		results = []
 		counter = 0
@@ -106,15 +109,26 @@ class AntColony:
 		if self.verbose:
 			print("Ant-Colony -> Local search")
 
+		# Local search
 		results,tabu_lists = self.local_search ( new_individuals, tabu_lists )
 
 		# Update pheronome trails
-		self.update_pheronome_trails ( results, tabu_lists )
+		validIndividuals = self.check_valid_of_new_individuals ( results )
+
+		if validIndividuals:
+			self.update_pheronome_trails ( results, tabu_lists )
 		# self.update_pheronome_trails ( new_individuals, tabu_lists )
 
 
 		return results
 		# return new_individuals
+
+	def check_valid_of_new_individuals ( self, results ):
+		valid = False
+		for result in results:
+			if result != None:
+				valid = True
+		return valid
 
 	def local_search ( self, individuals, tabu_lists ):
 		print("AntColony -> Local Search")
@@ -145,6 +159,7 @@ class AntColony:
 		for index in range(len(results)):
 			if results[index] == None:
 				del tabu_lists[index]
+				del individuals[index]
 
 		for mutated, original,tabu_list in zip(results,individuals,tabu_lists):
 			if mutated != original and mutated != None:
@@ -157,15 +172,18 @@ class AntColony:
 		return results,tabu_lists
 
 	def update_pheronome_trails ( self, new_individuals, tabu_lists ):
+		"""
+		Update pheronomes
+		"""
 		if self.verbose:
 			print ( "AntColony -> Update pheronome trails")
 
+		# Compute delta pheronome
 		delta_pheronome = self.compute_delta_pheronome ( new_individuals, tabu_lists )
-
+		
 		for index_of_pheronome in range(1,len(self.pheronome)):
 			new_pheronome = self.pheronome[index_of_pheronome]
 
-			# Evaporate
 			for index_of_pher in range(len(DIRECTIONS)):
 				new_pheronome[index_of_pher] *= EVAPORATE_CONSTANT
 				new_pheronome[index_of_pher] += delta_pheronome[index_of_pheronome-1][index_of_pher]
@@ -185,7 +203,7 @@ class AntColony:
 						tabu_list.append(STRAIGHT)
 
 					if tabu_list[index-1] == direction:
-						deltas.append(100/individual.get_free_energy() )
+						deltas.append(DELTA_PHERONOME_CONSTANT/individual.get_free_energy() )
 					else:
 						deltas.append ( 0 )
 			delta.append(deltas)

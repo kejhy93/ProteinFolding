@@ -34,7 +34,7 @@ HILL_CLIMBING_COUNT_OF_NEIGHOUR = 12
 HILL_CLIMBING_COUNT_OF_ITERATION = 5
 
 # SIMULATED ANNEALING
-COUNT_OF_SIMULATED_ANNEALING = 2
+COUNT_OF_SIMULATED_ANNEALING = 1
 SIMULATED_ANNEALING_COOLING_RATE = 0.9
 INITAL_TEMPERATURE=10000
 MIN_TEMPERATURE = 1
@@ -87,7 +87,7 @@ class GeneticsAlgorithm ( AbstractSolver ):
 
 		IS_MUTATION = True
 		IS_CROSSOVER = True
-		IS_HILL_CLIMBING = False
+		IS_HILL_CLIMBING = True
 		IS_SIMULATED_ANNEALING = True
 		IS_ANT_COLONY = True
 
@@ -222,7 +222,7 @@ class GeneticsAlgorithm ( AbstractSolver ):
 		# if self.verboseGeneticsSolver:
 		# 	print ("GeneticsAlgorithm -> Ant-Colony")
 
-		ant_colony = AntColony ( COUNT_OF_ANTS, self.sequance  )
+		ant_colony = AntColony ( COUNT_OF_ANTS, self.sequance, iteration, self.MAX_GENERATION  )
 
 		new_individuals = ant_colony.search ()
 

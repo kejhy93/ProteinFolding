@@ -1,7 +1,7 @@
 #! /usr/bin/python3
 
 from collections import *
-import matplotlib.pyplot as plt
+import matplotlib
 
 import random
 from copy import deepcopy
@@ -245,10 +245,59 @@ class Vector:
 					DOWN = True
 					RIGHT = False
 
+	def save_config_to_file ( self, filename ):
+		"""
+		Save config to file
+		"""
+		matplotlib.use('Agg')
+		import matplotlib.pyplot as plt
+
+		list_of_real = []
+		list_of_imag = []
+
+		list_of_hydrophobilic = []
+
+		min_x, min_y = -1, -1
+		max_x, max_y = 1, 1
+
+		final_index = len(self.sequance)
+
+		self.compute_space_configuration(final_index-2)
+
+		# Init list of all points
+		for space_config_item in self.space_configuration:
+			list_of_real.append ( space_config_item.real )
+			list_of_imag.append ( space_config_item.imag )
+
+		fig = plt.figure()
+
+		ax = fig.gca()
+		plt.plot ( list_of_real, list_of_imag )
+
+		for index_of_amino in range(final_index):
+			if self.sequance[index_of_amino] == HYDROPHOBILIC:
+				plt.scatter ( list_of_real[index_of_amino], list_of_imag[index_of_amino], marker="o", color="red")
+			else:
+				plt.scatter ( list_of_real[index_of_amino], list_of_imag[index_of_amino], marker="o",color="blue")
+
+		axis = self.get_axis()
+		plt.axis(axis)
+
+		ax.set_xticks(numpy.arange(axis[0],axis[1],1))
+		ax.set_yticks(numpy.arange(axis[2],axis[3],1))
+		
+		plt.grid()
+
+		fig.savefig( filename+".png" )
+
+		plt.close()
+
 	def plot_config ( self, index=None ):
 		"""
 		Plot configuration of vector
 		"""
+		import matplotlib.pyplot as plt
+
 		list_of_real = []
 		list_of_imag = []
 
@@ -273,13 +322,6 @@ class Vector:
 
 		ax = fig.gca()
 		plt.plot ( list_of_real, list_of_imag )
-
-		# if index != None:
-		# 	final_index = index+1
-		# else:
-		# 	final_index = len(self.sequance)
-
-		# print ( list_of_real, list_of_imag)
 
 		for index_of_amino in range(final_index):
 			if self.sequance[index_of_amino] == HYDROPHOBILIC:
