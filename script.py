@@ -36,7 +36,7 @@ if __name__ == "__main__":
 	# 	print(i)
 
 	# TEST_FILE = utils.sort_by_test_size ( TEST_FILE )
-	# TEST_FILE = [TEST_FILE[100],TEST_FILE[3]]
+	# TEST_FILE = TEST_FILE[:25]
 	counter = 0
 	for protein in TEST_FILE:
 		print ( " ======================================================= ")
@@ -46,17 +46,17 @@ if __name__ == "__main__":
 		print ( "Counter: ", counter, "/",str(len(TEST_FILE)))
 		print ( "Protein sequance: ", protein.get_sequance() )
 
-		if not modify_sequance or protein.get_count_of_hydro() <= 2:
+		if not modify_sequance or protein.get_count_of_hydro() <= 10:
 			minimal_configuration = protein.get_vector()
 		else:
-			TOTAL_COUNT_OF_GENERATION = 100
+			TOTAL_COUNT_OF_GENERATION = 50
 			SIZE_OF_POPULATION = 30
 
-			COUNF_OF_MUTATION = 4
+			COUNF_OF_MUTATION = 8
 			COUNT_OF_CROSSOVER = 4
 
 			MUTATION_RATE = 0.1
-			CROSSOVER_RATE = 0.7
+			CROSSOVER_RATE = 0.8
 
 			solver = GeneticsAlgorithm ( modify_sequance, TOTAL_COUNT_OF_GENERATION,
 			SIZE_OF_POPULATION, COUNF_OF_MUTATION, COUNT_OF_CROSSOVER,
@@ -83,7 +83,7 @@ if __name__ == "__main__":
 
 			utils.send_notification ( title_of_notification, body_of_notification )
 
-			# minimal_configuration.plot_config()
+			minimal_configuration.plot_config()
 
 		counter += 1
 

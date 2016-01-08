@@ -27,8 +27,8 @@ MULTIPLY = [ MULT_TO_STRAIGHT, MULT_TO_LEFT, MULT_TO_RIGHT]
 NO_ROUTE = -10000000000000000000
 
 SWITCH_PROBABILITY = 0.3
-DIFFERENCE = 0.025
-CHANGE_RATE = 1
+DIFFERENCE = 0.0025
+CHANGE_RATE = 0
 
 
 class Ant(Thread):
@@ -67,7 +67,7 @@ class Ant(Thread):
 		# Create first connection
 		self.vector.clean_configuration()
 		self.vector.set_configuration_at_index(0,UP)
-		self.tabu_list.append(1)
+		self.tabu_list.append(0)
 		# print(self.vector)
 
 		MAX_SIZE_OF_CONFIG = len(self.vector.get_amino_sequance())-1
@@ -190,6 +190,7 @@ class Ant(Thread):
 					# Check probability
 					if switch_probability < SWITCH_PROBABILITY:
 						# Swap two probabilities
+						print("Swap")
 						indexes,values = self.swap(indexes, values, index, index+1)
 
 						change -= 1

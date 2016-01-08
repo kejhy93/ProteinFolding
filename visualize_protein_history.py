@@ -49,9 +49,12 @@ if __name__ == "__main__":
 		history_of_configuration = read_history_of_configuration_of ( full_name_to_file )
 		history . append ( history_of_configuration )
 
-	counter = 0
-	for protein_history in history:
+	counter = 2
 
-		visualize(protein_history, counter)
-		print(" ======== ")
-		counter += 1
+	visualize(history[counter],counter)
+
+	# counter = 0
+	# for protein_history in history:
+	# 	visualize(protein_history, counter)
+	# 	print(" ======== ")
+	# 	counter += 1
