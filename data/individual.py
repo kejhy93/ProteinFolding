@@ -68,6 +68,9 @@ class Individual:
     
     def __eq__(self, other_individual): 
         
+        if other_individual is None: 
+            return False
+        
         self_vector = self.get_individual
         other_vector = other_individual.get_individual
         
