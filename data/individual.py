@@ -2,7 +2,7 @@
 
 from copy import deepcopy
 
-from vector import Vector
+from data.vector import Vector
 
 
 class Individual:

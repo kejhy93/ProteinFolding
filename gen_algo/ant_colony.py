@@ -4,7 +4,7 @@ import itertools
 import random
 from multiprocessing.dummy import Pool as ThreadPool
 
-from ant import Ant
+from data.ant import Ant
 from gen_algo.hill_climbing import do_hill_climbing
 from gen_algo.simulated_annealing import do_simulated_annealing
 

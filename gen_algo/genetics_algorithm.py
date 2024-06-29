@@ -10,9 +10,9 @@ from abstract_solver import AbstractSolver
 from gen_algo.ant_colony import AntColony
 from gen_algo.crossover import do_crossover
 from gen_algo.hill_climbing import do_hill_climbing
-from individual import Individual
+from data.individual import Individual
 from gen_algo.mutation import do_mutation
-from population import Population
+from data.population import Population
 from gen_algo.simulated_annealing import do_simulated_annealing
 
 NOT_VALID_CONFIGURATION = False

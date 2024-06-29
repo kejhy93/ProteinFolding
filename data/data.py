@@ -1,7 +1,6 @@
 #! /usr/bin/python3
 
-from vector import Vector
-
+from data.vector import Vector
 
 class Data:
     def __init__(self, content, index):
