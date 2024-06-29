@@ -38,8 +38,8 @@ if __name__ == "__main__":
         if not modify_sequance or protein.get_count_of_hydro() <= 10:
             minimal_configuration = protein.get_vector()
         else:
-            TOTAL_COUNT_OF_GENERATION = 100
-            SIZE_OF_POPULATION = 100
+            TOTAL_COUNT_OF_GENERATION = 2
+            SIZE_OF_POPULATION = 10
 
             COUNF_OF_MUTATION = 8
             COUNT_OF_CROSSOVER = 4
