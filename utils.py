@@ -4,8 +4,8 @@ import os
 import re
 import time
 
-from data import Data
-from vector import Vector
+from data.data import Data
+from data.vector import Vector
 
 INCREASE = 1
 DECREASE = 0

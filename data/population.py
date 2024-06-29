@@ -3,8 +3,8 @@
 import random
 from copy import deepcopy
 
-from individual import Individual
-from vector import Vector
+from data.individual import Individual
+from data.vector import Vector
 
 SIZE_OF_CANDICATE_LIST = 10
 

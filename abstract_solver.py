@@ -1,6 +1,6 @@
 #! /usr/bin/python3
 
-from vector import Vector
+from data.vector import Vector
 
 
 class AbstractSolver:

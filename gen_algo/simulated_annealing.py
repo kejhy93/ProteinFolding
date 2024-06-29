@@ -4,7 +4,7 @@ import random
 from copy import deepcopy
 from math import exp
 
-from mutation import do_mutation
+from gen_algo.mutation import do_mutation
 
 verbose = False
 

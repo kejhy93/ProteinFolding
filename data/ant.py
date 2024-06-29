@@ -5,8 +5,8 @@ import random
 from threading import *
 
 import utils
-from individual import Individual
-from vector import Vector
+from data.individual import Individual
+from data.vector import Vector
 
 STRAIGHT = 0
 LEFT = 1

@@ -5,7 +5,7 @@ import math
 import time
 
 import utils
-from genetics_algorithm import GeneticsAlgorithm
+from gen_algo.genetics_algorithm import GeneticsAlgorithm
 
 PATH_TO_TEST_FILE = "testsuite.txt"
 
