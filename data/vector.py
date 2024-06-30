@@ -429,6 +429,10 @@ class Vector:
             free_energy += self.length_between_amino(space_conf[first], space_conf[index - 1])
 
         return free_energy
+    
+    def __eq__(self, other):
+        return all(x == y for x, y in zip(self.sequance, other.sequance))
+        
 
 
 if __name__ == "__main__":
