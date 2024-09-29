@@ -55,6 +55,8 @@ class GeneticsAlgorithm(AbstractSolver):
         self.COUNT_OF_MUTATION_PER_GENERATION = COUNT_OF_MUTATION_PER_GENERATION
         self.COUNT_OF_CROSSOVER_PER_GENERATION = COUNT_OF_CROSSOVER_PER_GENERATION
 
+        self.list_individuals = []
+
         super().__init__(sequance)
         self.verboseGeneticsSolver = True
 
@@ -181,6 +183,8 @@ class GeneticsAlgorithm(AbstractSolver):
 
             best_individual_of_population = self.get_best_individual(best_individual_of_iteration,
                                                                      best_individual_of_population)
+
+            self.list_individuals.append(best_individual_of_iteration)
 
             iterationStr += "Energy of best individual: {:10.3f}, Average fitness: {:10.3f}".format(
                 best_individual_of_population.get_free_energy(), average_fitness)
