@@ -65,6 +65,8 @@ class GeneticsAlgorithm(AbstractSolver):
 
         self.ant_colony = None
 
+        self.list_individuals = []
+
     def solve(self):
         if self.verboseGeneticsSolver:
             print("GeneticsAlgorithm -> solve")
@@ -181,6 +183,8 @@ class GeneticsAlgorithm(AbstractSolver):
 
             best_individual_of_population = self.get_best_individual(best_individual_of_iteration,
                                                                      best_individual_of_population)
+
+            list_individuals.append(best_individual_of_iteration)
 
             iterationStr += "Energy of best individual: {:10.3f}, Average fitness: {:10.3f}".format(
                 best_individual_of_population.get_free_energy(), average_fitness)
