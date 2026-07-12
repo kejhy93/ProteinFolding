@@ -32,14 +32,6 @@ jobs:
       - python/install-packages:
           pkg-manager: pip
       - python/install-packages:
-          cache-key-override: >-
-            pip-{{ checksum 'dev-requirements.txt' }}-{{ checksum
-            'requirements.txt' }}
-          pkg-manager: pip
-      - python/install-packages:
-          pip-dependency-file: dev-requirements.txt
-          pkg-manager: pip
-      - python/install-packages:
           args: pytest
           pkg-manager: pip
           pypi-cache: false
