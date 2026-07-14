@@ -8,11 +8,11 @@ COUNT_OF_ITERATION = 10
 COUNT_OF_NEIGHBOR = 12
 
 
-def do_hill_climbing(individual, COUNT_OF_ITERATION=5, COUNT_OF_NEIGHBOR=6):
+def do_hill_climbing(individual, count_of_iteration=5, count_of_neighbor=6):
     """
     Main method for hill-climbing
     """
-    new_individual = hill_climbing(individual, COUNT_OF_ITERATION, COUNT_OF_NEIGHBOR)
+    new_individual = hill_climbing(individual, count_of_iteration, count_of_neighbor)
 
     return new_individual
 
