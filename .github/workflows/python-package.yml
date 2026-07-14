@@ -38,10 +38,12 @@ jobs:
         # requires a single resolved version, not a compatible-release range.
         python -m pip install --upgrade pip==25.2
         python -m pip install flake8==7.3.0 pytest==9.1.1
-        # --only-binary=:all: is intentionally not used here: some of requirements.txt's
-        # pins (e.g. matplotlib==3.9.0) have no wheel for every Python version in this
-        # build matrix, so forcing wheel-only installs breaks those jobs outright.
-        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+        # requirements.txt is now a hash-locked file (every direct and transitive
+        # dependency pinned with --hash) covering the Python versions actually in
+        # this matrix (3.10-3.12), so --only-binary=:all: is safe here: all pinned
+        # wheels exist for those versions, and --require-hashes rejects anything
+        # that doesn't match the recorded hash, including any sdist/setup.py build.
+        if [ -f requirements.txt ]; then pip install --only-binary=:all: --require-hashes -r requirements.txt; fi
     - name: Lint with flake8
       run: |
         # stop the build if there are Python syntax errors or undefined names

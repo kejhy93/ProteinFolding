@@ -31,10 +31,13 @@ jobs:
       - checkout
       - python/install-packages:
           pkg-manager: pip
-      - python/install-packages:
-          args: pytest
-          pkg-manager: pip
-          pypi-cache: false
+      # A plain step instead of a second python/install-packages call: that orb
+      # re-runs pip against requirements.txt with the extra arg appended, and
+      # since requirements.txt is now hash-locked, pip's hash-checking mode
+      # rejects the unpinned/unhashed "pytest" arg in that combined invocation.
+      - run:
+          name: Install pytest
+          command: pip install pytest==9.1.1
       - run:
           command: |
             pytest --version
