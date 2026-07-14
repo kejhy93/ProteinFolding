@@ -6,7 +6,7 @@ from copy import deepcopy
 from data.individual import Individual
 from data.vector import Vector
 
-SIZE_OF_CANDICATE_LIST = 10
+SIZE_OF_CANDIDATE_LIST = 10
 
 
 class Population:
@@ -51,8 +51,8 @@ class Population:
         Generate list of candidates before select
         """
         candidate_list = []
-        for _ in range(SIZE_OF_CANDICATE_LIST):
-            candidate_list.append(random.randint(0, self.size_of_population - 1))
+        for _ in range(SIZE_OF_CANDIDATE_LIST):
+            candidate_list.append(random.randint(0, self.size_of_population - 1))  # NOSONAR python:S2245 - non-cryptographic use, algorithmic randomness only
 
         return candidate_list
 
@@ -63,11 +63,11 @@ class Population:
         best_index = -1
         best_score = 10000000
 
-        for candicate in candidate_list:
-            energy_of_individual = self.individuals[candicate].get_free_energy()
+        for candidate in candidate_list:
+            energy_of_individual = self.individuals[candidate].get_free_energy()
             if energy_of_individual < best_score:
                 best_score = energy_of_individual
-                best_index = candicate
+                best_index = candidate
 
         return best_index
 
