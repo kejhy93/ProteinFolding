@@ -28,8 +28,6 @@ class Vector:
         self.sequance = protein_sequance
 
         self.configuration = []
-        # for i in range(len(self.sequance)-1):
-        # 	self.configuration.append ( complex (0, 1))
 
         self.generate_random()
 
