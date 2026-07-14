@@ -1,7 +1,7 @@
 #! /usr/bin/python3
 
 import random
-from collections import *
+from collections import Counter
 from copy import deepcopy
 
 import matplotlib
@@ -186,7 +186,7 @@ class Vector:
         """
         Generate random valid sequance
         """
-        for i in range(len(self.sequance) - 1):
+        for _ in range(len(self.sequance) - 1):
             self.configuration.append(complex(1, 0))
 
         RIGHT = True
@@ -252,11 +252,6 @@ class Vector:
 
         list_of_real = []
         list_of_imag = []
-
-        list_of_hydrophobilic = []
-
-        min_x, min_y = -1, -1
-        max_x, max_y = 1, 1
 
         final_index = len(self.sequance)
 
