@@ -20,15 +20,15 @@ TEMPERATURE_VALID = 1
 
 
 # SIMULATED ANNEALING
-def do_simulated_annealing(individual, COOLING_RATE=0.99, INITAL_TEMPERATURE=10000, MIN_TEMPERATURE=1):
+def do_simulated_annealing(individual, cooling_rate=0.99, initial_temperature=10000, min_temperature=1):
     """
     Main method for simulated annealing
     """
     # Initial check
     # Check valid of cooling rate
-    valid_of_cooling_rate = check_valid_of_cooling_rate(COOLING_RATE)
+    valid_of_cooling_rate = check_valid_of_cooling_rate(cooling_rate)
     # Check of valid temperatures
-    valid_of_temperatures = check_temperatures(INITAL_TEMPERATURE, MIN_TEMPERATURE)
+    valid_of_temperatures = check_temperatures(initial_temperature, min_temperature)
 
     if valid_of_cooling_rate == COOLING_RATE_TOO_HIGH:
         print("Simulated Annealing -> Cooling rate is equal or higher then 1")
@@ -44,18 +44,18 @@ def do_simulated_annealing(individual, COOLING_RATE=0.99, INITAL_TEMPERATURE=100
     if verbose:
         print("Simulated Annealing")
 
-    temperature = INITAL_TEMPERATURE
+    temperature = initial_temperature
 
     # Get current solution from population
     current_solution = deepcopy(individual)
 
     # Until temperature is low
-    while temperature > MIN_TEMPERATURE:
+    while temperature > min_temperature:
 
         # Init new solution
         new_solution = None
         # Get new solution by mutation
-        new_solution = do_mutation(current_solution, 0.1, temperature, INITAL_TEMPERATURE)
+        new_solution = do_mutation(current_solution, 0.1, temperature, initial_temperature)
 
         # Get energy of both solutions
         energy_of_current_solution = current_solution.get_free_energy()
@@ -76,17 +76,17 @@ def do_simulated_annealing(individual, COOLING_RATE=0.99, INITAL_TEMPERATURE=100
                 current_solution = new_solution
 
             # Update temperature
-            temperature = update_temperature(temperature, COOLING_RATE)
+            temperature = update_temperature(temperature, cooling_rate)
 
     return current_solution
 
 
-def update_temperature(temperature, COOLING_RATE):
+def update_temperature(temperature, cooling_rate):
     """
-    Update temperature by COOLING_RATE
+    Update temperature by cooling_rate
     """
     # Update given temperature
-    temperature *= COOLING_RATE
+    temperature *= cooling_rate
     # Return updated temperature
     return temperature
 
@@ -113,11 +113,11 @@ def check_valid_of_cooling_rate(cooling_rate):
         return COOLING_RATE_OK
 
 
-def check_temperatures(INITAL_TEMPERATURE, MIN_TEMPERATURE):
+def check_temperatures(initial_temperature, min_temperature):
     """
     Check if temperatures are valid
     """
-    if INITAL_TEMPERATURE < MIN_TEMPERATURE:
+    if initial_temperature < min_temperature:
         return TEMPERATURE_INVALID
     else:
         return TEMPERATURE_VALID
