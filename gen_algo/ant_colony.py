@@ -181,7 +181,7 @@ class AntColony:
 
         for mutated, original, tabu_list in zip(results, individuals, tabu_lists):
             if mutated != original and mutated != None:
-                tabu_lists[counter] = self.update_tabu_list(mutated, tabu_list)
+                tabu_lists[counter] = self.update_tabu_list(mutated)
 
             counter += 1
 
@@ -253,7 +253,7 @@ class AntColony:
 
         return deltas
 
-    def update_tabu_list(self, individual, tabu_list):
+    def update_tabu_list(self, individual):
         new_tabu_list = []
 
         vector = individual.get_individual()
