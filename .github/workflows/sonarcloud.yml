@@ -61,8 +61,13 @@ jobs:
 
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
+          # Exact-pinned (not a range) since SonarCloud's dependency-locking rule
+          # requires a single resolved version, not a compatible-release range.
+          python -m pip install --upgrade pip==25.2
           python -m pip install pytest==9.1.1 pytest-cov==7.1.0
+          # --only-binary=:all: is intentionally not used here: some of requirements.txt's
+          # pins (e.g. matplotlib==3.9.0) have no wheel for every Python version this
+          # workflow may run under, so forcing wheel-only installs would break it outright.
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
       - name: Test with coverage
