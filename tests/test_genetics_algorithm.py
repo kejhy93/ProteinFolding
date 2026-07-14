@@ -1,6 +1,7 @@
 import pytest
 
 from data.individual import Individual
+from data.population import Population
 from gen_algo.genetics_algorithm import GeneticsAlgorithm
 
 
@@ -108,3 +109,73 @@ def test_solve_records_consistent_energy_when_population_is_unchanged(monkeypatc
 
     energies = [individual.get_free_energy() for individual in solver.list_individuals]
     assert energies == [energies[0]] * len(energies)
+
+
+def test_run_hill_climbing_step_replaces_individual_on_matching_iteration(monkeypatch):
+    solver = make_solver(20, population_size=4, monkeypatch=monkeypatch)
+    replacement = Individual([0, 1, 1, 0, 1, 0])
+    monkeypatch.setattr(
+        "gen_algo.genetics_algorithm.do_hill_climbing",
+        lambda parent, iterations, neighbours: replacement,
+    )
+
+    population = Population(4)
+    population.init_population(solver.result_vector)
+
+    result = solver.run_hill_climbing_step(population, solver.FREQUANCY_OF_HILL_CLIMBING)
+
+    replaced_sequances = [ind.get_individual().get_amino_sequance() for ind in result.individuals]
+    assert replacement.get_individual().get_amino_sequance() in replaced_sequances
+
+
+def test_run_hill_climbing_step_leaves_population_unchanged_off_cycle(monkeypatch):
+    solver = make_solver(20, population_size=4, monkeypatch=monkeypatch)
+    monkeypatch.setattr(
+        "gen_algo.genetics_algorithm.do_hill_climbing",
+        lambda parent, iterations, neighbours: (_ for _ in ()).throw(AssertionError("should not run")),
+    )
+
+    population = Population(4)
+    population.init_population(solver.result_vector)
+    original_individuals = list(population.individuals)
+
+    result = solver.run_hill_climbing_step(population, solver.FREQUANCY_OF_HILL_CLIMBING + 1)
+
+    assert result.individuals == original_individuals
+
+
+def test_run_generation_triggers_crossover_when_probability_favors_it(monkeypatch):
+    solver = make_solver(1, population_size=4, monkeypatch=monkeypatch)
+    solver.CROSSOVER_RATE = 1.0
+    crossover_calls = []
+    monkeypatch.setattr(
+        solver, "do_crossover",
+        lambda population, count: crossover_calls.append(count) or population,
+    )
+
+    solver.solve()
+
+    assert crossover_calls == [solver.COUNT_OF_CROSSOVER_PER_GENERATION]
+
+
+def test_run_generation_runs_hill_climbing_when_enabled(monkeypatch):
+    solver = make_solver(20, population_size=4, monkeypatch=monkeypatch)
+    solver.is_hill_climbing_enabled = True
+    hill_climbing_calls = []
+    monkeypatch.setattr(
+        "gen_algo.genetics_algorithm.do_hill_climbing",
+        lambda parent, iterations, neighbours: (hill_climbing_calls.append(1), parent)[1],
+    )
+
+    solver.solve()
+
+    assert hill_climbing_calls
+
+
+def test_solve_verbose_prints_iteration_summary(monkeypatch, capsys):
+    solver = make_solver(1, population_size=4, monkeypatch=monkeypatch)
+    solver.verboseGeneticsSolver = True
+
+    solver.solve()
+
+    assert "Energy of best individual" in capsys.readouterr().out
