@@ -84,7 +84,6 @@ class GeneticsAlgorithm(AbstractSolver):
         population.init_population(self.result_vector)
 
         best_individual_of_population, _ = population.pick_random_individual()
-        energy_of_best_individual_of_population = 100000000
 
         if self.verboseGeneticsSolver:
             print(" Init population: ", population)
