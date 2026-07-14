@@ -46,8 +46,6 @@ def sort(test_set, style):
     """
     Sort by selection sort
     """
-    count_of_sorted = 0
-
     comparator = None
     if style == DECREASE:
         comparator = is_first_lower
@@ -63,8 +61,6 @@ def sort(test_set, style):
         tmp = test_set[index]
         test_set[index] = test_set[lowest_index]
         test_set[lowest_index] = tmp
-
-        count_of_sorted += 1
 
     return test_set
 

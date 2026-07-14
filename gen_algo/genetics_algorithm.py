@@ -40,7 +40,7 @@ COUNT_OF_ANTS = 8
 class GeneticsAlgorithm(AbstractSolver):
     def __init__(self, sequance, MAX_GENERATION, POPULATION_SIZE,
                  COUNT_OF_MUTATION_PER_GENERATION, COUNT_OF_CROSSOVER_PER_GENERATION,
-                 MUTATE_RATE, CROSSOVER_RATE, STORE_INDIVIDUALS_PER_GENERATION=True):
+                 MUTATE_RATE, CROSSOVER_RATE, store_individuals_per_generation=True):
 
         self.MAX_GENERATION = MAX_GENERATION
         self.POPULATION_SIZE = POPULATION_SIZE
@@ -55,7 +55,7 @@ class GeneticsAlgorithm(AbstractSolver):
         self.COUNT_OF_MUTATION_PER_GENERATION = COUNT_OF_MUTATION_PER_GENERATION
         self.COUNT_OF_CROSSOVER_PER_GENERATION = COUNT_OF_CROSSOVER_PER_GENERATION
 
-        self.STORE_INDIVIDUALS_PER_GENERATION = STORE_INDIVIDUALS_PER_GENERATION
+        self.STORE_INDIVIDUALS_PER_GENERATION = store_individuals_per_generation
         self.list_individuals = []
 
         super().__init__(sequance)
@@ -97,7 +97,6 @@ class GeneticsAlgorithm(AbstractSolver):
             start_times = []
             end_times = []
 
-            times = []
             methods = []
 
             start_times.append(utils.get_time_in_millis())
@@ -112,7 +111,7 @@ class GeneticsAlgorithm(AbstractSolver):
             # CROSS-OVER
             start_times.append(utils.get_time_in_millis())
 
-            crossover_probability = random.random()
+            crossover_probability = random.random()  # NOSONAR python:S2245 - non-cryptographic use, algorithmic randomness only
             if IS_CROSSOVER and crossover_probability < self.CROSSOVER_RATE:
                 print("GeneticsAlgorithm -> Crossover")
                 population = self.do_crossover(population, self.COUNT_OF_CROSSOVER_PER_GENERATION)
@@ -142,7 +141,7 @@ class GeneticsAlgorithm(AbstractSolver):
             if IS_SIMULATED_ANNEALING:
                 print("GeneticsAlgorithm -> Simulated Annealing")
                 # Get random unique indexes of individuals
-                index_of_individuals = random.sample(range(0, population.count_of_individuals()),
+                index_of_individuals = random.sample(range(0, population.count_of_individuals()),  # NOSONAR python:S2245 - non-cryptographic use, algorithmic randomness only
                                                      COUNT_OF_SIMULATED_ANNEALING)
 
                 # # Fill individuals
@@ -199,7 +198,7 @@ class GeneticsAlgorithm(AbstractSolver):
         return best_individual_of_population.get_individual()
 
     def mutate(self, population, iteration):
-        index_of_individuals = random.sample(range(0, population.count_of_individuals()),
+        index_of_individuals = random.sample(range(0, population.count_of_individuals()),  # NOSONAR python:S2245 - non-cryptographic use, algorithmic randomness only
                                              self.COUNT_OF_MUTATION_PER_GENERATION)
         individuals_to_mutate = []
         mutation_pool = ThreadPool(4)
@@ -227,9 +226,6 @@ class GeneticsAlgorithm(AbstractSolver):
         """
         Ant colony optimisation
         """
-        # if self.verboseGeneticsSolver:
-        # 	print ("GeneticsAlgorithm -> Ant-Colony")
-
         if self.ant_colony == None:
             self.ant_colony = AntColony(COUNT_OF_ANTS, self.sequance, iteration, self.MAX_GENERATION)
 
@@ -261,11 +257,11 @@ class GeneticsAlgorithm(AbstractSolver):
         """
         Crossover
         """
-        for crossover_index in range(count_of_crossover):
+        for _ in range(count_of_crossover):
             first_individual, first_index = population.pick_random_individual()
             second_individual, second_index = population.pick_random_individual()
 
-            crossover_individuals = do_crossover(first_individual, second_individual, self.CROSSOVER_RATE)
+            crossover_individuals = do_crossover(first_individual, second_individual)
 
             if crossover_individuals[0] != first_individual:
                 population.set_individual_at(first_index, crossover_individuals[0])

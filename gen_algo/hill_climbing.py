@@ -8,14 +8,11 @@ COUNT_OF_ITERATION = 10
 COUNT_OF_NEIGHBOR = 12
 
 
-def do_hill_climbing(individual, COUNT_OF_ITERATION=5, COUNT_OF_NEIGHBOR=6):
+def do_hill_climbing(individual, count_of_iteration=5, count_of_neighbor=6):
     """
     Main method for hill-climbing
     """
-    # if verbose:
-    # 	print ( "Hill climbing")
-
-    new_individual = hill_climbing(individual, COUNT_OF_ITERATION, COUNT_OF_NEIGHBOR)
+    new_individual = hill_climbing(individual, count_of_iteration, count_of_neighbor)
 
     return new_individual
 
@@ -29,7 +26,7 @@ def hill_climbing(individual, iteration, count_of_neighour):
     init_score = individual.get_free_energy()
     best_score = init_score
 
-    for i in range(count_of_neighour):
+    for _ in range(count_of_neighour):
         indi = do_mutation(individual)
         score = indi.compute_free_energy()
 
