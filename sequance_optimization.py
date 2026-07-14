@@ -17,7 +17,7 @@ def check_hydropholic(amino):
         return False
 
 
-def getFirstPosition(sequance):
+def get_first_position(sequance):
     counter = 0
     while check_valid_index(counter, sequance) and check_hydropholic(sequance[counter]):
         counter += 1
@@ -34,7 +34,7 @@ def get_last_position(sequance):
 
 
 def optimize_sequance(sequance):
-    counter_from_begin = getFirstPosition(sequance)
+    counter_from_begin = get_first_position(sequance)
     counter_from_end = get_last_position(sequance)
 
     if counter_from_begin > counter_from_end:
