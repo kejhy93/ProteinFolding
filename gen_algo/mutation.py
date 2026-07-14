@@ -50,7 +50,7 @@ def mutate_one_point(individual, MUTATION_RATE):
     mutate_config = mutate_vector.get_configuration()
 
     for config_index in range(len(mutate_config)):
-        random_number = random.random()
+        random_number = random.random()  # NOSONAR python:S2245 - non-cryptographic use, algorithmic randomness only
 
         if random_number < MUTATION_RATE:
             mutate_config[config_index] *= complex(0, 1)
@@ -74,7 +74,7 @@ def mutate_from_point(individual, MUTATION_RATE):
     mutate_vector = mutate_individual.get_individual()
     mutate_config = mutate_vector.get_configuration()
 
-    from_index = random.randint(0, len(mutate_config) - 1)
+    from_index = random.randint(0, len(mutate_config) - 1)  # NOSONAR python:S2245 - non-cryptographic use, algorithmic randomness only
 
     for config_index in range(from_index, len(mutate_config)):
         mutate_config[config_index] *= complex(0, 1)
@@ -98,8 +98,8 @@ def mutate_from_to_point(individual, MUTATION_RATE):
     mutate_vector = mutate_individual.get_individual()
     mutate_config = mutate_vector.get_configuration()
 
-    from_index = random.randint(0, len(mutate_config) - 1)
-    to_index = random.randint(from_index, len(mutate_config) - 1)
+    from_index = random.randint(0, len(mutate_config) - 1)  # NOSONAR python:S2245 - non-cryptographic use, algorithmic randomness only
+    to_index = random.randint(from_index, len(mutate_config) - 1)  # NOSONAR python:S2245 - non-cryptographic use, algorithmic randomness only
 
     for config_index in range(from_index, to_index):
         mutate_config[config_index] *= complex(-1, 0)
@@ -114,7 +114,7 @@ def pick_mutation_method(iteration, MAX_ITERATION):
     """
     Pick mutation method from iteration and max iteration
     """
-    random_choice = random.random()
+    random_choice = random.random()  # NOSONAR python:S2245 - non-cryptographic use, algorithmic randomness only
 
     if iteration == None or MAX_ITERATION == None:
         if random_choice < 0.5:
