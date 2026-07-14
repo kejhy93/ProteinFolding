@@ -81,6 +81,25 @@ def test_local_search_removes_invalid_and_returns_results(monkeypatch):
     assert updated_tabu_lists == [[0]]
 
 
+def test_remove_individuals_local_search_could_not_improve_keeps_alignment():
+    colony = make_ant_colony()
+    individual_a = Individual([0, 1, 1, 0])
+    individual_b = Individual([0, 1, 1, 0])
+    individual_c = Individual([0, 1, 1, 0])
+
+    # A None in a leading position must not shift which tabu_list/individual
+    # a later, kept result is matched up with.
+    results = [None, individual_b, individual_c]
+    individuals = [individual_a, individual_b, individual_c]
+    tabu_lists = [["a"], ["b"], ["c"]]
+
+    colony.remove_individuals_local_search_could_not_improve(results, individuals, tabu_lists)
+
+    assert results == [individual_b, individual_c]
+    assert individuals == [individual_b, individual_c]
+    assert tabu_lists == [["b"], ["c"]]
+
+
 def test_local_search_drops_individuals_local_search_could_not_improve(monkeypatch):
     colony = make_ant_colony()
     colony.verbose = True
@@ -95,6 +114,6 @@ def test_local_search_drops_individuals_local_search_could_not_improve(monkeypat
 
     results, updated_tabu_lists = colony.local_search(individuals, tabu_lists)
 
-    assert results == [None]
+    assert results == []
     assert individuals == []
     assert updated_tabu_lists == []

@@ -153,10 +153,7 @@ class AntColony:
 
         results = self.run_local_search_pool(pool, individuals)
 
-        for index in range(len(results)):
-            if results[index] == None:
-                del tabu_lists[index]
-                del individuals[index]
+        self.remove_individuals_local_search_could_not_improve(results, individuals, tabu_lists)
 
         self.sync_tabu_lists(results, individuals, tabu_lists)
 
@@ -170,9 +167,21 @@ class AntColony:
         """
         index_to_delete = [index for index in range(len(individuals)) if individuals[index] == None]
 
-        for index in range(len(index_to_delete), 0, -1):
-            del individuals[index_to_delete[index - 1]]
-            del tabu_lists[index_to_delete[index - 1]]
+        for index in reversed(index_to_delete):
+            del individuals[index]
+            del tabu_lists[index]
+
+    def remove_individuals_local_search_could_not_improve(self, results, individuals, tabu_lists):
+        """
+        Drop individuals (and their tabu lists/results) that local search
+        could not find an improved solution for
+        """
+        index_to_delete = [index for index in range(len(results)) if results[index] == None]
+
+        for index in reversed(index_to_delete):
+            del results[index]
+            del individuals[index]
+            del tabu_lists[index]
 
     def run_local_search_pool(self, pool, individuals):
         """
@@ -195,12 +204,9 @@ class AntColony:
         """
         Recompute tabu lists for individuals that local search mutated
         """
-        counter = 0
-        for mutated, original, tabu_list in zip(results, individuals, tabu_lists):
+        for index, (mutated, original, tabu_list) in enumerate(zip(results, individuals, tabu_lists)):
             if mutated != original and mutated != None:
-                tabu_lists[counter] = self.update_tabu_list(mutated, tabu_list)
-
-            counter += 1
+                tabu_lists[index] = self.update_tabu_list(mutated, tabu_list)
 
     def update_pheronome_trails(self, new_individuals, tabu_lists):
         """
