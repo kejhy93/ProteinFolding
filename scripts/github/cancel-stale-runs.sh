@@ -45,7 +45,7 @@ for rid in to_cancel:
 " > /tmp/stale_runs_to_cancel.$$
 
 count=$(wc -l < /tmp/stale_runs_to_cancel.$$)
-if [ "$count" -eq 0 ]; then
+if [[ "$count" -eq 0 ]]; then
     echo "No stale runs to cancel."
     rm -f /tmp/stale_runs_to_cancel.$$
     exit 0
