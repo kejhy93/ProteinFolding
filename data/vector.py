@@ -14,6 +14,11 @@ HYDROPHOBILIC = 1
 NOT_VALID_CONFIGURATION = False
 VALID_CONFIGURATION = True
 
+RANDOM_WALK_RIGHT_MOVE = complex(1, 0)
+RANDOM_WALK_DOWN_MOVE = complex(0, 1)
+RANDOM_WALK_UP_MOVE = complex(0, -1)
+RANDOM_WALK_CHANGE_DIRECTION_PROBABILITY = 0.7
+
 
 class Vector:
     def __init__(self, protein_sequance):
@@ -206,33 +211,23 @@ class Vector:
         return self.pick_random_direction_from_side(config, state)
 
     def pick_random_direction_from_right(self, config):
-        right_move = complex(1, 0)
-        down_move = complex(0, 1)
-        up_move = complex(0, -1)
-        change_direction_probability = 0.7
-
-        if random.random() >= change_direction_probability:  # NOSONAR python:S2245 - non-cryptographic use, algorithmic randomness only
-            self.configuration[config] = right_move
+        if random.random() >= RANDOM_WALK_CHANGE_DIRECTION_PROBABILITY:  # NOSONAR python:S2245 - non-cryptographic use, algorithmic randomness only
+            self.configuration[config] = RANDOM_WALK_RIGHT_MOVE
             return "RIGHT"
 
         if random.random() < 0.5:  # NOSONAR python:S2245 - non-cryptographic use, algorithmic randomness only
-            self.configuration[config] = up_move
+            self.configuration[config] = RANDOM_WALK_UP_MOVE
             return "UP"
 
-        self.configuration[config] = down_move
+        self.configuration[config] = RANDOM_WALK_DOWN_MOVE
         return "DOWN"
 
     def pick_random_direction_from_side(self, config, state):
-        right_move = complex(1, 0)
-        down_move = complex(0, 1)
-        up_move = complex(0, -1)
-        change_direction_probability = 0.7
-
-        if random.random() < change_direction_probability:  # NOSONAR python:S2245 - non-cryptographic use, algorithmic randomness only
-            self.configuration[config] = right_move
+        if random.random() < RANDOM_WALK_CHANGE_DIRECTION_PROBABILITY:  # NOSONAR python:S2245 - non-cryptographic use, algorithmic randomness only
+            self.configuration[config] = RANDOM_WALK_RIGHT_MOVE
             return "RIGHT"
 
-        self.configuration[config] = up_move if state == "UP" else down_move
+        self.configuration[config] = RANDOM_WALK_UP_MOVE if state == "UP" else RANDOM_WALK_DOWN_MOVE
         return state
 
     def save_config_to_file(self, filename):
