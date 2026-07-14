@@ -29,7 +29,7 @@ def hill_climbing(individual, iteration, count_of_neighour):
     init_score = individual.get_free_energy()
     best_score = init_score
 
-    for i in range(count_of_neighour):
+    for _ in range(count_of_neighour):
         indi = do_mutation(individual)
         score = indi.compute_free_energy()
 
