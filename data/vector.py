@@ -279,7 +279,7 @@ class Vector:
         list_of_real = []
         list_of_imag = []
 
-        min_x, min_y = -1, -1
+        min_x, _ = -1, -1
 
         if index != None:
             final_index = index + 1
