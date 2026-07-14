@@ -26,7 +26,7 @@ class Population:
         """
         if self.verbose:
             print("Init of population")
-        for index_of_individual in range(self.size_of_population):
+        for _ in range(self.size_of_population):
             indi = Individual(vector.get_amino_sequance())
             indi.compute_free_energy()
 
