@@ -211,11 +211,11 @@ class Vector:
         up_move = complex(0, -1)
         change_direction_probability = 0.7
 
-        if random.random() >= change_direction_probability:
+        if random.random() >= change_direction_probability:  # NOSONAR python:S2245 - non-cryptographic use, algorithmic randomness only
             self.configuration[config] = right_move
             return "RIGHT"
 
-        if random.random() < 0.5:
+        if random.random() < 0.5:  # NOSONAR python:S2245 - non-cryptographic use, algorithmic randomness only
             self.configuration[config] = up_move
             return "UP"
 
@@ -228,7 +228,7 @@ class Vector:
         up_move = complex(0, -1)
         change_direction_probability = 0.7
 
-        if random.random() < change_direction_probability:
+        if random.random() < change_direction_probability:  # NOSONAR python:S2245 - non-cryptographic use, algorithmic randomness only
             self.configuration[config] = right_move
             return "RIGHT"
 
