@@ -9,9 +9,6 @@ class Individual:
     def __init__(self, sequance):
         self.verbose = False
 
-        if self.verbose:
-            print("Individual -> init")
-
         self.vector = Vector(sequance)
         self.free_energy = None
 
