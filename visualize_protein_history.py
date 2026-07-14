@@ -29,7 +29,7 @@ def visualize(history, counter):
 
 def read_history_of_configuration_of(path_to_file):
     all_configuration_history_of_protein = []
-    all_configuration_history_of_protein = utils.read_configuration_history(full_name_to_file, protein.get_sequance())
+    all_configuration_history_of_protein = utils.read_configuration_history(path_to_file, protein.get_sequance())
 
     return all_configuration_history_of_protein
 
