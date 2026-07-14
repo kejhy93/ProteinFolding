@@ -28,8 +28,6 @@ class Vector:
         self.sequance = protein_sequance
 
         self.configuration = []
-        # for i in range(len(self.sequance)-1):
-        # 	self.configuration.append ( complex (0, 1))
 
         self.generate_random()
 
@@ -58,7 +56,7 @@ class Vector:
     def clean_configuration(self):
         self.configuration = []
 
-    def update_space_configuration_counter(self, direction):
+    def update_space_configuration_counter(self):
         self.space_configuration = self.compute_space_configuration()
 
         self.space_configuration_counter = Counter(self.space_configuration)

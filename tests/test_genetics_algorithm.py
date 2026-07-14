@@ -70,7 +70,7 @@ def test_solve_stores_individuals_by_default(monkeypatch):
 def test_solve_does_not_store_individuals_when_disabled(monkeypatch):
     solver = make_solver(
         3, population_size=4, monkeypatch=monkeypatch,
-        STORE_INDIVIDUALS_PER_GENERATION=False,
+        store_individuals_per_generation=False,
     )
 
     solver.solve()
@@ -81,7 +81,7 @@ def test_solve_does_not_store_individuals_when_disabled(monkeypatch):
 def test_solve_stores_individuals_when_explicitly_enabled(monkeypatch):
     solver = make_solver(
         3, population_size=4, monkeypatch=monkeypatch,
-        STORE_INDIVIDUALS_PER_GENERATION=True,
+        store_individuals_per_generation=True,
     )
 
     solver.solve()
