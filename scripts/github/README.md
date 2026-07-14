@@ -1,6 +1,6 @@
 # GitHub interaction scripts
 
-Small `gh`-CLI wrappers for the recurring tasks involved in managing a batch
+Small `gh` CLI wrappers for the recurring tasks involved in managing a batch
 of open PRs (checks, conflicts, stale CI status, review comments). All
 scripts default `repo` to the current directory's git remote if omitted.
 
