@@ -10,7 +10,7 @@
 set -euo pipefail
 
 REPO="${1:-}"
-if [ -z "$REPO" ]; then
+if [[ -z "$REPO" ]]; then
     REPO=$(gh repo view --json nameWithOwner --jq .nameWithOwner)
 fi
 
