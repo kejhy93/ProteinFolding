@@ -17,7 +17,7 @@ def make_solver(max_generation, population_size, monkeypatch, **kwargs):
         population_size=population_size,
         COUNT_OF_MUTATION_PER_GENERATION=0,
         count_of_crossover_per_generation=0,
-        MUTATE_RATE=0.0,
+        mutate_rate=0.0,
         crossover_rate=0.0,
         **kwargs,
     )
@@ -41,7 +41,7 @@ def test_list_individuals_is_empty_after_init():
         population_size=2,
         COUNT_OF_MUTATION_PER_GENERATION=0,
         count_of_crossover_per_generation=0,
-        MUTATE_RATE=0.0,
+        mutate_rate=0.0,
         crossover_rate=0.0,
     )
 
