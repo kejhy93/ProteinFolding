@@ -55,7 +55,7 @@ class Vector:
     def clean_configuration(self):
         self.configuration = []
 
-    def update_space_configuration_counter(self, direction):
+    def update_space_configuration_counter(self):
         self.space_configuration = self.compute_space_configuration()
 
         self.space_configuration_counter = Counter(self.space_configuration)
