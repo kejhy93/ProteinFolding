@@ -1,5 +1,8 @@
 # Locked with hashes for linux x86_64, Python 3.10-3.12 (the matrix this repo tests).
-# Regenerate by re-resolving with pip install --dry-run --report and re-hashing from PyPI.
+# Regenerate: pip install --dry-run --report under each of 3.10/3.11/3.12, diff the
+# resolved graphs, and re-hash from PyPI for any package whose version differs.
+# contourpy and networkx resolve to different versions on 3.10 vs 3.11/3.12 because
+# matplotlib/networkx's own python_requires excludes newer versions on 3.10.
 
 # Direct dependencies
 matplotlib==3.9.0 \
@@ -45,12 +48,6 @@ pandas==2.3.3 \
     --hash=sha256:dd7478f1463441ae4ca7308a70e90b33470fa593429f9d4c578dd00d1fa78838
 
 # Transitive dependencies (required for pip --require-hashes)
-contourpy==1.3.3 \
-    --hash=sha256:322ab1c99b008dad206d406bb61d014cf0174df491ae9d9d0fac6a6fda4f977f \
-    --hash=sha256:459c1f020cd59fcfe6650180678a9993932d80d44ccde1fa1868977438f0b411 \
-    --hash=sha256:4d00e655fcef08aba35ec9610536bfe90267d7ab5ba944f7032549c55a146da1 \
-    --hash=sha256:51e79c1f7470158e838808d4a996fa9bac72c498e93d8ebe5119bc1e6becb0db
-
 cuda-bindings==13.3.1 \
     --hash=sha256:04436a9364059c84b8f9636f359eccda1cf814341f5b670c71d80d2f79dbc708 \
     --hash=sha256:9851b0caa8bfd3bc6fa054eaf57bea7c8e9c3a62db2d2621224677f49f3c53d0 \
@@ -104,9 +101,6 @@ MarkupSafe==3.0.3 \
 
 mpmath==1.3.0 \
     --hash=sha256:a0b2b9fe80bbcd81a6647ff13108738cfb482d481d826cc0e02f5b35e5c88d2c
-
-networkx==3.6.1 \
-    --hash=sha256:d47fbf302e7d9cbbb9e2555a0d267983d2aa476bac30e90dfbe5669bd57f3762
 
 nvidia-cublas==13.1.1.3 \
     --hash=sha256:37936a16db8fe4ac1f065c2139360608a543a09275cb1a1af612e08cfa065436
@@ -195,3 +189,18 @@ typing_extensions==4.16.0 \
 
 tzdata==2026.3 \
     --hash=sha256:dc096730c87af6cab1b171c9d532be840741ff5d459015e7f6947bd7d7e54931
+
+contourpy==1.3.2 ; python_version == "3.10" \
+    --hash=sha256:ad687a04bc802cbe8b9c399c07162a3c35e227e2daccf1668eb1f278cb698631
+
+contourpy==1.3.3 ; python_version >= "3.11" \
+    --hash=sha256:322ab1c99b008dad206d406bb61d014cf0174df491ae9d9d0fac6a6fda4f977f \
+    --hash=sha256:459c1f020cd59fcfe6650180678a9993932d80d44ccde1fa1868977438f0b411 \
+    --hash=sha256:4d00e655fcef08aba35ec9610536bfe90267d7ab5ba944f7032549c55a146da1 \
+    --hash=sha256:51e79c1f7470158e838808d4a996fa9bac72c498e93d8ebe5119bc1e6becb0db
+
+networkx==3.4.2 ; python_version == "3.10" \
+    --hash=sha256:df5d4365b724cf81b8c6a7312509d0c22386097011ad1abe274afd5e9d3bbc5f
+
+networkx==3.6.1 ; python_version >= "3.11" \
+    --hash=sha256:d47fbf302e7d9cbbb9e2555a0d267983d2aa476bac30e90dfbe5669bd57f3762
