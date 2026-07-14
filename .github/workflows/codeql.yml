@@ -17,11 +17,7 @@ on:
   pull_request:
     branches: [ "master" ]
   schedule:
-<<<<<<< kejhy93-patch-1
-    - cron: '26 20 * * 6'
-=======
     - cron: '39 6 * * 0'
->>>>>>> master
 
 jobs:
   analyze:
