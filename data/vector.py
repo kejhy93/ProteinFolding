@@ -279,8 +279,6 @@ class Vector:
         list_of_real = []
         list_of_imag = []
 
-        list_of_hydrophobilic = []
-
         min_x, min_y = -1, -1
         max_x, max_y = 1, 1
 
