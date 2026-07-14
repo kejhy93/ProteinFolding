@@ -35,9 +35,6 @@ class AntColony:
     def __init__(self, count_of_ants, sequance, iteration, max_iteration):
         self.verbose = False
 
-        if self.verbose:
-            print("\tAnt Colony -> Init")
-
         self.COUNT_OF_ANTS = count_of_ants
         self.ants = []
         self.sequance = sequance
