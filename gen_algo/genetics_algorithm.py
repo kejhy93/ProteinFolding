@@ -112,7 +112,7 @@ class GeneticsAlgorithm(AbstractSolver):
             # CROSS-OVER
             start_times.append(utils.get_time_in_millis())
 
-            crossover_probability = random.random()
+            crossover_probability = random.random()  # NOSONAR python:S2245 - non-cryptographic use, algorithmic randomness only
             if IS_CROSSOVER and crossover_probability < self.CROSSOVER_RATE:
                 print("GeneticsAlgorithm -> Crossover")
                 population = self.do_crossover(population, self.COUNT_OF_CROSSOVER_PER_GENERATION)
@@ -142,7 +142,7 @@ class GeneticsAlgorithm(AbstractSolver):
             if IS_SIMULATED_ANNEALING:
                 print("GeneticsAlgorithm -> Simulated Annealing")
                 # Get random unique indexes of individuals
-                index_of_individuals = random.sample(range(0, population.count_of_individuals()),
+                index_of_individuals = random.sample(range(0, population.count_of_individuals()),  # NOSONAR python:S2245 - non-cryptographic use, algorithmic randomness only
                                                      COUNT_OF_SIMULATED_ANNEALING)
 
                 # # Fill individuals
@@ -199,7 +199,7 @@ class GeneticsAlgorithm(AbstractSolver):
         return best_individual_of_population.get_individual()
 
     def mutate(self, population, iteration):
-        index_of_individuals = random.sample(range(0, population.count_of_individuals()),
+        index_of_individuals = random.sample(range(0, population.count_of_individuals()),  # NOSONAR python:S2245 - non-cryptographic use, algorithmic randomness only
                                              self.COUNT_OF_MUTATION_PER_GENERATION)
         individuals_to_mutate = []
         mutation_pool = ThreadPool(4)
