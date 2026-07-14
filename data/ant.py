@@ -67,8 +67,6 @@ class Ant(Thread):
         self.tabu_list.append(0)
         # print(self.vector)
 
-        MAX_SIZE_OF_CONFIG = len(self.vector.get_amino_sequance()) - 1
-
         self.create_configuration(1, pheronome)
 
         # Check if new individuals was found
