@@ -66,7 +66,7 @@ class AntColony:
         Init pheronome trails
         """
         pheronome = []
-        for index in range(len(self.sequance) - 1):
+        for _ in range(len(self.sequance) - 1):
             pheronome.append([self.init_pheronome(), self.init_pheronome(), self.init_pheronome()])
 
         return pheronome
@@ -101,14 +101,12 @@ class AntColony:
         for ant in self.ants:
             ant.join()
 
-            new_individual = ant.get_individual()
             if self.check_valid_of_new_individual(new_individuals):
                 # Remove invalid individuals
                 new_individuals.append(ant.get_individual())
                 tabu_lists.append(ant.get_tabu_list())
 
         results = []
-        counter = 0
 
         # new_individuals[0].get_individual().plot_config()
 
@@ -119,9 +117,6 @@ class AntColony:
         results, tabu_lists = self.local_search(new_individuals, tabu_lists)
 
         # Update pheronome trails
-        validIndividuals = self.check_valid_of_new_individuals(results)
-
-        # if validIndividuals:
         self.update_pheronome_trails(results, tabu_lists)
         # self.update_pheronome_trails ( new_individuals, tabu_lists )
 
