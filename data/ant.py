@@ -163,6 +163,15 @@ class Ant(Thread):
         """
         Sort computed probabilities by select sort
         """
+        indexes, values = self.selection_sort(indexes, values)
+        indexes, values = self.randomize_equal_solutions(indexes, values)
+
+        return indexes, values
+
+    def selection_sort(self, indexes, values):
+        """
+        Sort indexes/values in place by select sort
+        """
         comparator = self.compare
 
         for index in range(len(indexes) - 1, 0, -1):
@@ -173,22 +182,29 @@ class Ant(Thread):
 
             indexes, values = self.swap(indexes, values, index, lowest_index)
 
-        # Ant colony returns equal solution
-        # Make some random change
+        return indexes, values
+
+    def randomize_equal_solutions(self, indexes, values):
+        """
+        Ant colony returns equal solution, make some random change
+        """
         change = 0
         # Iterate probability list
         for index in range(len(indexes) - 1):
             # Check if two probabilities are almost equal
-            if random.random() < 0.2:
-                if self.little_diference(values[index], values[index + 1]) and change < CHANGE_RATE:
-                    switch_probability = random.random()
-                    # Check probability
-                    if switch_probability < SWITCH_PROBABILITY:
-                        # Swap two probabilities
-                        print("Swap")
-                        indexes, values = self.swap(indexes, values, index, index + 1)
+            if not (random.random() < 0.2):
+                continue
+            if not (self.little_diference(values[index], values[index + 1]) and change < CHANGE_RATE):
+                continue
 
-                        change -= 1
+            switch_probability = random.random()
+            # Check probability
+            if switch_probability < SWITCH_PROBABILITY:
+                # Swap two probabilities
+                print("Swap")
+                indexes, values = self.swap(indexes, values, index, index + 1)
+
+                change -= 1
 
         return indexes, values
 
