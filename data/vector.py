@@ -152,7 +152,7 @@ class Vector:
 
     def optimize_sequance(self):
         self.sequance = optimize_sequance(self.sequance)
-        for i in range(len(self.sequance) - 1):
+        for _ in range(len(self.sequance) - 1):
             self.configuration.append(complex(0, 1))
 
         return self.sequance
