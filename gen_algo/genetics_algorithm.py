@@ -227,9 +227,6 @@ class GeneticsAlgorithm(AbstractSolver):
         """
         Ant colony optimisation
         """
-        # if self.verboseGeneticsSolver:
-        # 	print ("GeneticsAlgorithm -> Ant-Colony")
-
         if self.ant_colony == None:
             self.ant_colony = AntColony(COUNT_OF_ANTS, self.sequance, iteration, self.MAX_GENERATION)
 
