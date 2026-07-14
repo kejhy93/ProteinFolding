@@ -281,9 +281,6 @@ class Vector:
 
         list_of_hydrophobilic = []
 
-        min_x, _ = -1, -1
-        max_x, max_y = 1, 1
-
         if index != None:
             final_index = index + 1
         else:
