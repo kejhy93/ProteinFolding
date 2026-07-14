@@ -23,7 +23,7 @@ def test_remove_invalid_individuals_drops_none_entries():
 
 def test_sync_tabu_lists_only_updates_mutated_individuals(monkeypatch):
     colony = make_ant_colony()
-    monkeypatch.setattr(colony, "update_tabu_list", lambda individual, tabu_list: "updated")
+    monkeypatch.setattr(colony, "update_tabu_list", lambda individual: "updated")
 
     unchanged = Individual([0, 1, 1, 0])
     mutated = Individual([0, 1, 1, 0])
