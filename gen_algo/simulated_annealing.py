@@ -72,7 +72,7 @@ def do_simulated_annealing(individual, COOLING_RATE=0.99, INITAL_TEMPERATURE=100
             # Compute acceptance probability of new solution
             acceptance_prob = acceptance_probability(energy_of_current_solution, energy_of_new_solution, temperature)
             # Compare if new solution is accept
-            if (acceptance_prob > random.random()):
+            if (acceptance_prob > random.random()):  # NOSONAR python:S2245 - non-cryptographic use, algorithmic randomness only
                 current_solution = new_solution
 
             # Update temperature
