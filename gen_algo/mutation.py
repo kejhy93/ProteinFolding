@@ -42,9 +42,6 @@ def mutate_one_point(individual, MUTATION_RATE):
 
     return mutated individual
     """
-    # if verbose:
-    # 	print ( "GeneticsAlgorithm -> mutate_one_point")
-
     mutate_individual = deepcopy(individual)
     mutate_vector = mutate_individual.get_individual()
     mutate_config = mutate_vector.get_configuration()
@@ -67,9 +64,6 @@ def mutate_from_point(individual, MUTATION_RATE):
 
     return mutated individual
     """
-    # if verbose:
-    # 	print ( "GeneticsAlgorithm -> mutate_from_point")
-
     mutate_individual = deepcopy(individual)
     mutate_vector = mutate_individual.get_individual()
     mutate_config = mutate_vector.get_configuration()
@@ -91,9 +85,6 @@ def mutate_from_to_point(individual, MUTATION_RATE):
 
     return mutated individual
     """
-    # if verbose:
-    # 	print ( "GeneticsAlgorithm -> mutate_from_to_point")
-
     mutate_individual = deepcopy(individual)
     mutate_vector = mutate_individual.get_individual()
     mutate_config = mutate_vector.get_configuration()
