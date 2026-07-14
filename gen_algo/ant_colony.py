@@ -185,7 +185,7 @@ class AntColony:
         """
         Run simulated annealing or hill-climbing, chosen at random, over the pool
         """
-        local_search_method_probability = random.random()
+        local_search_method_probability = random.random()  # NOSONAR python:S2245 - non-cryptographic use, algorithmic randomness only
         if local_search_method_probability < 0.5:
             if self.verbose:
                 print("\tAnt-Colony -> Simulated Annealing")
