@@ -33,8 +33,9 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies
       run: |
-        # Constrained (not exact-pinned) so patch releases still apply automatically.
-        python -m pip install --upgrade "pip~=25.2"
+        # Exact-pinned (not a range) since SonarCloud's dependency-locking rule
+        # requires a single resolved version, not a compatible-release range.
+        python -m pip install --upgrade pip==25.2
         python -m pip install flake8==7.3.0 pytest==9.1.1
         # --only-binary=:all: is intentionally not used here: some of requirements.txt's
         # pins (e.g. matplotlib==3.9.0) have no wheel for every Python version in this
