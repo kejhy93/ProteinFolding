@@ -14,9 +14,9 @@ set -euo pipefail
 REPO="${1:-}"
 DRY_RUN=false
 for arg in "$@"; do
-    [ "$arg" = "--dry-run" ] && DRY_RUN=true
+    [[ "$arg" = "--dry-run" ]] && DRY_RUN=true
 done
-if [[ -z "$REPO" ]] || [ "$REPO" = "--dry-run" ]; then
+if [[ -z "$REPO" ]] || [[ "$REPO" = "--dry-run" ]]; then
     REPO=$(gh repo view --json nameWithOwner --jq .nameWithOwner)
 fi
 
@@ -45,13 +45,13 @@ for rid in to_cancel:
 " > /tmp/stale_runs_to_cancel.$$
 
 count=$(wc -l < /tmp/stale_runs_to_cancel.$$)
-if [ "$count" -eq 0 ]; then
+if [[ "$count" -eq 0 ]]; then
     echo "No stale runs to cancel."
     rm -f /tmp/stale_runs_to_cancel.$$
     exit 0
 fi
 
-if [ "$DRY_RUN" = true ]; then
+if [[ "$DRY_RUN" = true ]]; then
     echo "Would cancel $count run(s):"
     cat /tmp/stale_runs_to_cancel.$$
 else

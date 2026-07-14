@@ -12,10 +12,10 @@ PR="${1:?usage: pr-detail.sh <PR> [repo] [sonar-project-key]}"
 REPO="${2:-}"
 SONAR_PROJECT_KEY="${3:-}"
 
-if [ -z "$REPO" ]; then
+if [[ -z "$REPO" ]]; then
     REPO=$(gh repo view --json nameWithOwner --jq .nameWithOwner)
 fi
-if [ -z "$SONAR_PROJECT_KEY" ]; then
+if [[ -z "$SONAR_PROJECT_KEY" ]]; then
     # Best-effort guess from the SonarCloud workflow file, if present.
     SONAR_PROJECT_KEY=$(grep -h "sonar.projectKey" .github/workflows/*.yml 2>/dev/null \
         | head -1 | sed -E 's/.*projectKey=([^ ]+).*/\1/')
@@ -27,7 +27,7 @@ OWNER=$(gh repo view "$REPO" --json owner --jq .owner.login)
 echo "== PR #$PR ($BRANCH) checks =="
 gh pr checks "$PR" --repo "$REPO" 2>&1 || true
 
-if [ -n "$SONAR_PROJECT_KEY" ]; then
+if [[ -n "$SONAR_PROJECT_KEY" ]]; then
     echo
     echo "== SonarCloud quality gate ($SONAR_PROJECT_KEY, PR $PR) =="
     curl -s "https://sonarcloud.io/api/qualitygates/project_status?projectKey=${SONAR_PROJECT_KEY}&pullRequest=${PR}" \
