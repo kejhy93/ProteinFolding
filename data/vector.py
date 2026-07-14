@@ -1,7 +1,7 @@
 #! /usr/bin/python3
 
 import random
-from collections import *
+from collections import Counter
 from copy import deepcopy
 
 import matplotlib
