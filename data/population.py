@@ -52,7 +52,7 @@ class Population:
         """
         candidate_list = []
         for candicate in range(SIZE_OF_CANDICATE_LIST):
-            candidate_list.append(random.randint(0, self.size_of_population - 1))
+            candidate_list.append(random.randint(0, self.size_of_population - 1))  # NOSONAR python:S2245 - non-cryptographic use, algorithmic randomness only
 
         return candidate_list
 
