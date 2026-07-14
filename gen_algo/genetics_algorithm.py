@@ -61,8 +61,7 @@ class GeneticsAlgorithm(AbstractSolver):
         super().__init__(sequance)
         self.verboseGeneticsSolver = True
 
-        if self.verboseGeneticsSolver:
-            print("GeneticsAlgorithm -> init")
+        print("GeneticsAlgorithm -> init")
 
         self.counter_before_disaster = 0
 
