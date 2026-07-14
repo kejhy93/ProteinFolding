@@ -16,7 +16,7 @@ DRY_RUN=false
 for arg in "$@"; do
     [[ "$arg" = "--dry-run" ]] && DRY_RUN=true
 done
-if [ -z "$REPO" ] || [[ "$REPO" = "--dry-run" ]]; then
+if [[ -z "$REPO" ]] || [[ "$REPO" = "--dry-run" ]]; then
     REPO=$(gh repo view --json nameWithOwner --jq .nameWithOwner)
 fi
 
