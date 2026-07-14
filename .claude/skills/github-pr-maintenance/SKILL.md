@@ -72,3 +72,47 @@ complexity-refactor PR. The right response is usually a reply explaining the
 scope boundary, not a code change — unless the fix is genuinely self-contained
 to the one file already being touched (e.g. a misspelled identifier used
 nowhere else), in which case just fix it.
+
+**`BLOCKED` with all-green checks and no conflict usually means an
+unresolved review thread, not a real problem.** This repo's branch protection
+has `required_conversation_resolution` enabled (check with
+`gh api repos/<owner>/<repo>/branches/master/protection`). A PR can show
+`mergeable: MERGEABLE` / `mergeStateStatus: BLOCKED` purely because a
+Sourcery/reviewer comment thread is unresolved — replying to the comment with
+`gh pr comment` does **not** resolve the thread. Query and resolve it via
+GraphQL:
+```bash
+gh api graphql -f query='
+query { repository(owner:"OWNER", name:"REPO") { pullRequest(number: PR) {
+  reviewThreads(first: 20) { nodes { id isResolved comments(first:1){nodes{body author{login}}} } }
+}}}'
+
+gh api graphql -f query='mutation { resolveReviewThread(input:{threadId:"THREAD_ID"}) { thread { isResolved } } }'
+```
+As the PR author you can resolve threads yourself once you've replied
+explaining the scope boundary (or pushed the requested fix). Sourcery itself
+auto-resolves a thread if a follow-up commit matches what it suggested — no
+action needed in that case.
+
+**A fix for one Sonar finding can expose a brand-new one on the same diff.**
+SonarCloud's "new code" quality gate evaluates the whole diff, not just the
+line the original issue was on. E.g. renaming a variable that was masking an
+unused-parameter finding (because it was previously "used" as a reassignment
+target) can turn a clean fix into a new `S1172` failure. Always check
+`pr-detail.sh`'s SonarCloud section even on a PR you just opened and expect
+to be clean — don't assume a freshly-created PR is safe from this. If a new
+finding shows up and it's a direct, self-contained consequence of your own
+diff (not a second, independent SonarCloud issue from the backlog), fixing it
+in a follow-up commit is in scope — it isn't "bundling," it's finishing the
+original fix properly.
+
+**Sibling `sonar/*` PRs opened in the same batch will conflict once one
+merges, if they touch the same or adjacent lines.** Each PR in a batch is
+branched off master independently (not off each other), so two PRs fixing
+different issues on the same line show no conflict while both are open —
+`pr-sweep.sh` reports them clean. As soon as one merges, the other flips to
+`mergeable: CONFLICTING` / `mergeStateStatus: DIRTY` against the new master.
+This repo's owner tends to auto-merge PRs within minutes of them going green,
+so re-run `pr-sweep.sh` periodically during a session rather than once at the
+start — the picture changes fast. Resolve the conflict per the "keep HEAD as
+superset" pattern above.
