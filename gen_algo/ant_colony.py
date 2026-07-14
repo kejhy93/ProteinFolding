@@ -119,9 +119,6 @@ class AntColony:
         results, tabu_lists = self.local_search(new_individuals, tabu_lists)
 
         # Update pheronome trails
-        valid_individuals = self.check_valid_of_new_individuals(results)
-
-        # if valid_individuals:
         self.update_pheronome_trails(results, tabu_lists)
         # self.update_pheronome_trails ( new_individuals, tabu_lists )
 
