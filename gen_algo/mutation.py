@@ -8,7 +8,7 @@ MUTATION_TYPE = (2 / 3)
 verbose = False
 
 
-def do_mutation(individual, MUTATION_RATE=0.1, iteration=None, MAX_ITERATION=None):
+def do_mutation(individual, mutation_rate=0.1, iteration=None, max_iteration=None):
     """
     Main method for mutation
     """
@@ -18,10 +18,10 @@ def do_mutation(individual, MUTATION_RATE=0.1, iteration=None, MAX_ITERATION=Non
     mutated_individual = None
 
     # Pick mutation method
-    mutation = pick_mutation_method(iteration, MAX_ITERATION)
+    mutation = pick_mutation_method(iteration, max_iteration)
 
     # Mutate individual
-    mutated_individual = mutation(individual, MUTATION_RATE)
+    mutated_individual = mutation(individual, mutation_rate)
 
     # Compute free energy of mutated individuals
     energy_of_first_mutate_individual = mutated_individual.compute_free_energy()
@@ -36,7 +36,7 @@ def do_mutation(individual, MUTATION_RATE=0.1, iteration=None, MAX_ITERATION=Non
     return individual
 
 
-def mutate_one_point(individual, MUTATION_RATE):
+def mutate_one_point(individual, mutation_rate):
     """
     Mutate individual with MUTATE_RATE
 
@@ -52,7 +52,7 @@ def mutate_one_point(individual, MUTATION_RATE):
     for config_index in range(len(mutate_config)):
         random_number = random.random()
 
-        if random_number < MUTATION_RATE:
+        if random_number < mutation_rate:
             mutate_config[config_index] *= complex(0, 1)
 
     mutate_vector.set_configuration(mutate_config)
@@ -61,7 +61,7 @@ def mutate_one_point(individual, MUTATION_RATE):
     return mutate_individual
 
 
-def mutate_from_point(individual, MUTATION_RATE):
+def mutate_from_point(individual, mutation_rate):
     """
     Mutate individual with from random point to end
 
@@ -85,7 +85,7 @@ def mutate_from_point(individual, MUTATION_RATE):
     return mutate_individual
 
 
-def mutate_from_to_point(individual, MUTATION_RATE):
+def mutate_from_to_point(individual, mutation_rate):
     """
     Mutate individual from random index to random index
 
@@ -110,19 +110,19 @@ def mutate_from_to_point(individual, MUTATION_RATE):
     return mutate_individual
 
 
-def pick_mutation_method(iteration, MAX_ITERATION):
+def pick_mutation_method(iteration, max_iteration):
     """
     Pick mutation method from iteration and max iteration
     """
     random_choice = random.random()
 
-    if iteration == None or MAX_ITERATION == None:
+    if iteration == None or max_iteration == None:
         if random_choice < 0.5:
             return mutate_one_point
         else:
             return mutate_from_point
 
-    if iteration < (MUTATION_TYPE) * MAX_ITERATION:
+    if iteration < (MUTATION_TYPE) * max_iteration:
         if random_choice < 0.9:
             return mutate_from_point
         else:
