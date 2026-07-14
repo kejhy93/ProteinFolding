@@ -21,7 +21,7 @@ PR="${1:?usage: refresh-stale-check.sh <PR> [repo] [workflow-name]}"
 REPO="${2:-}"
 WORKFLOW_NAME="${3:-SonarCloud analysis}"
 
-if [ -z "$REPO" ]; then
+if [[ -z "$REPO" ]]; then
     REPO=$(gh repo view --json nameWithOwner --jq .nameWithOwner)
 fi
 
