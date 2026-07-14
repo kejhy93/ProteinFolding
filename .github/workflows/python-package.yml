@@ -33,8 +33,12 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies
       run: |
-        python -m pip install --upgrade pip==25.2
+        # Constrained (not exact-pinned) so patch releases still apply automatically.
+        python -m pip install --upgrade "pip~=25.2"
         python -m pip install flake8==7.3.0 pytest==9.1.1
+        # --only-binary=:all: is intentionally not used here: some of requirements.txt's
+        # pins (e.g. matplotlib==3.9.0) have no wheel for every Python version in this
+        # build matrix, so forcing wheel-only installs breaks those jobs outright.
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
     - name: Lint with flake8
       run: |
