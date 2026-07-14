@@ -268,10 +268,8 @@ class GeneticsAlgorithm(AbstractSolver):
 
         return population
 
-    def generate_random(self, individual):
-        new_individual = Individual(self.sequance)
-
-        return new_individual
+    def generate_random(self):
+        return Individual(self.sequance)
 
     # CROSSOVER
     def do_crossover(self, population, count_of_crossover):
