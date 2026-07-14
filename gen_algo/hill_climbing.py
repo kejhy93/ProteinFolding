@@ -12,9 +12,6 @@ def do_hill_climbing(individual, count_of_iteration=5, count_of_neighbor=6):
     """
     Main method for hill-climbing
     """
-    # if verbose:
-    # 	print ( "Hill climbing")
-
     new_individual = hill_climbing(individual, count_of_iteration, count_of_neighbor)
 
     return new_individual
