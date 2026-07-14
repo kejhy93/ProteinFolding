@@ -15,7 +15,7 @@ SONAR_PROJECT_KEY="${3:-}"
 if [ -z "$REPO" ]; then
     REPO=$(gh repo view --json nameWithOwner --jq .nameWithOwner)
 fi
-if [ -z "$SONAR_PROJECT_KEY" ]; then
+if [[ -z "$SONAR_PROJECT_KEY" ]]; then
     # Best-effort guess from the SonarCloud workflow file, if present.
     SONAR_PROJECT_KEY=$(grep -h "sonar.projectKey" .github/workflows/*.yml 2>/dev/null \
         | head -1 | sed -E 's/.*projectKey=([^ ]+).*/\1/')
