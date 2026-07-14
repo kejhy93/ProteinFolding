@@ -12,7 +12,7 @@ PR="${1:?usage: pr-detail.sh <PR> [repo] [sonar-project-key]}"
 REPO="${2:-}"
 SONAR_PROJECT_KEY="${3:-}"
 
-if [ -z "$REPO" ]; then
+if [[ -z "$REPO" ]]; then
     REPO=$(gh repo view --json nameWithOwner --jq .nameWithOwner)
 fi
 if [[ -z "$SONAR_PROJECT_KEY" ]]; then
