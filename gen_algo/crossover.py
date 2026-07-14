@@ -4,7 +4,7 @@ import random
 from copy import deepcopy
 
 
-def do_crossover(first_individual, second_individual, crossover_rate=0.3):
+def do_crossover(first_individual, second_individual):
     # Crossover two individual
     crossover_mode_probability = random.random()
 
