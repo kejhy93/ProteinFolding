@@ -265,7 +265,7 @@ class GeneticsAlgorithm(AbstractSolver):
             first_individual, first_index = population.pick_random_individual()
             second_individual, second_index = population.pick_random_individual()
 
-            crossover_individuals = do_crossover(first_individual, second_individual, self.CROSSOVER_RATE)
+            crossover_individuals = do_crossover(first_individual, second_individual)
 
             if crossover_individuals[0] != first_individual:
                 population.set_individual_at(first_index, crossover_individuals[0])
