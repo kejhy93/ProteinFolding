@@ -25,7 +25,7 @@ def get_first_position(sequance):
     return counter
 
 
-def getLastPosition(sequance):
+def get_last_position(sequance):
     counter = len(sequance) - 1
     while check_valid_index(counter, sequance) and check_hydropholic(sequance[counter]):
         counter -= 1
@@ -35,7 +35,7 @@ def getLastPosition(sequance):
 
 def optimize_sequance(sequance):
     counter_from_begin = get_first_position(sequance)
-    counter_from_end = getLastPosition(sequance)
+    counter_from_end = get_last_position(sequance)
 
     if counter_from_begin > counter_from_end:
         return []
