@@ -1,7 +1,7 @@
 #! /usr/bin/python3
 
 import random
-from collections import *
+from collections import Counter
 from copy import deepcopy
 
 import matplotlib
@@ -13,6 +13,9 @@ HYDROPHOBILIC = 1
 
 NOT_VALID_CONFIGURATION = False
 VALID_CONFIGURATION = True
+
+SPACE_CONFIGURATION_LOG_PREFIX = "Space configuration: "
+FREE_ENERGY_LOG_PREFIX = "Free energy: "
 
 
 class Vector:
@@ -62,7 +65,7 @@ class Vector:
 
     def check_space_configuration_counter(self, direction, index):
         self.space_configuration = self.compute_space_configuration_to_index(index)
-        print("Space configuration: ", self.space_configuration)
+        print(SPACE_CONFIGURATION_LOG_PREFIX, self.space_configuration)
 
         new_space_config = self.space_configuration[-1] + direction
         self.space_configuration_counter = Counter(self.space_configuration)
@@ -188,7 +191,7 @@ class Vector:
         """
         Generate random valid sequance
         """
-        for i in range(len(self.sequance) - 1):
+        for _ in range(len(self.sequance) - 1):
             self.configuration.append(complex(1, 0))
 
         RIGHT = True
@@ -254,11 +257,6 @@ class Vector:
 
         list_of_real = []
         list_of_imag = []
-
-        list_of_hydrophobilic = []
-
-        min_x, min_y = -1, -1
-        max_x, max_y = 1, 1
 
         final_index = len(self.sequance)
 
@@ -379,7 +377,7 @@ class Vector:
             self.space_configuration.append(sum_of_space_config)
 
         if self.verbose:
-            print("Space configuration: ", self.space_configuration)
+            print(SPACE_CONFIGURATION_LOG_PREFIX, self.space_configuration)
 
         self.space_configuration_counter = Counter(self.space_configuration)
 
@@ -415,7 +413,7 @@ class Vector:
 
                         free_energy += energy
         if self.verbose:
-            print("Free energy: ", free_energy)
+            print(FREE_ENERGY_LOG_PREFIX, free_energy)
 
         if free_energy == 0:
             return 1
@@ -448,8 +446,8 @@ if __name__ == "__main__":
     print(vector)
     space_config = vector.compute_space_configuration(0)
     free_energy = vector.compute_free_energy(0)
-    print("Space configuration: ", space_config)
-    print("Free energy: ", free_energy, " ( 1 )")
+    print(SPACE_CONFIGURATION_LOG_PREFIX, space_config)
+    print(FREE_ENERGY_LOG_PREFIX, free_energy, " ( 1 )")
     vector.plot_config(0)
 
     print("Param: ", vector.compute_space_configuration(3))
@@ -481,8 +479,8 @@ if __name__ == "__main__":
                     min_index = counter
                     min_of_free_energy = free_energy
 
-            print("Space configuration: ", space_config)
-            print("Free energy: ", free_energy)
+            print(SPACE_CONFIGURATION_LOG_PREFIX, space_config)
+            print(FREE_ENERGY_LOG_PREFIX, free_energy)
             print("Validity: ", not invalid)
 
             vector.plot_config(index_of_config)
@@ -498,8 +496,8 @@ if __name__ == "__main__":
         vector.plot_config(index_of_config)
         print(" ============ ")
 
-    print("Space configuration: ", vector.compute_space_configuration())
+    print(SPACE_CONFIGURATION_LOG_PREFIX, vector.compute_space_configuration())
 
-    print("Free energy: ", vector.compute_free_energy())
+    print(FREE_ENERGY_LOG_PREFIX, vector.compute_free_energy())
     print(vector)
     vector.plot_config()

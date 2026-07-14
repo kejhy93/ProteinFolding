@@ -72,7 +72,7 @@ class AntColony:
         """
         Init pheronome
         """
-        return random.random()
+        return random.random()  # NOSONAR python:S2245 - non-cryptographic use, algorithmic randomness only
 
     def search(self):
         """
@@ -124,8 +124,6 @@ class AntColony:
 
         return results
 
-    # return new_individuals
-
     def check_valid_of_new_individual(self, individual):
         if individual == None:
             return False
@@ -158,7 +156,7 @@ class AntColony:
         # Multi-threaded
         pool = ThreadPool(8)
 
-        local_search_method_probability = random.random()
+        local_search_method_probability = random.random()  # NOSONAR python:S2245 - non-cryptographic use, algorithmic randomness only
         if local_search_method_probability < 0.5:
             if self.verbose:
                 print("\tAnt-Colony -> Simulated Annealing")
@@ -178,7 +176,7 @@ class AntColony:
 
         for mutated, original, tabu_list in zip(results, individuals, tabu_lists):
             if mutated != original and mutated != None:
-                tabu_lists[counter] = self.update_tabu_list(mutated, tabu_list)
+                tabu_lists[counter] = self.update_tabu_list(mutated)
 
             counter += 1
 
@@ -201,18 +199,10 @@ class AntColony:
         # print(i)
 
         for index_of_pheronome in range(1, len(self.pheronome)):
-            # new_pheronome = self.pheronome[index_of_pheronome]
-
             for index_of_pher in DIRECTIONS:
                 self.pheronome[index_of_pheronome][index_of_pher] *= EVAPORATE_CONSTANT
                 self.pheronome[index_of_pheronome][index_of_pher] += delta_pheronome[index_of_pheronome - 1][
                     index_of_pher]
-
-            # self.pheronome[index_of_pheronome][index_of_pher] = new_pheronome[index_of_pher]
-
-        # print(self.pheronome[index_of_pheronome], new_pheronome)
-        # self.pheronome[index_of_pheronome] = new_pheronome
-        # print("After: ",self.pheronome[index_of_pheronome], new_pheronome)
 
     def compute_delta_pheronome(self, individuals, tabu_lists):
         if self.verbose:
@@ -223,9 +213,6 @@ class AntColony:
             deltas = [0, 0, 0]
             for direction in DIRECTIONS:
                 for tabu_list, individual in zip(tabu_lists, individuals):
-                    # if index >= len(tabu_list):
-                    # 	tabu_list.append(STRAIGHT)
-
                     if tabu_list[index] == direction:
                         # deltas.append(DELTA_PHERONOME_CONSTANT/individual.get_free_energy() )
                         DELTA = DELTA_PHERONOME_CONSTANT / individual.get_free_energy()
@@ -241,16 +228,11 @@ class AntColony:
         return delta
 
     def add_to_delta_pheronome(self, deltas, direction, new_record):
-        # print(direction)
-        # print(len(deltas), direction)
-        # print("Delta before: ", deltas[direction])
-        # print(new_record)
         deltas[direction] += new_record
-        # print("Delta after: ", deltas[direction])
 
         return deltas
 
-    def update_tabu_list(self, individual, tabu_list):
+    def update_tabu_list(self, individual):
         new_tabu_list = []
 
         vector = individual.get_individual()
