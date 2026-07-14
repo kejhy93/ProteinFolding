@@ -97,7 +97,6 @@ class GeneticsAlgorithm(AbstractSolver):
             start_times = []
             end_times = []
 
-            times = []
             methods = []
 
             start_times.append(utils.get_time_in_millis())
@@ -261,7 +260,7 @@ class GeneticsAlgorithm(AbstractSolver):
         """
         Crossover
         """
-        for crossover_index in range(count_of_crossover):
+        for _ in range(count_of_crossover):
             first_individual, first_index = population.pick_random_individual()
             second_individual, second_index = population.pick_random_individual()
 
