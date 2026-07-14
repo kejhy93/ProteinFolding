@@ -68,6 +68,12 @@ class GeneticsAlgorithm(AbstractSolver):
 
         self.ant_colony = None
 
+        self.is_mutation_enabled = True
+        self.is_crossover_enabled = True
+        self.is_hill_climbing_enabled = False
+        self.is_simulated_annealing_enabled = True
+        self.is_ant_colony_enabled = True
+
     def solve(self):
         if self.verboseGeneticsSolver:
             print("GeneticsAlgorithm -> solve")
@@ -78,7 +84,7 @@ class GeneticsAlgorithm(AbstractSolver):
         # Init population
         population.init_population(self.result_vector)
 
-        best_individual_of_population, average_fitness = population.pick_random_individual()
+        best_individual_of_population, _ = population.pick_random_individual()
         energy_of_best_individual_of_population = 100000000
 
         if self.verboseGeneticsSolver:
@@ -96,19 +102,13 @@ class GeneticsAlgorithm(AbstractSolver):
         ant-colony for a single generation, then track timing and the
         best individual found so far
         """
-        IS_MUTATION = True
-        IS_CROSSOVER = True
-        IS_HILL_CLIMBING = False
-        IS_SIMULATED_ANNEALING = True
-        IS_ANT_COLONY = True
-
         start_times = []
         end_times = []
         methods = []
 
         start_times.append(utils.get_time_in_millis())
         # MUTATION
-        if IS_MUTATION:
+        if self.is_mutation_enabled:
             print("GeneticsAlgorithm -> Mutation")
             self.mutate(population, iteration)
 
@@ -119,7 +119,7 @@ class GeneticsAlgorithm(AbstractSolver):
         start_times.append(utils.get_time_in_millis())
 
         crossover_probability = random.random()
-        if IS_CROSSOVER and crossover_probability < self.CROSSOVER_RATE:
+        if self.is_crossover_enabled and crossover_probability < self.CROSSOVER_RATE:
             print("GeneticsAlgorithm -> Crossover")
             population = self.do_crossover(population, self.COUNT_OF_CROSSOVER_PER_GENERATION)
         methods.append("Crossover")
@@ -128,7 +128,7 @@ class GeneticsAlgorithm(AbstractSolver):
         # HILL-CLIMBING
         start_times.append(utils.get_time_in_millis())
 
-        if IS_HILL_CLIMBING:
+        if self.is_hill_climbing_enabled:
             print("GeneticsAlgorithm -> Hill-Climbing")
             population = self.run_hill_climbing_step(population, iteration)
 
@@ -138,7 +138,7 @@ class GeneticsAlgorithm(AbstractSolver):
         # SIMULATED ANNEALING
         start_times.append(utils.get_time_in_millis())
 
-        if IS_SIMULATED_ANNEALING:
+        if self.is_simulated_annealing_enabled:
             print("GeneticsAlgorithm -> Simulated Annealing")
             population = self.run_simulated_annealing_step(population)
 
@@ -148,7 +148,7 @@ class GeneticsAlgorithm(AbstractSolver):
         # ANT-COLONY
         start_times.append(utils.get_time_in_millis())
 
-        if IS_ANT_COLONY:
+        if self.is_ant_colony_enabled:
             print("GeneticsAlgorithm -> Ant-Colony")
             population = self.do_ant_colony(population, iteration)
 
