@@ -21,11 +21,6 @@ if __name__ == "__main__":
     start_millis = int(round(time.time() * 1000))
     total_score = 0
 
-    # for i in TEST_FILE:
-    # 	print(i)
-
-    # TEST_FILE = utils.sort_by_test_size ( TEST_FILE )
-    # TEST_FILE = TEST_FILE[:25]
     counter = 0
     for protein in TEST_FILE:
         print(" ======================================================= ")
