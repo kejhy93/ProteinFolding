@@ -13,7 +13,7 @@ def make_solver(max_generation, population_size, monkeypatch, **kwargs):
     """
     solver = GeneticsAlgorithm(
         sequance=[0, 1, 1, 0, 1, 0],
-        MAX_GENERATION=max_generation,
+        max_generation=max_generation,
         POPULATION_SIZE=population_size,
         COUNT_OF_MUTATION_PER_GENERATION=0,
         COUNT_OF_CROSSOVER_PER_GENERATION=0,
@@ -37,7 +37,7 @@ def make_solver(max_generation, population_size, monkeypatch, **kwargs):
 def test_list_individuals_is_empty_after_init():
     solver = GeneticsAlgorithm(
         sequance=[0, 1, 1, 0],
-        MAX_GENERATION=1,
+        max_generation=1,
         POPULATION_SIZE=2,
         COUNT_OF_MUTATION_PER_GENERATION=0,
         COUNT_OF_CROSSOVER_PER_GENERATION=0,
