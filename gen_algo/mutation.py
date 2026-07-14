@@ -38,7 +38,7 @@ def do_mutation(individual, mutation_rate=0.1, iteration=None, max_iteration=Non
 
 def mutate_one_point(individual, mutation_rate):
     """
-    Mutate individual with MUTATE_RATE
+    Mutate individual with mutation_rate
 
     return mutated individual
     """
