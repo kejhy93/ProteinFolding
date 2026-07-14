@@ -38,12 +38,12 @@ COUNT_OF_ANTS = 8
 
 
 class GeneticsAlgorithm(AbstractSolver):
-    def __init__(self, sequance, MAX_GENERATION, POPULATION_SIZE,
+    def __init__(self, sequance, MAX_GENERATION, population_size,
                  COUNT_OF_MUTATION_PER_GENERATION, count_of_crossover_per_generation,
                  MUTATE_RATE, CROSSOVER_RATE, store_individuals_per_generation=True):
 
         self.MAX_GENERATION = MAX_GENERATION
-        self.POPULATION_SIZE = POPULATION_SIZE
+        self.POPULATION_SIZE = population_size
 
         self.FREQUANCY_OF_HILL_CLIMBING = (int)(MAX_GENERATION / COUNT_OF_HILL_CLIMBING)
         self.FREQUANCY_OF_SIMULATED_ANNEALING = (int)(MAX_GENERATION / COUNT_OF_SIMULATED_ANNEALING)
