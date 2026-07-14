@@ -65,10 +65,12 @@ jobs:
           # requires a single resolved version, not a compatible-release range.
           python -m pip install --upgrade pip==25.2
           python -m pip install pytest==9.1.1 pytest-cov==7.1.0
-          # --only-binary=:all: is intentionally not used here: some of requirements.txt's
-          # pins (e.g. matplotlib==3.9.0) have no wheel for every Python version this
-          # workflow may run under, so forcing wheel-only installs would break it outright.
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          # requirements.txt is now a hash-locked file (every direct and transitive
+          # dependency pinned with --hash) covering Python 3.12, the version this
+          # workflow runs under, so --only-binary=:all: is safe here: all pinned
+          # wheels exist for 3.12, and --require-hashes rejects anything that
+          # doesn't match the recorded hash, including any sdist/setup.py build.
+          if [ -f requirements.txt ]; then pip install --only-binary=:all: --require-hashes -r requirements.txt; fi
 
       - name: Test with coverage
         run: |
