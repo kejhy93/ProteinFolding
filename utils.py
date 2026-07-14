@@ -13,10 +13,10 @@ DECREASE = 0
 RESULT_FOLDER = "result"
 
 
-def parse(PATH):
+def parse(path):
     content_of_test_file = ""
 
-    with open(PATH, 'r', encoding="utf-8") as f:
+    with open(path, 'r', encoding="utf-8") as f:
         content_of_test_file = f.read()
 
     parsed_content = content_of_test_file.split()
@@ -42,16 +42,16 @@ def zero_or_one(number):
         return 0
 
 
-def sort(test_set, STYLE):
+def sort(test_set, style):
     """
     Sort by selection sort
     """
     count_of_sorted = 0
 
     comparator = None
-    if STYLE == DECREASE:
+    if style == DECREASE:
         comparator = is_first_lower
-    elif STYLE == INCREASE:
+    elif style == INCREASE:
         comparator = is_first_higher
 
     for index in range(len(test_set) - 1, 0, -1):
@@ -85,13 +85,13 @@ def is_first_higher(first, second):
 
 def create_index(index):
     if index < 10:
-        indexStr = "00" + str(index)
+        index_str = "00" + str(index)
     elif index < 100:
-        indexStr = "0" + str(index)
+        index_str = "0" + str(index)
     else:
-        indexStr = str(index)
+        index_str = str(index)
 
-    return indexStr
+    return index_str
 
 
 def create_filename(index):
@@ -136,32 +136,32 @@ def create_filesize_set(test_files):
     return filesize_set
 
 
-def sort_by_size_of_result_file(TEST_SET, FILE_SIZE_SET):
+def sort_by_size_of_result_file(test_set, file_size_set):
     comparator = is_first_higher
 
-    for index in range(len(TEST_SET) - 1, 0, -1):
+    for index in range(len(test_set) - 1, 0, -1):
         lowest_index = 0
         for find_index in range(1, index + 1):
-            if comparator(FILE_SIZE_SET[find_index], FILE_SIZE_SET[lowest_index]):
+            if comparator(file_size_set[find_index], file_size_set[lowest_index]):
                 lowest_index = find_index
 
-        tmp = TEST_SET[index]
-        TEST_SET[index] = TEST_SET[lowest_index]
-        TEST_SET[lowest_index] = tmp
+        tmp = test_set[index]
+        test_set[index] = test_set[lowest_index]
+        test_set[lowest_index] = tmp
 
-        tmp = FILE_SIZE_SET[index]
-        FILE_SIZE_SET[index] = FILE_SIZE_SET[lowest_index]
-        FILE_SIZE_SET[lowest_index] = tmp
+        tmp = file_size_set[index]
+        file_size_set[index] = file_size_set[lowest_index]
+        file_size_set[lowest_index] = tmp
 
-    return TEST_SET
+    return test_set
 
 
-def sort_by_test_size(TEST_FILE):
-    file_size_set = create_filesize_set(TEST_FILE)
+def sort_by_test_size(test_file):
+    file_size_set = create_filesize_set(test_file)
 
-    TEST_FILE = sort_by_size_of_result_file(TEST_FILE, file_size_set)
+    test_file = sort_by_size_of_result_file(test_file, file_size_set)
 
-    return TEST_FILE
+    return test_file
 
 
 def get_time_in_millis():
@@ -204,8 +204,8 @@ def find_min_value_in(content):
     return min_val
 
 
-def read_minimal_energy_from_file(ID):
-    filename = create_filename(ID)
+def read_minimal_energy_from_file(protein_id):
+    filename = create_filename(protein_id)
 
     fullpath_name = os.path.join(RESULT_FOLDER, filename)
 
