@@ -34,7 +34,7 @@ for pr in $(gh pr list --repo "$REPO" --state open --limit 100 --json number --j
     pending=$(echo "$checks" | awk -F'\t' '$2=="pending"{print $1}')
     if [ -n "$fails" ]; then
         echo "PR $pr FAILING: $(echo "$fails" | paste -sd, -)"
-    elif [ -n "$pending" ]; then
+    elif [[ -n "$pending" ]]; then
         echo "PR $pr PENDING: $(echo "$pending" | paste -sd, -)"
     else
         echo "PR $pr: all green"
