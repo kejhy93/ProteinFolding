@@ -40,7 +40,7 @@ COUNT_OF_ANTS = 8
 class GeneticsAlgorithm(AbstractSolver):
     def __init__(self, sequance, max_generation, population_size,
                  COUNT_OF_MUTATION_PER_GENERATION, count_of_crossover_per_generation,
-                 MUTATE_RATE, CROSSOVER_RATE, store_individuals_per_generation=True):
+                 MUTATE_RATE, crossover_rate, store_individuals_per_generation=True):
 
         self.MAX_GENERATION = max_generation
         self.POPULATION_SIZE = population_size
@@ -50,7 +50,7 @@ class GeneticsAlgorithm(AbstractSolver):
         self.FREQUANCY_OF_ANT_COLONY = (int)(max_generation / COUNT_OF_ANT_COLONY)
 
         self.MUTATE_RATE = MUTATE_RATE
-        self.CROSSOVER_RATE = CROSSOVER_RATE
+        self.CROSSOVER_RATE = crossover_rate
 
         self.COUNT_OF_MUTATION_PER_GENERATION = COUNT_OF_MUTATION_PER_GENERATION
         self.COUNT_OF_CROSSOVER_PER_GENERATION = count_of_crossover_per_generation
