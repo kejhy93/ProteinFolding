@@ -188,62 +188,52 @@ class Vector:
         """
         Generate random valid sequance
         """
-        for i in range(len(self.sequance) - 1):
+        for _ in range(len(self.sequance) - 1):
             self.configuration.append(complex(1, 0))
 
-        RIGHT = True
-        UP = False
-        DOWN = False
-
-        RIGHT_MOVE = complex(1, 0)
-        DOWN_MOVE = complex(0, 1)
-        UP_MOVE = complex(0, -1)
-
-        CHANGE_DIRECTION_PROBABILITY = 0.7
-
+        state = "RIGHT"
         for config in range(len(self.configuration)):
-            if RIGHT:
-                change_of_direction = random.random()
-                if change_of_direction < CHANGE_DIRECTION_PROBABILITY:
-                    direction = random.random()
-                    if direction < 0.5:
-                        self.configuration[config] = UP_MOVE
-                        RIGHT = False
-                        UP = True
-                    else:
-                        self.configuration[config] = DOWN_MOVE
-                        RIGHT = False
-                        DOWN = True
-                else:
-                    self.configuration[config] = RIGHT_MOVE
-                    RIGHT = True
-                    UP = False
-                    DOWN = False
+            state = self.pick_next_random_direction(config, state)
 
-            elif UP:
-                change_of_direction = random.random()
-                if change_of_direction < CHANGE_DIRECTION_PROBABILITY:
-                    self.configuration[config] = RIGHT_MOVE
-                    RIGHT = True
-                    UP = False
-                    DOWN = False
-                else:
-                    self.configuration[config] = UP_MOVE
-                    UP = True
-                    DOWN = False
-                    RIGHT = False
-            elif DOWN:
-                change_of_direction = random.random()
-                if change_of_direction < CHANGE_DIRECTION_PROBABILITY:
-                    self.configuration[config] = RIGHT_MOVE
-                    RIGHT = True
-                    DOWN = False
-                    UP = False
-                else:
-                    self.configuration[config] = DOWN_MOVE
-                    UP = False
-                    DOWN = True
-                    RIGHT = False
+    def pick_next_random_direction(self, config, state):
+        """
+        Pick next move of the random walk used to seed the configuration,
+        update self.configuration at config in place and return the new state
+        """
+        if state == "RIGHT":
+            return self.pick_random_direction_from_right(config)
+
+        return self.pick_random_direction_from_side(config, state)
+
+    def pick_random_direction_from_right(self, config):
+        right_move = complex(1, 0)
+        down_move = complex(0, 1)
+        up_move = complex(0, -1)
+        change_direction_probability = 0.7
+
+        if random.random() >= change_direction_probability:
+            self.configuration[config] = right_move
+            return "RIGHT"
+
+        if random.random() < 0.5:
+            self.configuration[config] = up_move
+            return "UP"
+
+        self.configuration[config] = down_move
+        return "DOWN"
+
+    def pick_random_direction_from_side(self, config, state):
+        right_move = complex(1, 0)
+        down_move = complex(0, 1)
+        up_move = complex(0, -1)
+        change_direction_probability = 0.7
+
+        if random.random() < change_direction_probability:
+            self.configuration[config] = right_move
+            return "RIGHT"
+
+        self.configuration[config] = up_move if state == "UP" else down_move
+        return state
 
     def save_config_to_file(self, filename):
         """
@@ -389,36 +379,43 @@ class Vector:
         """
         Compute free energy of configuration up to index
         """
-        free_energy = 0
-
         if space_config == None:
             space_conf = self.compute_space_configuration(index)
         else:
             space_conf = space_config
 
-        final_index_of_amino = None
         if index == None:
             final_index_of_amino = len(self.sequance) - 1
         else:
             final_index_of_amino = index + 1
 
-        # Iterate all amino
-        for first in range(0, final_index_of_amino):
-            # Check if amino is hydropohoboli ( free energy is depedent on it )
-            if self.sequance[first] == HYDROPHOBILIC:
-                # Iterate amino to end of protein
-                for second in range(first + 1, final_index_of_amino + 1):
-                    # Check if amino is hydropohoboli ( free energy is depedent on it )
-                    if self.sequance[second] == HYDROPHOBILIC:
-                        # Add to free energy ( absolute value of two complex numbers)
-                        energy = self.length_between_amino(space_conf[first], space_conf[second])
+        free_energy = self.sum_hydrophobic_pair_distances(space_conf, final_index_of_amino)
 
-                        free_energy += energy
         if self.verbose:
             print("Free energy: ", free_energy)
 
         if free_energy == 0:
             return 1
+
+        return free_energy
+
+    def sum_hydrophobic_pair_distances(self, space_conf, final_index_of_amino):
+        """
+        Sum distances between every pair of hydrophobic amino acids up to final_index_of_amino
+        """
+        free_energy = 0
+
+        # Iterate all amino
+        for first in range(0, final_index_of_amino):
+            # Check if amino is hydropohoboli ( free energy is depedent on it )
+            if self.sequance[first] != HYDROPHOBILIC:
+                continue
+            # Iterate amino to end of protein
+            for second in range(first + 1, final_index_of_amino + 1):
+                # Check if amino is hydropohoboli ( free energy is depedent on it )
+                if self.sequance[second] == HYDROPHOBILIC:
+                    # Add to free energy ( absolute value of two complex numbers)
+                    free_energy += self.length_between_amino(space_conf[first], space_conf[second])
 
         return free_energy
 
