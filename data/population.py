@@ -51,7 +51,7 @@ class Population:
         Generate list of candidates before select
         """
         candidate_list = []
-        for candidate in range(SIZE_OF_CANDIDATE_LIST):
+        for _ in range(SIZE_OF_CANDIDATE_LIST):
             candidate_list.append(random.randint(0, self.size_of_population - 1))  # NOSONAR python:S2245 - non-cryptographic use, algorithmic randomness only
 
         return candidate_list
