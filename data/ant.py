@@ -192,12 +192,12 @@ class Ant(Thread):
         # Iterate probability list
         for index in range(len(indexes) - 1):
             # Check if two probabilities are almost equal
-            if not (random.random() < 0.2):
+            if random.random() >= 0.2:  # NOSONAR python:S2245 - non-cryptographic use, algorithmic randomness only
                 continue
             if not (self.little_diference(values[index], values[index + 1]) and change < CHANGE_RATE):
                 continue
 
-            switch_probability = random.random()
+            switch_probability = random.random()  # NOSONAR python:S2245 - non-cryptographic use, algorithmic randomness only
             # Check probability
             if switch_probability < SWITCH_PROBABILITY:
                 # Swap two probabilities
