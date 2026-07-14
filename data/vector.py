@@ -27,9 +27,6 @@ class Vector:
     def __init__(self, protein_sequance):
         self.verbose = False
 
-        if self.verbose:
-            print("Vector -> init")
-
         self.sequance = protein_sequance
 
         self.configuration = []
