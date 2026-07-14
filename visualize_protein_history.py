@@ -11,7 +11,6 @@ CONFIGURATION_FOLDER = "configuration_diagram"
 
 
 def visualize(history, counter):
-    count_of_records = len(history)
     counter_of_diagrams = 1
 
     path = os.path.join(CONFIGURATION_FOLDER, utils.create_filename(counter))
@@ -30,7 +29,7 @@ def visualize(history, counter):
 
 def read_history_of_configuration_of(path_to_file):
     all_configuration_history_of_protein = []
-    all_configuration_history_of_protein = utils.read_configuration_history(full_name_to_file, protein.get_sequance())
+    all_configuration_history_of_protein = utils.read_configuration_history(path_to_file, protein.get_sequance())
 
     return all_configuration_history_of_protein
 
@@ -51,9 +50,3 @@ if __name__ == "__main__":
     counter = 2
 
     visualize(history[counter], counter)
-
-# counter = 0
-# for protein_history in history:
-# 	visualize(protein_history, counter)
-# 	print(" ======== ")
-# 	counter += 1
