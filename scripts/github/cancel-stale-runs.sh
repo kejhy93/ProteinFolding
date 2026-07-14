@@ -51,7 +51,7 @@ if [ "$count" -eq 0 ]; then
     exit 0
 fi
 
-if [ "$DRY_RUN" = true ]; then
+if [[ "$DRY_RUN" = true ]]; then
     echo "Would cancel $count run(s):"
     cat /tmp/stale_runs_to_cancel.$$
 else
