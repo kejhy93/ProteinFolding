@@ -476,10 +476,9 @@ if __name__ == "__main__":
                 if counter_config[key] > 1:
                     invalid = True
 
-            if not invalid:
-                if free_energy < min_of_free_energy:
-                    min_index = counter
-                    min_of_free_energy = free_energy
+            if not invalid and free_energy < min_of_free_energy:
+                min_index = counter
+                min_of_free_energy = free_energy
 
             print("Space configuration: ", space_config)
             print("Free energy: ", free_energy)
