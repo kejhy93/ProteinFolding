@@ -51,9 +51,3 @@ if __name__ == "__main__":
     counter = 2
 
     visualize(history[counter], counter)
-
-# counter = 0
-# for protein_history in history:
-# 	visualize(protein_history, counter)
-# 	print(" ======== ")
-# 	counter += 1
