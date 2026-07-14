@@ -13,9 +13,6 @@ class Population:
     def __init__(self, size_of_population):
         self.verbose = False
 
-        if self.verbose:
-            print("Create populatin")
-
         self.size_of_population = size_of_population
 
         self.individuals = []
