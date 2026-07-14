@@ -18,7 +18,7 @@ def make_solver(max_generation, population_size, monkeypatch, **kwargs):
         COUNT_OF_MUTATION_PER_GENERATION=0,
         count_of_crossover_per_generation=0,
         MUTATE_RATE=0.0,
-        CROSSOVER_RATE=0.0,
+        crossover_rate=0.0,
         **kwargs,
     )
     solver.verboseGeneticsSolver = False
@@ -42,7 +42,7 @@ def test_list_individuals_is_empty_after_init():
         COUNT_OF_MUTATION_PER_GENERATION=0,
         count_of_crossover_per_generation=0,
         MUTATE_RATE=0.0,
-        CROSSOVER_RATE=0.0,
+        crossover_rate=0.0,
     )
 
     assert solver.list_individuals == []
