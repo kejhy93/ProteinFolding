@@ -4,21 +4,21 @@ import random
 from copy import deepcopy
 
 
-def do_crossover(first_individual, second_individual, CROSSOVER_RATE=0.3):
+def do_crossover(first_individual, second_individual):
     # Crossover two individual
-    crossover_mode_probability = random.random()
+    crossover_mode_probability = random.random()  # NOSONAR python:S2245 - non-cryptographic use, algorithmic randomness only
 
     first_crossover_point = -1
     second_crossover_point = -1
 
     if (crossover_mode_probability < (float)(1 / 3)):
         # One-point crossover
-        first_crossover_point = random.randint(0, len(first_individual.get_configuration()))
+        first_crossover_point = random.randint(0, len(first_individual.get_configuration()))  # NOSONAR python:S2245 - non-cryptographic use, algorithmic randomness only
         second_crossover_point = -1
     elif (crossover_mode_probability < (float)(2 / 3)):
         # Two point crossover
-        first_crossover_point = random.randint(0, len(first_individual.get_configuration()))
-        second_crossover_point = random.randint(first_crossover_point, len(first_individual.get_configuration()))
+        first_crossover_point = random.randint(0, len(first_individual.get_configuration()))  # NOSONAR python:S2245 - non-cryptographic use, algorithmic randomness only
+        second_crossover_point = random.randint(first_crossover_point, len(first_individual.get_configuration()))  # NOSONAR python:S2245 - non-cryptographic use, algorithmic randomness only
     else:
         # Uniform crossover
         first_crossover_point = second_crossover_point = -1

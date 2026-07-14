@@ -8,7 +8,7 @@ MUTATION_TYPE = (2 / 3)
 verbose = False
 
 
-def do_mutation(individual, MUTATION_RATE=0.1, iteration=None, MAX_ITERATION=None):
+def do_mutation(individual, mutation_rate=0.1, iteration=None, max_iteration=None):
     """
     Main method for mutation
     """
@@ -18,10 +18,10 @@ def do_mutation(individual, MUTATION_RATE=0.1, iteration=None, MAX_ITERATION=Non
     mutated_individual = None
 
     # Pick mutation method
-    mutation = pick_mutation_method(iteration, MAX_ITERATION)
+    mutation = pick_mutation_method(iteration, max_iteration)
 
     # Mutate individual
-    mutated_individual = mutation(individual, MUTATION_RATE)
+    mutated_individual = mutation(individual, mutation_rate)
 
     # Compute free energy of mutated individuals
     energy_of_first_mutate_individual = mutated_individual.compute_free_energy()
@@ -36,23 +36,20 @@ def do_mutation(individual, MUTATION_RATE=0.1, iteration=None, MAX_ITERATION=Non
     return individual
 
 
-def mutate_one_point(individual, MUTATION_RATE):
+def mutate_one_point(individual, mutation_rate):
     """
-    Mutate individual with MUTATE_RATE
+    Mutate individual with mutation_rate
 
     return mutated individual
     """
-    # if verbose:
-    # 	print ( "GeneticsAlgorithm -> mutate_one_point")
-
     mutate_individual = deepcopy(individual)
     mutate_vector = mutate_individual.get_individual()
     mutate_config = mutate_vector.get_configuration()
 
     for config_index in range(len(mutate_config)):
-        random_number = random.random()
+        random_number = random.random()  # NOSONAR python:S2245 - non-cryptographic use, algorithmic randomness only
 
-        if random_number < MUTATION_RATE:
+        if random_number < mutation_rate:
             mutate_config[config_index] *= complex(0, 1)
 
     mutate_vector.set_configuration(mutate_config)
@@ -61,20 +58,17 @@ def mutate_one_point(individual, MUTATION_RATE):
     return mutate_individual
 
 
-def mutate_from_point(individual, MUTATION_RATE):
+def mutate_from_point(individual, mutation_rate):
     """
     Mutate individual with from random point to end
 
     return mutated individual
     """
-    # if verbose:
-    # 	print ( "GeneticsAlgorithm -> mutate_from_point")
-
     mutate_individual = deepcopy(individual)
     mutate_vector = mutate_individual.get_individual()
     mutate_config = mutate_vector.get_configuration()
 
-    from_index = random.randint(0, len(mutate_config) - 1)
+    from_index = random.randint(0, len(mutate_config) - 1)  # NOSONAR python:S2245 - non-cryptographic use, algorithmic randomness only
 
     for config_index in range(from_index, len(mutate_config)):
         mutate_config[config_index] *= complex(0, 1)
@@ -85,21 +79,18 @@ def mutate_from_point(individual, MUTATION_RATE):
     return mutate_individual
 
 
-def mutate_from_to_point(individual, MUTATION_RATE):
+def mutate_from_to_point(individual, mutation_rate):
     """
     Mutate individual from random index to random index
 
     return mutated individual
     """
-    # if verbose:
-    # 	print ( "GeneticsAlgorithm -> mutate_from_to_point")
-
     mutate_individual = deepcopy(individual)
     mutate_vector = mutate_individual.get_individual()
     mutate_config = mutate_vector.get_configuration()
 
-    from_index = random.randint(0, len(mutate_config) - 1)
-    to_index = random.randint(from_index, len(mutate_config) - 1)
+    from_index = random.randint(0, len(mutate_config) - 1)  # NOSONAR python:S2245 - non-cryptographic use, algorithmic randomness only
+    to_index = random.randint(from_index, len(mutate_config) - 1)  # NOSONAR python:S2245 - non-cryptographic use, algorithmic randomness only
 
     for config_index in range(from_index, to_index):
         mutate_config[config_index] *= complex(-1, 0)
@@ -110,19 +101,19 @@ def mutate_from_to_point(individual, MUTATION_RATE):
     return mutate_individual
 
 
-def pick_mutation_method(iteration, MAX_ITERATION):
+def pick_mutation_method(iteration, max_iteration):
     """
     Pick mutation method from iteration and max iteration
     """
-    random_choice = random.random()
+    random_choice = random.random()  # NOSONAR python:S2245 - non-cryptographic use, algorithmic randomness only
 
-    if iteration == None or MAX_ITERATION == None:
+    if iteration == None or max_iteration == None:
         if random_choice < 0.5:
             return mutate_one_point
         else:
             return mutate_from_point
 
-    if iteration < (MUTATION_TYPE) * MAX_ITERATION:
+    if iteration < (MUTATION_TYPE) * max_iteration:
         if random_choice < 0.9:
             return mutate_from_point
         else:
