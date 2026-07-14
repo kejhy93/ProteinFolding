@@ -32,7 +32,7 @@ for pr in $(gh pr list --repo "$REPO" --state open --limit 100 --json number --j
     checks=$(gh pr checks "$pr" --repo "$REPO" 2>&1 || true)
     fails=$(echo "$checks" | awk -F'\t' '$2=="fail"{print $1}')
     pending=$(echo "$checks" | awk -F'\t' '$2=="pending"{print $1}')
-    if [ -n "$fails" ]; then
+    if [[ -n "$fails" ]]; then
         echo "PR $pr FAILING: $(echo "$fails" | paste -sd, -)"
     elif [ -n "$pending" ]; then
         echo "PR $pr PENDING: $(echo "$pending" | paste -sd, -)"
