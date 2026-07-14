@@ -136,48 +136,67 @@ class AntColony:
         if self.verbose:
             print("AntColony -> Local Search")
 
-        counter = 0
-
-        index_to_delete = []
-        for index in range(len(individuals)):
-            if individuals[index] == None:
-                index_to_delete.append(index)
-
-        if len(index_to_delete) != 0:
-            for index in range(len(index_to_delete), 0, -1):
-                del individuals[index_to_delete[index - 1]]
-                del tabu_lists[index_to_delete[index - 1]]
+        self.remove_invalid_individuals(individuals, tabu_lists)
 
         # Multi-threaded
         pool = ThreadPool(8)
 
-        local_search_method_probability = random.random()  # NOSONAR python:S2245 - non-cryptographic use, algorithmic randomness only
-        if local_search_method_probability < 0.5:
-            if self.verbose:
-                print("\tAnt-Colony -> Simulated Annealing")
-            results = pool.starmap(do_simulated_annealing,
-                                   zip(individuals, itertools.repeat(SIMULATED_ANNEALING_COOLING_RATE)))
-        else:
-            if self.verbose:
-                print("\tAnt-Colony -> Hill-Climbing")
-            results = pool.starmap(do_hill_climbing,
-                                   zip(individuals, itertools.repeat(HILL_CLIMBING_COUNT_OF_NEIGHBOUR),
-                                       itertools.repeat(HILL_CLIMBING_COUNT_OF_ITERATION)))
+        results = self.run_local_search_pool(pool, individuals)
 
-        for index in range(len(results)):
-            if results[index] == None:
-                del tabu_lists[index]
-                del individuals[index]
+        self.remove_individuals_local_search_could_not_improve(results, individuals, tabu_lists)
 
-        for mutated, original, tabu_list in zip(results, individuals, tabu_lists):
-            if mutated != original and mutated != None:
-                tabu_lists[counter] = self.update_tabu_list(mutated)
-
-            counter += 1
+        self.sync_tabu_lists(results, individuals, tabu_lists)
 
         pool.close()
 
         return results, tabu_lists
+
+    def remove_invalid_individuals(self, individuals, tabu_lists):
+        """
+        Drop individuals (and their tabu lists) that ants failed to find
+        """
+        index_to_delete = [index for index in range(len(individuals)) if individuals[index] == None]
+
+        for index in reversed(index_to_delete):
+            del individuals[index]
+            del tabu_lists[index]
+
+    def remove_individuals_local_search_could_not_improve(self, results, individuals, tabu_lists):
+        """
+        Drop individuals (and their tabu lists/results) that local search
+        could not find an improved solution for
+        """
+        index_to_delete = [index for index in range(len(results)) if results[index] == None]
+
+        for index in reversed(index_to_delete):
+            del results[index]
+            del individuals[index]
+            del tabu_lists[index]
+
+    def run_local_search_pool(self, pool, individuals):
+        """
+        Run simulated annealing or hill-climbing, chosen at random, over the pool
+        """
+        local_search_method_probability = random.random()  # NOSONAR python:S2245 - non-cryptographic use, algorithmic randomness only
+        if local_search_method_probability < 0.5:
+            if self.verbose:
+                print("\tAnt-Colony -> Simulated Annealing")
+            return pool.starmap(do_simulated_annealing,
+                                zip(individuals, itertools.repeat(SIMULATED_ANNEALING_COOLING_RATE)))
+
+        if self.verbose:
+            print("\tAnt-Colony -> Hill-Climbing")
+        return pool.starmap(do_hill_climbing,
+                            zip(individuals, itertools.repeat(HILL_CLIMBING_COUNT_OF_NEIGHBOUR),
+                                itertools.repeat(HILL_CLIMBING_COUNT_OF_ITERATION)))
+
+    def sync_tabu_lists(self, results, individuals, tabu_lists):
+        """
+        Recompute tabu lists for individuals that local search mutated
+        """
+        for index, (mutated, original) in enumerate(zip(results, individuals)):
+            if mutated != original and mutated != None:
+                tabu_lists[index] = self.update_tabu_list(mutated)
 
     def update_pheronome_trails(self, new_individuals, tabu_lists):
         """
