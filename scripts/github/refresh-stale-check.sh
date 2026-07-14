@@ -31,7 +31,7 @@ RUN_ID=$(gh run list --repo "$REPO" --branch "$BRANCH" --limit 20 \
     --json databaseId,workflowName,createdAt \
     --jq "[.[] | select(.workflowName == \"$WORKFLOW_NAME\")] | sort_by(.createdAt) | last | .databaseId")
 
-if [[ -z "$RUN_ID" ]] || [ "$RUN_ID" = "null" ]; then
+if [[ -z "$RUN_ID" ]] || [[ "$RUN_ID" = "null" ]]; then
     echo "No '$WORKFLOW_NAME' run found for $BRANCH" >&2
     exit 1
 fi
