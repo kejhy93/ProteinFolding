@@ -42,8 +42,39 @@ curl -s "https://sonarcloud.io/api/issues/search?componentKeys=kejhy93_ProteinFo
 
 **Security hotspots** (separate endpoint from `issues/search`):
 ```bash
-curl -s "https://sonarcloud.io/api/hotspots/search?projectKey=kejhy93_ProteinFolding"
+curl -s "https://sonarcloud.io/api/hotspots/search?projectKey=kejhy93_ProteinFolding&ps=100"
 ```
+Note the response shape differs from `issues/search`: the hotspot count is
+at `paging.total`, not a top-level `total` key. `d.get('total')` on this
+response silently returns `None` even when there are zero (or many)
+hotspots — read `d['paging']['total']` instead, or check `len(d['hotspots'])`.
+
+**Rule details** (to understand what a rule actually requires before fixing
+it): needs an `organization` param or it 400s with "The 'organization'
+parameter is missing":
+```bash
+curl -s "https://sonarcloud.io/api/rules/show?key=<repo:RULE>&organization=kejhy93"
+```
+
+## Triaging which unresolved issues to actually fix
+
+- `issues/search`'s `creationDate` is not reliable for "oldest first"
+  ordering on this project — many long-standing findings carry an inherited
+  placeholder date (seen: `2015-12-24`) rather than when SonarCloud actually
+  flagged them. Sort by severity first (`BLOCKER > CRITICAL > MAJOR > MINOR
+  > INFO`) and only use `creationDate` as a same-severity tiebreaker, not as
+  a trustworthy age signal on its own.
+- **Known won't-fix: `githubactions:S8541` / `S8544` on the `pip install -r
+  requirements.txt` lines in `.github/workflows/sonarcloud.yml:71` and
+  `.github/workflows/python-package.yml:44`.** A prior session tried the
+  standard fix (`--only-binary :all:` for S8541), and it broke CI —
+  `requirements.txt` pins packages (e.g. `matplotlib==3.9.0`) with no wheel
+  for every Python version in the build matrix, so wheel-only installs failed
+  outright. It was reverted, with an explanatory comment left in both
+  workflow files. Don't re-open a `sonar/*` PR for these four issue
+  instances without a real plan for hash-locking (`--require-hashes` with
+  per-platform hashes verified against the full matrix) — re-adding
+  `--only-binary :all:` alone will just break the build again.
 
 ## Notes
 
