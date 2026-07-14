@@ -11,7 +11,6 @@ CONFIGURATION_FOLDER = "configuration_diagram"
 
 
 def visualize(history, counter):
-    count_of_records = len(history)
     counter_of_diagrams = 1
 
     path = os.path.join(CONFIGURATION_FOLDER, utils.create_filename(counter))
