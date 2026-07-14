@@ -2,7 +2,7 @@
 
 import math
 import random
-from threading import *
+from threading import Thread
 
 import utils
 from data.individual import Individual
