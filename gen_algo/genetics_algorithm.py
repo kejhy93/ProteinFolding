@@ -158,8 +158,6 @@ class GeneticsAlgorithm(AbstractSolver):
         # Pick best individual from population and compare with best individual found
         best_individual_of_iteration, average_fitness = population.pick_best_individual()
 
-        energy_of_best_individual_of_iteration = best_individual_of_iteration.compute_free_energy()
-
         best_individual_of_population = self.get_best_individual(best_individual_of_iteration,
                                                                  best_individual_of_population)
 
