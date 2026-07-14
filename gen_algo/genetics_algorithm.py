@@ -40,7 +40,7 @@ COUNT_OF_ANTS = 8
 class GeneticsAlgorithm(AbstractSolver):
     def __init__(self, sequance, max_generation, population_size,
                  count_of_mutation_per_generation, count_of_crossover_per_generation,
-                 MUTATE_RATE, CROSSOVER_RATE, store_individuals_per_generation=True):
+                 MUTATE_RATE, crossover_rate, store_individuals_per_generation=True):
 
         self.MAX_GENERATION = max_generation
         self.POPULATION_SIZE = population_size
@@ -50,7 +50,7 @@ class GeneticsAlgorithm(AbstractSolver):
         self.FREQUANCY_OF_ANT_COLONY = (int)(max_generation / COUNT_OF_ANT_COLONY)
 
         self.MUTATE_RATE = MUTATE_RATE
-        self.CROSSOVER_RATE = CROSSOVER_RATE
+        self.CROSSOVER_RATE = crossover_rate
 
         self.COUNT_OF_MUTATION_PER_GENERATION = count_of_mutation_per_generation
         self.COUNT_OF_CROSSOVER_PER_GENERATION = count_of_crossover_per_generation
@@ -84,7 +84,6 @@ class GeneticsAlgorithm(AbstractSolver):
         population.init_population(self.result_vector)
 
         best_individual_of_population, _ = population.pick_random_individual()
-        energy_of_best_individual_of_population = 100000000
 
         if self.verboseGeneticsSolver:
             print(" Init population: ", population)
@@ -158,8 +157,6 @@ class GeneticsAlgorithm(AbstractSolver):
 
         # Pick best individual from population and compare with best individual found
         best_individual_of_iteration, average_fitness = population.pick_best_individual()
-
-        energy_of_best_individual_of_iteration = best_individual_of_iteration.compute_free_energy()
 
         best_individual_of_population = self.get_best_individual(best_individual_of_iteration,
                                                                  best_individual_of_population)
