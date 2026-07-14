@@ -27,7 +27,7 @@ OWNER=$(gh repo view "$REPO" --json owner --jq .owner.login)
 echo "== PR #$PR ($BRANCH) checks =="
 gh pr checks "$PR" --repo "$REPO" 2>&1 || true
 
-if [ -n "$SONAR_PROJECT_KEY" ]; then
+if [[ -n "$SONAR_PROJECT_KEY" ]]; then
     echo
     echo "== SonarCloud quality gate ($SONAR_PROJECT_KEY, PR $PR) =="
     curl -s "https://sonarcloud.io/api/qualitygates/project_status?projectKey=${SONAR_PROJECT_KEY}&pullRequest=${PR}" \
