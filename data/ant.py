@@ -29,9 +29,9 @@ CHANGE_RATE = 0
 
 
 class Ant(Thread):
-    def __init__(self, ID, sequance, pheronome, heuristic_val, pheronome_val):
+    def __init__(self, ant_id, sequance, pheronome, heuristic_val, pheronome_val):
         Thread.__init__(self)
-        self.ID = ID
+        self.ID = ant_id
 
         # configuration
         self.vector = Vector(sequance)
