@@ -68,7 +68,7 @@ class Individual:
         if other_individual is None: 
             return False
         
-        self_vector = self.get_individual
-        other_vector = other_individual.get_individual
+        self_vector = self.get_individual()
+        other_vector = other_individual.get_individual()
         
         return self_vector.__eq__(other_vector)

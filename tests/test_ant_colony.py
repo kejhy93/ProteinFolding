@@ -26,7 +26,7 @@ def test_sync_tabu_lists_only_updates_mutated_individuals(monkeypatch):
     monkeypatch.setattr(colony, "update_tabu_list", lambda individual: "updated")
 
     unchanged = Individual([0, 1, 1, 0])
-    mutated = Individual([0, 1, 1, 0])
+    mutated = Individual([1, 1, 1, 0])
     results = [mutated, unchanged, None]
     individuals = [unchanged, unchanged, unchanged]
     tabu_lists = [["a"], ["b"], ["c"]]
