@@ -219,6 +219,35 @@ def test_mutate_replaces_exactly_the_sampled_individuals(monkeypatch):
     assert markers.count("mutated") == 2
 
 
+def test_mutate_with_zero_mutation_count_leaves_population_unchanged(monkeypatch):
+    solver = make_real_solver(count_of_mutation_per_generation=0)
+    population = Population(4)
+    population.init_population(solver.result_vector)
+    original_individuals = list(population.individuals)
+
+    monkeypatch.setattr(
+        "gen_algo.genetics_algorithm.do_mutation",
+        lambda individual, rate, iteration, max_generation: (_ for _ in ()).throw(
+            AssertionError("should not run")
+        ),
+    )
+
+    solver.mutate(population, iteration=1)
+
+    assert population.individuals == original_individuals
+
+
+def test_mutate_with_mutation_count_above_population_size_raises(monkeypatch):
+    # random.sample(population, k) raises when k exceeds the population size,
+    # so a mutation count larger than the population is not capped or tolerated.
+    solver = make_real_solver(count_of_mutation_per_generation=10)
+    population = Population(4)
+    population.init_population(solver.result_vector)
+
+    with pytest.raises(ValueError):
+        solver.mutate(population, iteration=1)
+
+
 def test_do_ant_colony_creates_once_and_reuses_ant_colony(monkeypatch):
     solver = make_real_solver()
     population = Population(4)
