@@ -185,6 +185,14 @@ def test_compute_probability_of_next_move_normalises_and_flags_invalid():
     assert probability[1] == NO_ROUTE
 
 
+def test_compute_probability_of_next_move_all_invalid_returns_no_route():
+    ant = Ant(0, [0, 1], [[1, 1, 1]], 1, 1)
+
+    probability = ant.compute_probability_of_next_move(0, [2, 2], [None, None])
+
+    assert probability == [NO_ROUTE, NO_ROUTE]
+
+
 def test_compute_free_energy_of_possible_moves_detects_collision():
     ant = make_ant(sequance=[0, 1, 0, 1])
     ant.vector.clean_configuration()
@@ -234,3 +242,17 @@ def test_verbose_mode_prints_progress(capsys):
     assert "Create configuration" in out
     assert "Compute probability" in out
     assert "Compute free energy" in out
+
+
+def test_verbose_mode_false_produces_no_progress_output(capsys):
+    ant = make_ant(sequance=[0, 1])
+    ant.verbose = False
+
+    ant.create_configuration(1, ant.pheronome)
+    ant.compute_probability_of_next_move(0, [0.5, 0.5, 0.5], [1.0, 1.0, 1.0])
+    ant.compute_free_energy_of_possible_moves(1)
+
+    out = capsys.readouterr().out
+    assert "Create configuration" not in out
+    assert "Compute probability" not in out
+    assert "Compute free energy" not in out
