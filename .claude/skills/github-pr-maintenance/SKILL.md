@@ -11,8 +11,11 @@ Use these instead of hand-rolling `gh` one-liners — they already handle the
 repo/owner defaults and edge cases:
 
 - `scripts/github/pr-sweep.sh` — overview of every open PR: mergeability,
-  conflicts, failing/pending checks, outstanding review-comment counts. Run
-  this first for any "check my PRs" style request.
+  conflicts, failing/pending checks, unresolved review-thread counts, and
+  which PRs have new commits pushed since their last review. Run this first
+  for any "check my PRs" style request, and also for "did anything get
+  pushed since the last review" style requests — the last section does that
+  comparison for every open PR in one pass.
 - `scripts/github/pr-detail.sh <PR>` — deep dive on one PR: full check list,
   SonarCloud quality gate + open issues for that PR's diff, open
   code-scanning alerts on its branch, review comments. Run this when a PR is
@@ -105,6 +108,34 @@ finding shows up and it's a direct, self-contained consequence of your own
 diff (not a second, independent SonarCloud issue from the backlog), fixing it
 in a follow-up commit is in scope — it isn't "bundling," it's finishing the
 original fix properly.
+
+**Raw inline-comment counts overstate what's outstanding — use thread
+resolution, not comment authorship.** A PR can have review comments from
+Sourcery while having zero *unresolved* threads, because Sourcery
+auto-resolves a thread once a follow-up commit matches its suggestion (see
+the `BLOCKED` pattern above). `pr-sweep.sh`'s "Unresolved review threads"
+section already does the right thing (GraphQL `isResolved`) — don't fall
+back to counting `pulls/<pr>/comments` by non-owner author, that count
+includes comments whose threads are long since resolved and will make clean
+PRs look like they need attention.
+
+**Detecting and reviewing new pushes since the last review.** For "did
+anything get pushed since I last reviewed" style requests: `pr-sweep.sh`'s
+"New commits since last review" section compares each PR's last commit
+(`commit.committer.date` from `pulls/<pr>/commits`) against its last actual
+review (`submitted_at` from `pulls/<pr>/reviews`) — deliberately *not*
+`pulls/<pr>/comments` or issue-timeline comments, which include CI status
+bots (`sonarqubecloud`, `github-actions`) that post *after* a real review and
+would mask a genuinely unreviewed push. For any PR it flags:
+1. List commits (`gh api repos/<repo>/pulls/<pr>/commits`) and find the ones
+   with a date after the last review's `submitted_at` — that's the new diff,
+   not the whole PR.
+2. Review only that slice: `git diff <last_reviewed_sha>..<head_sha> -- <path>`.
+3. Post findings with `gh pr review <pr> --comment --body "..."` —
+   **not** `--approve`. If the authenticated `gh` user is also the PR author
+   (true for this repo's own maintenance PRs), `--approve` fails outright
+   with `Can not approve your own pull request`. `--comment` works
+   regardless of authorship and is the right choice for self-authored PRs.
 
 **Sibling `sonar/*` PRs opened in the same batch will conflict once one
 merges, if they touch the same or adjacent lines.** Each PR in a batch is
