@@ -133,9 +133,9 @@ would mask a genuinely unreviewed push. For any PR it flags:
 2. Review only that slice: `git diff <last_reviewed_sha>..<head_sha> -- <path>`.
 3. Post findings with `gh pr review <pr> --comment --body "..."` —
    **not** `--approve`. If the authenticated `gh` user is also the PR author
-   (true for this repo's own maintenance PRs), `--approve` fails outright
-   with `Can not approve your own pull request`. `--comment` works
-   regardless of authorship and is the right choice for self-authored PRs.
++   (true for this repo's own maintenance PRs), `--approve` fails outright
++   with `Cannot approve your own pull request`. `--comment` works
++   regardless of authorship and is the right choice for self-authored PRs.
 
 **Sibling `sonar/*` PRs opened in the same batch will conflict once one
 merges, if they touch the same or adjacent lines.** Each PR in a batch is
