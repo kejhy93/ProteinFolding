@@ -98,6 +98,5 @@ jobs:
             -Dsonar.projectKey=kejhy93_ProteinFolding
             -Dsonar.organization=kejhy93
             -Dsonar.python.coverage.reportPaths=coverage.xml
-            -Dsonar.tests=tests
           # When you need the analysis to take place in a directory other than the one from which it was launched, default is .
           projectBaseDir: .
