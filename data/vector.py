@@ -64,7 +64,7 @@ class Vector:
         self.space_configuration_counter = Counter(self.space_configuration)
 
     def check_space_configuration_counter(self, direction, index):
-        self.space_configuration = self.compute_space_configuration_to_index(index)
+        self.space_configuration = self.compute_space_configuration(index)
         print(SPACE_CONFIGURATION_LOG_PREFIX, self.space_configuration)
 
         new_space_config = self.space_configuration[-1] + direction
