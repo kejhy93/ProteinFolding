@@ -42,6 +42,19 @@ def test_mutate_one_point_flips_configs_below_mutation_rate(monkeypatch):
     assert mutated is not individual
 
 
+def test_mutate_one_point_leaves_configs_above_mutation_rate_unchanged(monkeypatch):
+    individual = Individual([0, 1, 1, 0])
+    original_config = list(individual.get_individual().get_configuration())
+
+    monkeypatch.setattr("gen_algo.mutation.random.random", lambda: 0.5)
+
+    mutated = mutate_one_point(individual, mutation_rate=0.1)
+
+    mutated_config = mutated.get_individual().get_configuration()
+    assert mutated_config == original_config
+    assert mutated is not individual
+
+
 def test_mutate_from_point_flips_from_random_index_to_end(monkeypatch):
     individual = Individual([0, 1, 1, 0, 1])
     original_config = list(individual.get_individual().get_configuration())
