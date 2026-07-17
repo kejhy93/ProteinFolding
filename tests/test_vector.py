@@ -44,6 +44,26 @@ def test_check_space_configuration_counter_false_when_collision():
     assert vector.check_space_configuration_counter(complex(-1, 0), 0) is False
 
 
+def test_check_space_configuration_counter_false_when_collision_at_non_zero_index():
+    # Path: (0,0) -> (1,0) -> (1,1) -> (0,1); from (0,1), turning to (0,-1) walks
+    # straight back onto the already-visited origin.
+    vector = make_vector(
+        sequance=[1, 0, 1, 1],
+        configuration=[complex(1, 0), complex(0, 1), complex(-1, 0)],
+    )
+
+    assert vector.check_space_configuration_counter(complex(0, -1), 2) is False
+
+
+def test_check_space_configuration_counter_true_at_non_zero_index_without_collision():
+    vector = make_vector(
+        sequance=[1, 0, 1, 1],
+        configuration=[complex(1, 0), complex(0, 1), complex(-1, 0)],
+    )
+
+    assert vector.check_space_configuration_counter(complex(0, 1), 2) is True
+
+
 def test_print_config_handles_all_directions_and_default():
     vector = make_vector()
 
@@ -126,6 +146,39 @@ def test_optimize_sequance_trims_and_extends_configuration():
     assert len(vector.configuration) == original_len + (len(result) - 1)
 
 
+def test_optimize_sequance_with_no_zeros_is_unchanged():
+    vector = make_vector(sequance=[1, 1, 1])
+    original_len = len(vector.configuration)
+
+    result = vector.optimize_sequance()
+
+    assert result == [1, 1, 1]
+    assert vector.sequance == [1, 1, 1]
+    assert len(vector.configuration) == original_len + (len(result) - 1)
+
+
+def test_optimize_sequance_with_leading_zeros_only():
+    vector = make_vector(sequance=[0, 0, 1, 1])
+    original_len = len(vector.configuration)
+
+    result = vector.optimize_sequance()
+
+    assert result == [1, 1]
+    assert vector.sequance == [1, 1]
+    assert len(vector.configuration) == original_len + (len(result) - 1)
+
+
+def test_optimize_sequance_with_trailing_zeros_only():
+    vector = make_vector(sequance=[1, 1, 0, 0])
+    original_len = len(vector.configuration)
+
+    result = vector.optimize_sequance()
+
+    assert result == [1, 1]
+    assert vector.sequance == [1, 1]
+    assert len(vector.configuration) == original_len + (len(result) - 1)
+
+
 def test_get_space_configuration_set_returns_counter():
     vector = make_vector(configuration=[complex(1, 0)])
     vector.update_space_configuration_counter()
@@ -149,6 +202,17 @@ def test_get_space_configuration_returns_full_when_index_none():
     result = vector.get_space_configuration()
 
     assert result == vector.space_configuration
+
+
+def test_get_space_configuration_returns_slice_without_recomputing_when_precomputed():
+    vector = make_vector(sequance=[1, 0, 1, 1], configuration=[complex(1, 0), complex(0, 1), complex(1, 0)])
+    vector.compute_space_configuration()
+    precomputed = list(vector.space_configuration)
+
+    result = vector.get_space_configuration(index=1)
+
+    assert result == precomputed[0:2]
+    assert vector.space_configuration == precomputed
 
 
 def test_get_axis_covers_min_and_max_expansion_in_all_directions():
