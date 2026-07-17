@@ -5,7 +5,9 @@ of open PRs (checks, conflicts, stale CI status, review comments). All
 scripts default `repo` to the current directory's git remote if omitted.
 
 - **pr-sweep.sh** — one-shot overview of every open PR: mergeability,
-  conflicts, failing/pending checks, and outstanding review-comment counts.
+  conflicts, failing/pending checks, unresolved review-thread counts (via
+  GraphQL `isResolved`, not raw comment counts), and which PRs have new
+  commits since their last review.
 - **pr-detail.sh `<PR>`** — deep dive on one PR: full check list, SonarCloud
   quality gate + open issues for that PR's diff, open code-scanning alerts on
   its branch, and review comments.
