@@ -7,6 +7,7 @@ def test_str_includes_sequance_and_hydro_count():
 
     result = str(data)
 
+    assert "[1, 0, 1, 1]" in result
     assert "length: 3" in result
 
 
