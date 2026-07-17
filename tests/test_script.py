@@ -60,9 +60,10 @@ def test_script_runs_pipeline_skips_short_sequences_and_solves_long_ones(monkeyp
     # append_to_file is only called for the GA-solved sequence, with its free energy.
     assert appended == [(42.0, 1)]
 
-    assert "Current optimum:     -1.000" in out
-    assert "Total score:  21.0" in out
-    assert "Final Result:" in out
+    normalized_out = " ".join(out.split())
+    assert "Current optimum: -1.000" in normalized_out
+    assert "Total score: 21.0" in normalized_out
+    assert "Final Result:" in normalized_out
 
 
 def test_script_reports_existing_optimum_from_history_file(monkeypatch, tmp_path, capsys):
@@ -78,4 +79,5 @@ def test_script_reports_existing_optimum_from_history_file(monkeypatch, tmp_path
 
     out = capsys.readouterr().out
 
-    assert "Current optimum:      7.500" in out
+    normalized_out = " ".join(out.split())
+    assert "Current optimum: 7.500" in normalized_out
