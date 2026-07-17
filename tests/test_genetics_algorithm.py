@@ -281,6 +281,8 @@ def test_do_crossover_replaces_both_individuals_returned_by_crossover(monkeypatc
         "gen_algo.genetics_algorithm.do_crossover",
         lambda first, second: (changed_first, changed_second),
     )
+    picks = iter([(population.individuals[0], 0), (population.individuals[1], 1)])
+    monkeypatch.setattr(population, "pick_random_individual", lambda: next(picks))
 
     result = solver.do_crossover(population, count_of_crossover=1)
 
