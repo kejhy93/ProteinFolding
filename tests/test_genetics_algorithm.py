@@ -179,3 +179,171 @@ def test_solve_verbose_prints_iteration_summary(monkeypatch, capsys):
     solver.solve()
 
     assert "Energy of best individual" in capsys.readouterr().out
+
+
+def make_real_solver(**overrides):
+    """
+    Build a GeneticsAlgorithm without stubbing out mutate/do_crossover/
+    do_ant_colony, for tests that exercise those methods directly.
+    """
+    kwargs = dict(
+        sequance=[0, 1, 1, 0, 1, 0],
+        max_generation=1,
+        population_size=4,
+        count_of_mutation_per_generation=2,
+        count_of_crossover_per_generation=1,
+        mutate_rate=0.0,
+        crossover_rate=0.0,
+    )
+    kwargs.update(overrides)
+    solver = GeneticsAlgorithm(**kwargs)
+    solver.verboseGeneticsSolver = False
+    return solver
+
+
+def test_mutate_replaces_exactly_the_sampled_individuals(monkeypatch):
+    solver = make_real_solver(count_of_mutation_per_generation=2)
+    population = Population(4)
+    population.init_population(solver.result_vector)
+
+    replacement = Individual([0, 1, 1, 0, 1, 0])
+    replacement.marker = "mutated"
+    monkeypatch.setattr(
+        "gen_algo.genetics_algorithm.do_mutation",
+        lambda individual, rate, iteration, max_generation: replacement,
+    )
+
+    solver.mutate(population, iteration=1)
+
+    markers = [getattr(ind, "marker", None) for ind in population.individuals]
+    assert markers.count("mutated") == 2
+
+
+def test_mutate_with_zero_mutation_count_leaves_population_unchanged(monkeypatch):
+    solver = make_real_solver(count_of_mutation_per_generation=0)
+    population = Population(4)
+    population.init_population(solver.result_vector)
+    original_individuals = list(population.individuals)
+
+    monkeypatch.setattr(
+        "gen_algo.genetics_algorithm.do_mutation",
+        lambda individual, rate, iteration, max_generation: (_ for _ in ()).throw(
+            AssertionError("should not run")
+        ),
+    )
+
+    solver.mutate(population, iteration=1)
+
+    assert population.individuals == original_individuals
+
+
+def test_mutate_with_mutation_count_above_population_size_raises(monkeypatch):
+    # random.sample(population, k) raises when k exceeds the population size,
+    # so a mutation count larger than the population is not capped or tolerated.
+    solver = make_real_solver(count_of_mutation_per_generation=10)
+    population = Population(4)
+    population.init_population(solver.result_vector)
+
+    with pytest.raises(ValueError):
+        solver.mutate(population, iteration=1)
+
+
+def test_do_ant_colony_creates_once_and_reuses_ant_colony(monkeypatch):
+    solver = make_real_solver()
+    population = Population(4)
+    population.init_population(solver.result_vector)
+
+    created = []
+
+    class FakeAntColony:
+        def __init__(self, count_of_ants, sequance, iteration, max_generation):
+            created.append(iteration)
+
+        def search(self):
+            return [population.get_individual_at(0)]
+
+    monkeypatch.setattr("gen_algo.genetics_algorithm.AntColony", FakeAntColony)
+    monkeypatch.setattr(solver, "replace_worst_individuals", lambda new_individuals, count, pop: pop)
+
+    solver.do_ant_colony(population, iteration=1)
+    solver.do_ant_colony(population, iteration=2)
+
+    assert created == [1]
+    assert solver.ant_colony is not None
+
+
+def test_replace_worst_individuals_replaces_and_recomputes_energy():
+    solver = make_real_solver(population_size=3)
+    population = Population(3)
+    population.init_population(solver.result_vector)
+
+    new_individual = Individual([0, 1, 1, 0, 1, 0])
+    new_configuration = [complex(1, 0), complex(0, 1), complex(1, 0), complex(0, 1), complex(1, 0)]
+    new_individual.set_configuration(new_configuration)
+
+    result = solver.replace_worst_individuals([new_individual], 1, population)
+
+    configurations = [ind.get_individual().get_configuration() for ind in result.individuals]
+    assert new_configuration in configurations
+
+
+def test_generate_random_returns_individual_of_configured_sequance():
+    solver = make_real_solver(sequance=[0, 1, 1, 0])
+
+    individual = solver.generate_random()
+
+    assert isinstance(individual, Individual)
+    assert individual.get_individual().get_amino_sequance() == [0, 1, 1, 0]
+
+
+def test_do_crossover_replaces_both_individuals_returned_by_crossover(monkeypatch):
+    solver = make_real_solver()
+    population = Population(4)
+    population.init_population(solver.result_vector)
+
+    changed_first = Individual([0, 1, 1, 0, 1, 0])
+    changed_first.set_configuration([complex(1, 0), complex(0, 1), complex(1, 0), complex(0, 1), complex(1, 0)])
+    changed_second = Individual([0, 1, 1, 0, 1, 0])
+    changed_second.set_configuration([complex(-1, 0), complex(0, -1), complex(-1, 0), complex(0, -1), complex(-1, 0)])
+
+    monkeypatch.setattr(
+        "gen_algo.genetics_algorithm.do_crossover",
+        lambda first, second: (changed_first, changed_second),
+    )
+    picks = iter([(population.individuals[0], 0), (population.individuals[1], 1)])
+    monkeypatch.setattr(population, "pick_random_individual", lambda: next(picks))
+
+    result = solver.do_crossover(population, count_of_crossover=1)
+
+    configurations = [ind.get_individual().get_configuration() for ind in result.individuals]
+    assert changed_first.get_individual().get_configuration() in configurations
+    assert changed_second.get_individual().get_configuration() in configurations
+
+
+def test_get_best_individual_replaces_when_iteration_is_better():
+    solver = make_real_solver()
+
+    worse = Individual([0, 1, 1, 0, 1, 0])
+    worse.free_energy = 10.0
+    better = Individual([0, 1, 1, 0, 1, 0])
+    better.free_energy = 2.0
+    better.marker = "better"
+
+    result = solver.get_best_individual(better, worse)
+
+    assert result is not better
+    assert getattr(result, "marker", None) == "better"
+    assert result.get_free_energy() is not None
+
+
+def test_get_best_individual_keeps_population_best_when_not_improved():
+    solver = make_real_solver()
+
+    current_best = Individual([0, 1, 1, 0, 1, 0])
+    current_best.free_energy = 2.0
+    candidate = Individual([0, 1, 1, 0, 1, 0])
+    candidate.free_energy = 10.0
+
+    result = solver.get_best_individual(candidate, current_best)
+
+    assert result is current_best
