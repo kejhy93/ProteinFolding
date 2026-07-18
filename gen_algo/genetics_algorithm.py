@@ -279,9 +279,9 @@ class GeneticsAlgorithm(AbstractSolver):
 
             crossover_individuals = do_crossover(first_individual, second_individual)
 
-            if crossover_individuals[0] != first_individual:
+            if crossover_individuals[0] is not first_individual:
                 population.set_individual_at(first_index, crossover_individuals[0])
-            if crossover_individuals[1] != second_individual:
+            if crossover_individuals[1] is not second_individual:
                 population.set_individual_at(second_index, crossover_individuals[1])
 
         return population
