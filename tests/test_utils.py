@@ -1,6 +1,15 @@
 from data.data import Data
+from data.vector import Vector
 
 import utils
+
+
+class FakeConfig:
+    def __init__(self, configuration):
+        self._configuration = configuration
+
+    def get_configuration(self):
+        return self._configuration
 
 
 def test_create_index_pads_with_zeros():
@@ -61,3 +70,77 @@ def test_sort_by_test_size_orders_by_result_file_length(tmp_path, monkeypatch):
 
     assert sorted_test_file[0] is small
     assert sorted_test_file[1] is large
+
+
+def test_zero_or_one_branches():
+    assert utils.zero_or_one("1") == 1
+    assert utils.zero_or_one("0") == 0
+    assert utils.zero_or_one("x") == 0
+
+
+def test_append_to_file_creates_folder_and_writes_new_file(tmp_path, monkeypatch):
+    result_folder = tmp_path / "result"
+    monkeypatch.setattr(utils, "RESULT_FOLDER", str(result_folder))
+
+    utils.append_to_file(FakeConfig([1, 2, 3]), 5.0, 7)
+
+    written_file = result_folder / utils.create_filename(7)
+    assert written_file.read_text() == "5.0 [1, 2, 3]\n"
+
+
+def test_append_to_file_appends_to_existing_file(tmp_path, monkeypatch):
+    monkeypatch.setattr(utils, "RESULT_FOLDER", str(tmp_path))
+    written_file = tmp_path / utils.create_filename(3)
+    written_file.write_text("1.0 [0]\n")
+
+    utils.append_to_file(FakeConfig([9]), 2.0, 3)
+
+    assert written_file.read_text() == "1.0 [0]\n2.0 [9]\n"
+
+
+def test_create_filesize_set_zero_when_result_folder_missing(tmp_path, monkeypatch):
+    monkeypatch.setattr(utils, "RESULT_FOLDER", str(tmp_path / "does-not-exist"))
+
+    assert utils.create_filesize_set([Data([1, 0], 0)]) == [0]
+
+
+def test_create_filesize_set_zero_when_file_missing(tmp_path, monkeypatch):
+    monkeypatch.setattr(utils, "RESULT_FOLDER", str(tmp_path))
+
+    assert utils.create_filesize_set([Data([1, 0], 5)]) == [0]
+
+
+def test_read_configuration_history_returns_empty_when_file_missing(tmp_path):
+    result = utils.read_configuration_history(str(tmp_path / "missing.txt"), [1, 0, 1])
+
+    assert result == []
+
+
+def test_read_configuration_history_reads_and_parses_file(tmp_path):
+    amino_sequance = [1, 0, 1]
+    original_vector = Vector(amino_sequance)
+    original_vector.set_configuration([complex(1, 0), complex(0, 1)])
+
+    history_file = tmp_path / "history.txt"
+    history_file.write_text("5.0 " + str(original_vector.get_configuration()))
+
+    history = utils.read_configuration_history(str(history_file), amino_sequance)
+
+    assert len(history) == 1
+    assert history[0].get_configuration() == [complex(1, 0), complex(0, 1)]
+
+
+def test_parse_configuration_history_handles_multiple_lines():
+    amino_sequance = [1, 0, 1]
+    vector_a = Vector(amino_sequance)
+    vector_a.set_configuration([complex(1, 0), complex(0, 1)])
+    vector_b = Vector(amino_sequance)
+    vector_b.set_configuration([complex(-1, 0), complex(0, -1)])
+
+    content = "5.0 " + str(vector_a.get_configuration()) + "\n" + "3.0 " + str(vector_b.get_configuration())
+
+    history = utils.parse_configuration_history(content, amino_sequance)
+
+    assert len(history) == 2
+    assert history[0].get_configuration() == [complex(1, 0), complex(0, 1)]
+    assert history[1].get_configuration() == [complex(-1, 0), complex(0, -1)]
