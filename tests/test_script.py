@@ -39,7 +39,7 @@ def test_script_runs_pipeline_skips_short_sequences_and_solves_long_ones(monkeyp
     write_testsuite(tmp_path)
     monkeypatch.chdir(tmp_path)
 
-    FakeGeneticsAlgorithm.instances = []
+    monkeypatch.setattr(FakeGeneticsAlgorithm, "instances", [])
     monkeypatch.setattr("gen_algo.genetics_algorithm.GeneticsAlgorithm", FakeGeneticsAlgorithm)
 
     appended = []
@@ -70,7 +70,7 @@ def test_script_reports_existing_optimum_from_history_file(monkeypatch, tmp_path
     write_testsuite(tmp_path)
     monkeypatch.chdir(tmp_path)
 
-    FakeGeneticsAlgorithm.instances = []
+    monkeypatch.setattr(FakeGeneticsAlgorithm, "instances", [])
     monkeypatch.setattr("gen_algo.genetics_algorithm.GeneticsAlgorithm", FakeGeneticsAlgorithm)
     monkeypatch.setattr("utils.append_to_file", lambda configuration, free_energy, index: None)
     monkeypatch.setattr("utils.read_minimal_energy_from_file", lambda protein_id: 7.5)
