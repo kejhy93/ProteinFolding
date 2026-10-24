@@ -36,8 +36,8 @@ jobs:
       run: |
         # Exact-pinned (not a range) since SonarCloud's dependency-locking rule
         # requires a single resolved version, not a compatible-release range.
-        python -m pip install --upgrade pip==25.2
-        python -m pip install flake8==7.3.0 pytest==9.1.1
+        python -m pip install --only-binary=:all: --upgrade pip==25.2
+        python -m pip install --only-binary=:all: flake8==7.3.0 pytest==9.1.1
         # requirements.txt is now a hash-locked file (every direct and transitive
         # dependency pinned with --hash) covering the Python versions actually in
         # this matrix (3.11-3.15), so --only-binary=:all: is safe here: all pinned
