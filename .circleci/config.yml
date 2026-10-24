@@ -37,7 +37,7 @@ jobs:
       # rejects the unpinned/unhashed "pytest" arg in that combined invocation.
       - run:
           name: Install pytest
-          command: pip install pytest==9.1.1
+          command: pip install --only-binary=:all: pytest==9.1.1
       - run:
           command: |
             pytest --version
