@@ -1,6 +1,7 @@
 # Locked with hashes for linux x86_64, Python 3.11-3.15 (the matrix this repo tests).
 # numpy, scipy and contourpy have no single release with wheels for both 3.11 and
-# 3.15, so those carry python_version markers.
+# 3.15, so those carry python_version markers. Renovate is told to leave the
+# < "3.12" pins alone (see packageRules in renovate.json).
 # Regenerate: pip install --dry-run --report --only-binary=:all: --python-version X
 # --platform manylinux_2_28_x86_64 for each of 3.11-3.15, diff the resolved graphs,
 # and re-hash from PyPI (linux x86_64 wheels only).
