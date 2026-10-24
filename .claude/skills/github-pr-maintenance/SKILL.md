@@ -121,7 +121,7 @@ same function.
 
 **Slow build matrix jobs.** `build (3.13)` and `build (3.14)` in the "Python
 package" workflow routinely take 15–20 minutes (installing/building
-numpy/scipy/torch for newer Python versions), while `build (3.10)`–`(3.12)`
+numpy/scipy/torch for newer Python versions), while `build (3.11)` and `(3.12)`
 finish in under 2 minutes. A PR sitting with only those two jobs pending for
 10+ minutes is normal, not stuck — confirm with
 `gh run view --job <id>` that it's progressed past "Install dependencies"
