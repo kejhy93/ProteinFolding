@@ -4,6 +4,7 @@ ProteinFolding Problem
 Waketime badge
 
 [![wakatime](https://wakatime.com/badge/github/kejhy93/ProteinFolding.svg)](https://wakatime.com/badge/github/kejhy93/ProteinFolding)
+![Alt](https://repobeats.axiom.co/api/embed/0742ca049fe54953922bc10f0b13d6a7e280e574.svg "Repobeats analytics image")
 
 Run ./script.py
 
